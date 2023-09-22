@@ -1,2 +1,2 @@
 # MapArtist
-a map art creator
+I'm an artist

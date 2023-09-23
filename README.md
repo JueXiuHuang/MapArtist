@@ -1,2 +1,1 @@
-# MapArtist
-I'm an artist
+You need to compile botcraft file on your own.

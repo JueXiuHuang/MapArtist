@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(
-  HelloWorld
+  MapArtist
   VERSION 1.0
   LANGUAGES CXX)
 
@@ -12,7 +12,7 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
 )
 set(PROTOCOL_VERSION 763)
 set(CXX_STANDARD 17)
-set(TARGET_NAME helloWorld)
+set(TARGET_NAME mapArtist)
 
 add_executable(${TARGET_NAME} ${SRC_FILES})
 target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Botcraft/include)

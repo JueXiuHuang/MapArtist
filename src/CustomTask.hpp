@@ -16,7 +16,7 @@ Botcraft::Status SortChestWithDesirePlace(Botcraft::BehaviourClient& c);
 /// @brief Use bsf to generate task priority queue
 /// @param c The client performing the action
 /// @return Always return success
-Botcraft::Status TaskPriortize(Botcraft::BehaviourClient& c);
+Botcraft::Status TaskPrioritize(Botcraft::BehaviourClient& c);
 
 Botcraft::Status TaskExecutor(Botcraft::BehaviourClient& c);
 

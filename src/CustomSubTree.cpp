@@ -49,7 +49,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
 shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
   return Builder<SimpleBehaviourClient>("Work Tree")
     .sequence()
-      .leaf("Task Priortize", TaskPriortize)
+      .leaf("Task Priortize", TaskPrioritize)
       .leaf("Dump Items", DumpItems)
       .leaf("Collect Material", CollectAllMaterial)
       .leaf("Task Execute scheduler", TaskExecutor)
@@ -99,51 +99,3 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> DisconnectTree() {
       .repeater(0).inverter().leaf(Yield)
     .end();
 }
-
-// TODO : review code and refactor shared_ptr<BehaviourTree<SimpleBehaviourClient>>
-//        GetInventoryTree() {
-//     return Builder<SimpleBehaviourClient>("List blocks in inventory")
-//         // List all blocks in the inventory
-//         .selector()
-//             .leaf("get block in inventory", GetBlocksAvailableInInventory)
-//             // If no block found, get some in neighbouring chests
-//             .sequence()
-//                 .selector()
-//                     .leaf("get some blocks from chests", SwapChestsInventory,
-//                     "minecraft:cooked_beef", true)
-//                     .inverter().leaf(WarnConsole, "Can't swap with chests,
-//                     will wait before retrying.")
-//                     // If the previous task failed, maybe chests were just
-//                     // not loaded yet, sleep for ~1 second
-//                     .inverter().repeater(100).leaf(Yield)
-//                 .end()
-//                 .selector()
-//                     .leaf("get block in inventory after swapping",
-//                     GetBlocksAvailableInInventory)
-//                     .inverter().leaf(WarnConsole, "No more block in chests, I
-//                     will stop here.") .tree(DisconnectTree())
-//                 .end()
-//             .end()
-//         .end();
-// }
-
-// TODO: review code and refactor
-// shared_ptr<BehaviourTree<SimpleBehaviourClient>> PlaceBlockTree() {
-//     return Builder<SimpleBehaviourClient>("Place block")
-//         .selector()
-//             // Try to perform a task 5 times
-//             .decorator<RepeatUntilSuccess<SimpleBehaviourClient>>(5).selector()
-//                 .sequence()
-//                     .leaf("find next task", FindNextTask)
-//                     .leaf("execute next task", ExecuteNextTask)
-//                 .end()
-//                 // If the previous task failed, sleep for ~1 second
-//                 // before retrying to get an action
-//                 .inverter().repeater(100).leaf(Yield)
-//             .end()
-//             // If failed 5 times, put all blocks in chests to
-//             // randomize available blocks for next time
-//             .leaf("dump all items in chest", SwapChestsInventory,
-//             "minecraft:cooked_beef", false)
-//         .end();
-// }

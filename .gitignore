@@ -1,0 +1,4 @@
+Botcraft/
+bin/*
+!bin/config.txt
+build/

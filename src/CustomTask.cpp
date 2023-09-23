@@ -255,97 +255,6 @@ Status TaskPrioritize(BehaviourClient& c) {
   if (algo == "bfs") {
     SimpleBFS(c);
   }
-  // // shared_ptr<EntityManager> entityMgr = c.GetEntityManager();
-  // shared_ptr<World> world = c.GetWorld();
-
-  // const Position& start = blackboard.Get<Position>("Structure.start");
-  // const Position& end = blackboard.Get<Position>("Structure.end");
-  // const Position& anchor = blackboard.Get<Position>("anchor");
-  // const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  // const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
-
-  // const Position size = end - start + Position(1, 1, 1);
-  // vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
-
-  // int slotCounter = 0;
-  // map<string, int, MaterialCompare> itemCounter;
-
-  // queue<Position> pending, qTaskPosition;
-  // queue<string> qTaskType, qTaskName;
-  // pending.push(Position(0, 0, 0));
-  // visited[0][0][0] = true;
-
-  // const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
-  //                                           Position(0, 0, 1), Position(0, 0, -1),
-  //                                           Position(1, 0, 0), Position(-1, 0, 0) });
-
-  // while (!pending.empty()) {
-  //   Position currentPos = pending.front();
-  //   pending.pop();
-    
-  //   const short current_target = target[currentPos.x][currentPos.y][currentPos.z];
-  //   const string targetName = palette.at(current_target);
-
-  //   // for blocks in pending queue, we need to check below condition:
-  //   // 1. if this block is empty and not air, then place it. (push "Place" to qTaskType)
-  //   // 2. if this block is not air, then check if it is the same block in nbt.
-  //   // 2-1. skip this block if it is correct.
-  //   // 2-2. remove this block if it is incorrect. (push "Dig" to qTaskType)
-  //   // 3. check its neighbors.
-  //   // 3-1 if this neighbor already visited, skip
-  //   // 3-2 if not visited, push to pending and mark it as visited
-  //   string block_name = "minecraft:air";
-  //   {
-  //     world->GetMutex().lock();
-  //     const Block* block = world->GetBlock(currentPos+anchor);
-
-  //     if (!block) {
-  //       // it is a air block
-  //       if (!world->IsLoaded(currentPos+anchor)) {
-  //         world->GetMutex().unlock();
-  //         GoTo(c, currentPos+anchor, 16, 5, 5, 10);
-  //         world->GetMutex().lock();
-
-  //         block = world->GetBlock(currentPos+anchor);
-  //         if (block) block_name = block->GetBlockstate()->GetName();
-  //       }
-  //     } else {
-  //       block_name = block->GetBlockstate()->GetName();
-  //     }
-  //     world->GetMutex().unlock();
-  //   }
-
-  //   if (targetName != "minecraft:air" && current_target != -1 && block_name == "minecraft:air") {
-  //     qTaskPosition.push(currentPos+anchor);
-  //     qTaskType.push("Place");
-  //     qTaskName.push(targetName);
-
-  //     // maintain itemCounter and slotCounter
-  //     if ((itemCounter[targetName]++) % 64 == 0) slotCounter++;
-  //     if (slotCounter == 27) break;
-  //   } else if (block_name != "minecraft:air" && targetName != block_name) {
-  //     qTaskPosition.push(currentPos+anchor);
-  //     qTaskType.push("Dig");
-  //     qTaskName.push(targetName);
-  //   }
-
-  //   for (int i = 0; i < neighbor_offsets.size(); i++) {
-  //     Position newPos = currentPos + neighbor_offsets[i];
-  //     bool xCheck = (newPos+anchor).x >= start.x && (newPos+anchor).x <= end.x;
-  //     bool yCheck = (newPos+anchor).y >= start.y && (newPos+anchor).y <= end.y;
-  //     bool zCheck = (newPos+anchor).z >= start.z && (newPos+anchor).z <= end.z;
-
-  //     if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
-  //       visited[newPos.x][newPos.y][newPos.z] = true;
-  //       pending.push(newPos);
-  //     }
-  //   }
-  // }
-
-  // blackboard.Set("qTaskPosition", qTaskPosition);
-  // blackboard.Set("qTaskType", qTaskType);
-  // blackboard.Set("qTaskName", qTaskName);
-  // blackboard.Set("itemCounter", itemCounter);
 
   return Status::Success;
 }
@@ -467,6 +376,66 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   return Status::Failure;
 }
 
+Status check(BehaviourClient& c) {
+  Blackboard& blackboard = c.GetBlackboard();
+  shared_ptr<World> world = c.GetWorld();
+  Position anchor = blackboard.Get<Position>("anchor");
+
+  Position target_pos, world_pos;
+
+  int additional_blocks = 0;
+  int wrong_blocks = 0;
+  int missing_blocks = 0;
+
+  const Position& start = blackboard.Get<Position>("Structure.start");
+  const Position& end = blackboard.Get<Position>("Structure.end");
+  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+
+  for (int x = start.x; x < end.x; x++) {
+    world_pos.x = x;
+    target_pos.x = x - start.x;
+    for (int y = start.y; y < end.y; y++) {
+      world_pos.y = y;
+      target_pos.y = y - start.y;
+      for (int z = start.z; z < end.z; z++) {
+        world_pos.z = z;
+        target_pos.z = z - start.z;
+
+        const short target_id = target[target_pos.x][target_pos.y][target_pos.z];
+        string target_name = palette.at(target_id);
+        
+        string block_name = "minecraft:air";
+        {
+          lock_guard<mutex> lock(world->GetMutex());
+          const Block* block = world->GetBlock(world_pos);
+
+          if (!world->IsLoaded(world_pos)) {
+            continue;
+          } else if (block) {
+            block_name = block->GetBlockstate()->GetName();
+          }
+        }
+
+        if (block_name == "minecraft:air" && (target_id == -1 || target_name == "minecraft:air")) {
+          // continue if it is a air block
+          continue;
+        } else if (block_name == "minecraft:air" && target_id != -1 && target_name != "minecraft:air") {
+          // Found air in real world, but it should be something else
+          return Status::Failure;
+        } else if (block_name != "minecraft:air" && (target_id == -1 || target_name == "minecraft:air")) {
+          // Found something else, but it should be air.
+          return Status::Failure;
+        } else if (block_name != target_name) {
+          // The name of block not match.
+          return Status::Failure;
+        }
+      }
+    }
+  }
+  return Status::Success;
+}
+
 Status CheckCompletion(BehaviourClient& c) {
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
   Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
@@ -487,76 +456,18 @@ Status CheckCompletion(BehaviourClient& c) {
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
 
+  vector<Position> checkpoints {Position(40, 10, 40), Position(80, 10, 40), Position(40, 10, 80), Position(80, 10, 80)};
+
   const bool log_details = false;
   const bool log_errors = true;
   const bool full_check = true;
 
-  // Reset values for the next time
-  //  blackboard.Set("CheckCompletion.log_details", false);
-  //  blackboard.Set("CheckCompletion.log_errors", false);
-  //  blackboard.Set("CheckCompletion.full_check", false);
-
-  for (int x = start.x; x <= end.x; ++x) {
-    world_pos.x = x;
-    target_pos.x = x - anchor.x;
-    for (int y = start.y; y <= end.y; ++y) {
-      world_pos.y = y;
-      target_pos.y = y - anchor.y;
-      for (int z = start.z; z <= end.z; ++z) {
-        world_pos.z = z;
-        target_pos.z = z - anchor.z;
-
-        const short target_id = target[target_pos.x][target_pos.y][target_pos.z];
-        string target_name = palette.at(target_id);
-        
-        string block_name = "minecraft:air";
-        {
-          world->GetMutex().lock();
-          const Block* block = world->GetBlock(world_pos);
-
-          if (!block) {
-            // it is a air block
-            if (!world->IsLoaded(world_pos)) {
-              world->GetMutex().unlock();
-              GoTo(c, world_pos, 16, 5, 5, 10);
-              world->GetMutex().lock();
-
-              block = world->GetBlock(world_pos);
-              if (block) block_name = block->GetBlockstate()->GetName();
-            }
-          } else {
-            block_name = block->GetBlockstate()->GetName();
-          }
-          world->GetMutex().unlock();
-        }
-
-        if (block_name == "minecraft:air" && (target_id == -1 || target_name == "minecraft:air")) {
-          // continue if it is a air block
-          continue;
-        } else if (block_name == "minecraft:air" && target_id != -1 && target_name != "minecraft:air") {
-          // Found air in real world, but it should be something else
-          LOG_INFO("Want: " << target_name << ", but got: " << block_name << " at: (" << target_pos.x << "," << target_pos.y << "," << target_pos.z << ")");
-          missing_blocks++;
-        } else if (block_name != "minecraft:air" && (target_id == -1 || target_name == "minecraft:air")) {
-          // Found something else, but it should be air.
-          wrong_blocks++;
-        } else if (block_name != target_name) {
-          // The name of block not match.
-          wrong_blocks++;
-        }
-      }
-    }
+  for (auto cp : checkpoints) {
+    GoTo(c, anchor+cp, 4, 4, 4);
+    if (check(c) == Status::Failure) return Status::Failure;
   }
 
-  if (log_errors) {
-    LOG_INFO("Wrong blocks: " << wrong_blocks);
-    LOG_INFO("Missing blocks: " << missing_blocks);
-    LOG_INFO("Additional blocks: " << additional_blocks);
-  }
-
-  return (missing_blocks + additional_blocks + wrong_blocks == 0)
-             ? Status::Success
-             : Status::Failure;
+  return Status::Success;
 }
 
 Status WarnConsole(BehaviourClient& c, const string& msg) {

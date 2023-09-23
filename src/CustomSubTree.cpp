@@ -8,18 +8,20 @@
 using namespace Botcraft;
 using namespace std;
 
+// TODO: 要把 CheckCompleteTree往後移
+// 順序: init, serverload, sortchest, eat, work, complete
 shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
   return Builder<SimpleBehaviourClient>("Full Tree")
     .sequence()
       .tree(InitTree())
       .leaf("Wait Server Load", WaitServerLoad)
       .leaf("Sort Chest with Desire Place", SortChestWithDesirePlace)
-      .tree(EatTree())
-      .tree(WorkTree())
       .selector()
         .inverter().tree(CheckCompleteTree())
         .tree(NullTree())
       .end()
+      .tree(EatTree())
+      .tree(WorkTree())
     .end();
 }
 

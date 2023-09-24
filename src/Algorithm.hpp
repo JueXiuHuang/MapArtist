@@ -24,6 +24,12 @@ struct MaterialCompare {
     } else if (rhs.find("_terracotta") != std::string::npos) {
       // only right has "_terracotta", put at front
       return true;
+    } else if (lhs.find("_block") != std::string::npos && rhs.find("_block") != std::string::npos) {
+      return lhs < rhs;
+    } else if (lhs.find("_block") != std::string::npos) {
+      return false;
+    } else if (rhs.find("_block") != std::string::npos) {
+      return true;
     } else {
       // sort by default
       return lhs < rhs;

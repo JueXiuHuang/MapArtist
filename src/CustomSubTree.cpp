@@ -62,20 +62,20 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
   return Builder<SimpleBehaviourClient>("Eat Tree")
     .selector()
       // If hungry
-      .inverter().leaf(IsHungry, 15)
+      .inverter().leaf("check hungry", IsHungry, 15)
       // Get some food, then eat
       .sequence()
         .selector()
-          .leaf(SetItemInHand, "minecraft:cooked_beef", Hand::Left)
+          .leaf("put in left hand", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
           .sequence()
             .leaf("get food", GetFood, "minecraft:cooked_beef")
-            .leaf(SetItemInHand, "minecraft:cooked_beef", Hand::Left)
+            .leaf("put in left hand", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
           .end()
-          .leaf(WarnConsole, "Can't find food anywhere!")
+          .leaf("Notify", WarnConsole, "Can't find food anywhere!")
         .end()
         .selector()
-          .leaf(Eat, "minecraft:cooked_beef", true)
-          .inverter().leaf(WarnConsole, "Can't eat!")
+          .leaf("Eat food", Eat, "minecraft:cooked_beef", true)
+          .inverter().leaf("Notify", WarnConsole, "Can't eat!")
           // If we are here, hungry and can't eat --> Disconnect
           .tree(NullTree())
         .end()
@@ -89,7 +89,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> CheckCompleteTree() {
     .sequence()
       .leaf("check completion", CheckCompletion)
       .leaf("Notify", Say, "It's done.")
-      .leaf(WarnConsole, "Task fully completed!")
+      .leaf("Notify", WarnConsole, "Task fully completed!")
       .repeater(0).leaf(Yield)
     .end();
 }

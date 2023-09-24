@@ -341,7 +341,6 @@ Status TaskExecutor(BehaviourClient& c) {
   queue<Position> qTaskPosition = blackboard.Get<queue<Position>>("qTaskPosition");
   queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
   queue<string> qTaskName = blackboard.Get<queue<string>>("qTaskName");
-  // map<string, int, MaterialCompare> itemCounter = blackboard.Get<map<string, int, MaterialCompare>>("itemCounter");
 
   while (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
     Position taskPos = qTaskPosition.front();
@@ -365,10 +364,8 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   Blackboard& board = c.GetBlackboard();
 
   if (action == "Dig") {
-    // GoTo(c, blockPos);
     return Dig(c, blockPos, true);
   } else if (action == "Place") {
-    // GoTo(c, blockPos);
     return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
   }
 

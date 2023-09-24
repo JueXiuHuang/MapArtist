@@ -59,7 +59,7 @@ void SimpleBFS(BehaviourClient& c) {
         // it is a air block
         if (!world->IsLoaded(currentPos+anchor)) {
           world->GetMutex().unlock();
-          GoTo(c, currentPos+anchor, 16, 5, 5, 10);
+          GoTo(c, currentPos+anchor, 16, 5, 5);
           world->GetMutex().lock();
 
           block = world->GetBlock(currentPos+anchor);

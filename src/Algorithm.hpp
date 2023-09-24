@@ -20,16 +20,16 @@ struct MaterialCompare {
       return lhs < rhs; // 如果两者都包含 "_terracotta"，按字母顺序排列
     } else if (lhs.find("_terracotta") != std::string::npos) {
       // only left has "_terracotta", put at front
-      return false;
+      return true;
     } else if (rhs.find("_terracotta") != std::string::npos) {
       // only right has "_terracotta", put at front
-      return true;
+      return false;
     } else if (lhs.find("_block") != std::string::npos && rhs.find("_block") != std::string::npos) {
       return lhs < rhs;
     } else if (lhs.find("_block") != std::string::npos) {
-      return false;
-    } else if (rhs.find("_block") != std::string::npos) {
       return true;
+    } else if (rhs.find("_block") != std::string::npos) {
+      return false;
     } else {
       // sort by default
       return lhs < rhs;

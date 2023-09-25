@@ -8,7 +8,7 @@ nbt=YaeMiko_2_5.nbt
 tempblock=minecraft:cobblestone
 
 # available algorithm: bfs, dfs
-prioritize=bfs
+prioritize=dfs
 
 # The fields below represent each block and the position of the chest they are stored in.
 # Use ; to split position if you have multiple chests.

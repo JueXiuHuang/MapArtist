@@ -254,6 +254,8 @@ Status TaskPrioritize(BehaviourClient& c) {
   string algo = blackboard.Get<string>("prioritize");
   if (algo == "bfs") {
     SimpleBFS(c);
+  } else if (algo == "dfs") {
+    SimpleDFS(c);
   }
 
   return Status::Success;

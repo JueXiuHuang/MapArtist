@@ -1,6 +1,9 @@
 #include "Algorithm.hpp"
 
-#include "queue"
+#include <queue>
+#include <stack>
+#include <utility>
+#include <algorithm>
 
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/Vector3.hpp"
@@ -94,6 +97,128 @@ void SimpleBFS(BehaviourClient& c) {
       if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
         visited[newPos.x][newPos.y][newPos.z] = true;
         pending.push(newPos);
+      }
+    }
+  }
+
+  blackboard.Set("qTaskPosition", qTaskPosition);
+  blackboard.Set("qTaskType", qTaskType);
+  blackboard.Set("qTaskName", qTaskName);
+  blackboard.Set("itemCounter", itemCounter);
+}
+
+void SimpleDFS(BehaviourClient& c){
+  Blackboard& blackboard = c.GetBlackboard();
+  shared_ptr<World> world = c.GetWorld();
+
+  const Position& start = blackboard.Get<Position>("Structure.start");
+  const Position& end = blackboard.Get<Position>("Structure.end");
+  const Position& anchor = blackboard.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+
+  const Position size = end - start + Position(1, 1, 1);
+
+  map<string, int, MaterialCompare> itemCounter;
+  queue<Position> pending, qTaskPosition;
+  queue<string> qTaskType, qTaskName;
+
+  int slotCounter = 0;
+
+  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+
+  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
+                                            Position(0, 0, 1), Position(0, 0, -1),
+                                            Position(1, 0, 0), Position(-1, 0, 0) });
+
+  // * Candidate queue is a queue that contains placement candidates which have at least one neighbour
+  // * We let anchor's location be X, Y, Z
+
+  auto distanceCMP = [](const Position &a, const Position &b) { 
+    return a.SqrDist(Position(0, 0, 0)) < b.SqrDist(Position(0, 0, 0)); 
+  };
+
+  using pri_queue = priority_queue<Position, vector<Position>, decltype(distanceCMP)>;
+  pri_queue candidateQueue(distanceCMP);
+  string airBlockName = "minecraft:air";
+
+  const int xSize = target.size();
+  const int ySize = (xSize > 0 ? target.front().size() : 0);
+  const int zSize = (xSize > 0 && ySize > 0 ? target.front().front().size() : 0);
+  for (int i = 0; i < xSize; ++i){
+    for(int k = 0; k < zSize; ++k){
+      const short current_target = target[i][0][k];
+      const string targetName = palette.at(current_target);
+      if(current_target == -1 || targetName == airBlockName) continue;
+      candidateQueue.push(Position(i, 0, k));
+    }
+  }
+  
+  while(!candidateQueue.empty() && slotCounter < 27){
+    stack<Position> searchStack;
+    Position now = candidateQueue.top();
+    searchStack.push(now); candidateQueue.pop();
+
+    while (!searchStack.empty()){
+      Position& currentPos = searchStack.top(); searchStack.pop();
+      if (visited[currentPos.x][currentPos.y][currentPos.z]) continue;
+      visited[currentPos.x][currentPos.y][currentPos.z] = true;
+
+      // get the block name in nbt
+      const short current_target = target[currentPos.x][currentPos.y][currentPos.z];
+      const string targetName = palette.at(current_target);
+
+      // get the current block name
+      string curBlockName = airBlockName;
+      {
+        world->GetMutex().lock();
+        const Block* block = world->GetBlock(currentPos+anchor);
+
+        if (!block) {
+          // it is a air block
+          if (!world->IsLoaded(currentPos+anchor)) {
+            world->GetMutex().unlock();
+            GoTo(c, currentPos+anchor, 16, 5, 5, 10);
+            world->GetMutex().lock();
+
+            block = world->GetBlock(currentPos+anchor);
+            if (block) curBlockName = block->GetBlockstate()->GetName();
+          }
+        } else {
+          curBlockName = block->GetBlockstate()->GetName();
+        }
+        world->GetMutex().unlock();
+      }
+      
+      if (targetName != airBlockName && current_target != -1 && curBlockName == airBlockName) {
+        qTaskPosition.push(currentPos+anchor);
+        LOG_INFO((currentPos+anchor) << targetName << " ");
+        qTaskType.push("Place");
+        qTaskName.push(targetName);
+
+        // maintain itemCounter and slotCounter
+        if ((itemCounter[targetName]++) % 64 == 0) slotCounter++;
+        if (slotCounter == 27) break;
+      } else if (curBlockName != airBlockName && targetName != curBlockName) {
+        qTaskPosition.push(currentPos+anchor);
+        qTaskType.push("Dig");
+        qTaskName.push(targetName);
+      }
+
+      // add neighbours with special order according to the distance to anchor
+      vector<Position> neighbors;
+      for (int i = 0; i < neighbor_offsets.size(); i++) {
+        Position newPos = currentPos + neighbor_offsets[i];
+        bool xCheck = (newPos+anchor).x >= start.x && (newPos+anchor).x <= end.x;
+        bool yCheck = (newPos+anchor).y >= start.y && (newPos+anchor).y <= end.y;
+        bool zCheck = (newPos+anchor).z >= start.z && (newPos+anchor).z <= end.z;
+        if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
+          neighbors.push_back(newPos);
+        }
+      }
+      sort(neighbors.begin(), neighbors.end(), distanceCMP);
+      for (int j = neighbors.size()-1; j >= 0; --j){
+        searchStack.push(neighbors[j]);
       }
     }
   }

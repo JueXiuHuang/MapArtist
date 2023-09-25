@@ -7,8 +7,8 @@ nbt=YaeMiko_2_5.nbt
 # tempblock is the name of the scaffolding block, to avoid you build sturcture in air. Default is minecraft:cobblestone
 tempblock=minecraft:cobblestone
 
-# available algorithm: bfs, dfs
-prioritize=dfs
+# available algorithm: bfs, dfs, sliceDfs
+prioritize=sliceDfs
 
 # The fields below represent each block and the position of the chest they are stored in.
 # Use ; to split position if you have multiple chests.

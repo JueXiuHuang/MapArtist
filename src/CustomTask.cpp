@@ -256,6 +256,10 @@ Status TaskPrioritize(BehaviourClient& c) {
     SimpleBFS(c);
   } else if (algo == "dfs") {
     SimpleDFS(c);
+  } else if (algo == "sliceDfs") {
+    SliceDFS(c);
+  } else {
+    LOG_ERROR("Get unrecognized prioritize method...");
   }
 
   return Status::Success;

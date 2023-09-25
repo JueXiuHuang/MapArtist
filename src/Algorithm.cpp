@@ -13,6 +13,7 @@
 using namespace Botcraft;
 using namespace std;
 
+// TODO: need to check extra block and dig it.
 void SimpleBFS(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<World> world = c.GetWorld();
@@ -221,6 +222,102 @@ void SimpleDFS(BehaviourClient& c){
         searchStack.push(neighbors[j]);
       }
     }
+  }
+
+  blackboard.Set("qTaskPosition", qTaskPosition);
+  blackboard.Set("qTaskType", qTaskType);
+  blackboard.Set("qTaskName", qTaskName);
+  blackboard.Set("itemCounter", itemCounter);
+}
+
+// TODO: need to check extra block and dig it.
+void SliceDFS(BehaviourClient& c) {
+  Blackboard& blackboard = c.GetBlackboard();
+  shared_ptr<World> world = c.GetWorld();
+
+  const Position& start = blackboard.Get<Position>("Structure.start");
+  const Position& end = blackboard.Get<Position>("Structure.end");
+  const Position& anchor = blackboard.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+
+  const Position size = end - start + Position(1, 1, 1);
+  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+
+  int slotCounter = 0;
+  map<string, int, MaterialCompare> itemCounter;
+
+  queue<Position> qTaskPosition;
+  queue<string> qTaskType, qTaskName;
+  stack<Position> pending;
+
+  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
+                                            Position(0, 0, 1), Position(0, 0, -1)});
+
+  for (int x = 0; x < size.x; x++) {
+    for (int z = 0; z < size.z; z++) {
+        pending.push(Position(x, 0, z));
+        visited[x][0][z] = true;
+    }
+
+    while (!pending.empty()) {
+      Position cp = pending.top();
+      pending.pop();
+      
+      const short current_target = target[cp.x][cp.y][cp.z];
+      const string targetName = palette.at(current_target);
+      string block_name = "minecraft:air";
+      {
+        world->GetMutex().lock();
+        const Block* block = world->GetBlock(cp+anchor);
+
+        if (!block) {
+          // it is a air block
+          if (!world->IsLoaded(cp+anchor)) {
+            world->GetMutex().unlock();
+            GoTo(c, cp+anchor, 16, 5, 5);
+            world->GetMutex().lock();
+
+            block = world->GetBlock(cp+anchor);
+            if (block) block_name = block->GetBlockstate()->GetName();
+          }
+        } else {
+          block_name = block->GetBlockstate()->GetName();
+        }
+        world->GetMutex().unlock();
+      }
+
+      if (targetName != "minecraft:air" && current_target != -1 && block_name == "minecraft:air") {
+        qTaskPosition.push(cp+anchor);
+        qTaskType.push("Place");
+        qTaskName.push(targetName);
+
+        // maintain itemCounter and slotCounter
+        if ((itemCounter[targetName]++) % 64 == 0) slotCounter++;
+        if (slotCounter == 27) break;
+      } else if (block_name != "minecraft:air" && targetName != block_name) {
+        qTaskPosition.push(cp+anchor);
+        qTaskType.push("Dig");
+        qTaskName.push(targetName);
+      }
+
+      for (int i = 0; i < neighbor_offsets.size(); i++) {
+        Position newPos = cp + neighbor_offsets[i];
+        bool xCheck = (newPos+anchor).x >= start.x && (newPos+anchor).x <= end.x;
+        bool yCheck = (newPos+anchor).y >= start.y && (newPos+anchor).y <= end.y;
+        bool zCheck = (newPos+anchor).z >= start.z && (newPos+anchor).z <= end.z;
+
+        if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
+          short _target_id = target[newPos.x][newPos.y][newPos.z];
+          string _target_name = palette.at(_target_id);
+          if (_target_id == -1 || _target_name == "minecraft:air") continue;
+          visited[newPos.x][newPos.y][newPos.z] = true;
+          pending.push(newPos);
+        }
+      }
+    }
+
+    if (slotCounter == 27) break;
   }
 
   blackboard.Set("qTaskPosition", qTaskPosition);

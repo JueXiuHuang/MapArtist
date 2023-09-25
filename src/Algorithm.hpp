@@ -4,6 +4,7 @@
 
 void SimpleBFS(Botcraft::BehaviourClient& c);
 void SimpleDFS(Botcraft::BehaviourClient& c);
+void SliceDFS(Botcraft::BehaviourClient& c);
 
 struct MaterialCompare {
   bool operator()(const std::string& lhs, const std::string& rhs) const {

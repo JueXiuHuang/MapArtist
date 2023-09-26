@@ -240,6 +240,7 @@ void SliceDFS(BehaviourClient& c) {
   const Position& anchor = blackboard.Get<Position>("anchor");
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  int xCheckStart = blackboard.Get<int>("SliceDFS.xCheckStart", 0);
 
   const Position size = end - start + Position(1, 1, 1);
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
@@ -254,13 +255,14 @@ void SliceDFS(BehaviourClient& c) {
   const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
                                             Position(0, 0, 1), Position(0, 0, -1)});
 
-  for (int x = 0; x < size.x; x++) {
+  for (int x = xCheckStart; x < size.x; x++) {
     // Put every y=0 blocks to pending stack
     for (int z = 0; z < size.z; z++) {
         pending.push(Position(x, 0, z));
         visited[x][0][z] = true;
     }
 
+    bool isAllDone = true;
     while (!pending.empty()) {
       Position cp = pending.top();
       pending.pop();
@@ -288,6 +290,7 @@ void SliceDFS(BehaviourClient& c) {
       }
 
       if (targetName != "minecraft:air" && block_name == "minecraft:air") {
+        isAllDone = false;
         qTaskPosition.push(cp+anchor);
         qTaskType.push("Place");
         qTaskName.push(targetName);
@@ -296,6 +299,7 @@ void SliceDFS(BehaviourClient& c) {
         if ((itemCounter[targetName]++) % 64 == 0) slotCounter++;
         if (slotCounter == 27) break;
       } else if (block_name != "minecraft:air" && targetName != block_name) {
+        isAllDone = false;
         qTaskPosition.push(cp+anchor);
         qTaskType.push("Dig");
         qTaskName.push(targetName);
@@ -317,9 +321,11 @@ void SliceDFS(BehaviourClient& c) {
       }
     }
 
+    if (isAllDone) xCheckStart++;
     if (slotCounter == 27) break;
   }
 
+  blackboard.Set("SliceDFS.xCheckStart", xCheckStart);
   blackboard.Set("qTaskPosition", qTaskPosition);
   blackboard.Set("qTaskType", qTaskType);
   blackboard.Set("qTaskName", qTaskName);

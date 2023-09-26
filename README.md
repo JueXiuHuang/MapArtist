@@ -4,9 +4,9 @@ You need to compile botcraft file on your own.
 - [x] Optimize TaskPrioritize algorithm (BFS->DFS)
 - [x] Optimize collect material algorithm
 - [ ] Add Microsoft login utility
-- [ ] 材料會少拿
-- [ ] sliceDfs可能會少蓋 (最一開始的方塊可能會被跳過)
-- [ ] 蓋的時候方塊可能被玩家卡住
+- [x] 材料會少拿
+- [x] sliceDfs可能會少蓋 (最一開始的方塊可能會被跳過)
+- [x] 蓋的時候方塊可能被玩家卡住
 - [ ] A* optimize (走斜的+垂直降落)
 
 # Botcraft build

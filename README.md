@@ -1,7 +1,7 @@
 You need to compile botcraft file on your own.
 
 # TODO lists
-- [ ] Optimize TaskPrioritize algorithm (BFS->DFS)
+- [x] Optimize TaskPrioritize algorithm (BFS->DFS)
 - [x] Optimize collect material algorithm
 - [ ] Add Microsoft login utility
 - [ ] 材料會少拿

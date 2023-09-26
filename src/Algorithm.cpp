@@ -255,6 +255,7 @@ void SliceDFS(BehaviourClient& c) {
                                             Position(0, 0, 1), Position(0, 0, -1)});
 
   for (int x = 0; x < size.x; x++) {
+    // Put every y=0 blocks to pending stack
     for (int z = 0; z < size.z; z++) {
         pending.push(Position(x, 0, z));
         visited[x][0][z] = true;
@@ -272,7 +273,6 @@ void SliceDFS(BehaviourClient& c) {
         const Block* block = world->GetBlock(cp+anchor);
 
         if (!block) {
-          // it is a air block
           if (!world->IsLoaded(cp+anchor)) {
             world->GetMutex().unlock();
             GoTo(c, cp+anchor, 16, 5, 5);

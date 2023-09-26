@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <iterator>
 #include <set>
 #include <sstream>
@@ -286,10 +287,13 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
   vector<Position> availableChests = blackboard.Get<vector<Position>>("chest:"+itemName);
 
+  bool get_all_material = false;
   for (auto chest : availableChests) {
+    LOG_INFO("========== CHEST ==========");
     SortInventory(c);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
+    int _need = needed;
     queue<short> canTake, canPut;
     const short containerId = inventory_manager->GetFirstOpenedWindowId();
     shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
@@ -305,7 +309,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
         } else if (slot.first >= playerInvStart && !slot.second.IsEmptySlot()) {
           string _name = AssetsManager::getInstance().GetItem(slot.second.GetItemID())->GetName();
           if (_name == itemName && slot.second.GetItemCount() < 64) _canPut.push_back(slot);
-          if (_name == itemName && slot.second.GetItemCount() == 64) needed -= 64;
+          if (_name == itemName && slot.second.GetItemCount() == 64) _need -= 64;
         } else if (slot.first >= playerInvStart && slot.second.IsEmptySlot()) {
           _canPut.push_back(slot);
         }
@@ -319,21 +323,23 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
       }
     }
 
-    while (!canTake.empty() && !canPut.empty()) {
+    while (!canTake.empty() && !canPut.empty() && !get_all_material) {
       SwapItemsInContainer(c, containerId, canTake.front(), canPut.front());
       lock_guard<mutex> lock(inventory_manager->GetMutex());
-      needed -= container->GetSlot(canPut.front()).GetItemCount();
+      int took_amount = container->GetSlot(canPut.front()).GetItemCount();
+      LOG_INFO("Take " << itemName << " for" << took_amount);
+      _need -= took_amount;
       canPut.pop();
       canTake.pop();
 
-      if (needed < 1) break;
+      if (_need < 1) get_all_material = true;
     }
 
     CloseContainer(c, containerId);
-    if (needed < 1) break;
+    if (get_all_material) break;
   }
 
-  if (needed > 0) {
+  if (!get_all_material) {
     LOG_WARNING(itemName << " might not enough...");
     Say(c, itemName+" might not enough...");
   }
@@ -362,7 +368,9 @@ Status TaskExecutor(BehaviourClient& c) {
 }
 
 Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string blockName) {
-  LOG_INFO("Execute the task...");
+  LOG_INFO( "Task:" << setw(5) << action <<
+          ", Block Name:" << setw(32) << blockName <<
+          ", Position:" << blockPos);
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
   Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting

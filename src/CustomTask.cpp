@@ -257,10 +257,10 @@ Status TaskPrioritize(BehaviourClient& c) {
     SimpleBFS(c);
   } else if (algo == "dfs") {
     SimpleDFS(c);
-  } else if (algo == "sliceDfs") {
+  } else if (algo == "slice_dfs") {
     SliceDFS(c);
   } else {
-    LOG_ERROR("Get unrecognized prioritize method...");
+    LOG_ERROR("Get unrecognized prioritize method: " << algo);
   }
 
   return Status::Success;
@@ -353,12 +353,21 @@ Status TaskExecutor(BehaviourClient& c) {
   queue<Position> qTaskPosition = blackboard.Get<queue<Position>>("qTaskPosition");
   queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
   queue<string> qTaskName = blackboard.Get<queue<string>>("qTaskName");
-
+  int retry_times = blackboard.Get<int>("retry");
+  vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1)};
   while (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
     Position taskPos = qTaskPosition.front();
     string taskType = qTaskType.front();
     string blockName = qTaskName.front();
-    ExecuteTask(c, taskType, taskPos, blockName);
+    for (int i = 0; i < retry_times; i++) {
+      Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
+      if (exec_result == Status::Success) break;
+      else {
+        LOG_WARNING("Task fail, move to another position and try again...");
+        GoTo(c, taskPos+offsets[i%offsets.size()]);
+      }
+    }
+    
     qTaskPosition.pop();
     qTaskType.pop();
     qTaskName.pop();
@@ -664,6 +673,7 @@ Status LoadNBT(BehaviourClient& c) {
 
 Status LoadConfig(BehaviourClient& c) {
   ifstream file("config.txt");
+  Blackboard& blackboard = c.GetBlackboard();
 
   if (!file.is_open()) {
     cerr << "Unable to open file: config.txt" << endl;
@@ -680,14 +690,16 @@ Status LoadConfig(BehaviourClient& c) {
     getline(iss, key, '=') && getline(iss, value);
     if (key == "anchor") {
       Position anchor = parsePostionString(value);
-      c.GetBlackboard().Set("anchor", anchor);
+      blackboard.Set("anchor", anchor);
     } else if (key == "nbt") {
-      c.GetBlackboard().Set("nbt", value);
+      blackboard.Set("nbt", value);
     } else if (key == "tempblock") {
-      c.GetBlackboard().Set("tempblock", value);
+      blackboard.Set("tempblock", value);
     } else if (key == "prioritize") {
-      c.GetBlackboard().Set("prioritize", value);
-    }else {
+      blackboard.Set("prioritize", value);
+    } else if (key == "retry") {
+      blackboard.Set("retry", stoi(value));
+    } else {
       vector<Position> posVec;
       istringstream _iss(value);
       string posGroup;
@@ -695,11 +707,11 @@ Status LoadConfig(BehaviourClient& c) {
         Position chestPos = parsePostionString(posGroup);
         posVec.push_back(chestPos);
       }
-      c.GetBlackboard().Set("chest:" + key, posVec);
+      blackboard.Set("chest:" + key, posVec);
     }
   }
 
   file.close();
-  c.GetBlackboard().Set("Config.loaded", true);
+  blackboard.Set("Config.loaded", true);
   return Status::Success;
 }

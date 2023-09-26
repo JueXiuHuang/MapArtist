@@ -4,11 +4,13 @@ anchor=-64,-60,-65
 # the nbt file you want to build
 nbt=YaeMiko_2_5.nbt
 
-# tempblock is the name of the scaffolding block, to avoid you build sturcture in air. Default is minecraft:cobblestone
 tempblock=minecraft:cobblestone
 
-# available algorithm: bfs, dfs, sliceDfs
-prioritize=sliceDfs
+# available algorithm: bfs, dfs, slice_dfs
+prioritize=slice_dfs
+
+# retry is the number of times we retry an action
+retry=4;
 
 # The fields below represent each block and the position of the chest they are stored in.
 # Use ; to split position if you have multiple chests.

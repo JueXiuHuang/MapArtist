@@ -75,7 +75,7 @@ void SimpleBFS(BehaviourClient& c) {
       world->GetMutex().unlock();
     }
 
-    if (targetName != "minecraft:air" && current_target != -1 && block_name == "minecraft:air") {
+    if (targetName != "minecraft:air" && block_name == "minecraft:air") {
       qTaskPosition.push(currentPos+anchor);
       qTaskType.push("Place");
       qTaskName.push(targetName);
@@ -150,7 +150,7 @@ void SimpleDFS(BehaviourClient& c){
     for(int k = 0; k < zSize; ++k){
       const short current_target = target[i][0][k];
       const string targetName = palette.at(current_target);
-      if(current_target == -1 || targetName == airBlockName) continue;
+      if(targetName == airBlockName) continue;
       candidateQueue.push(Position(i, 0, k));
     }
   }
@@ -191,7 +191,7 @@ void SimpleDFS(BehaviourClient& c){
         world->GetMutex().unlock();
       }
       
-      if (targetName != airBlockName && current_target != -1 && curBlockName == airBlockName) {
+      if (targetName != airBlockName && curBlockName == airBlockName) {
         qTaskPosition.push(currentPos+anchor);
         LOG_INFO((currentPos+anchor) << targetName << " ");
         qTaskType.push("Place");
@@ -287,7 +287,7 @@ void SliceDFS(BehaviourClient& c) {
         world->GetMutex().unlock();
       }
 
-      if (targetName != "minecraft:air" && current_target != -1 && block_name == "minecraft:air") {
+      if (targetName != "minecraft:air" && block_name == "minecraft:air") {
         qTaskPosition.push(cp+anchor);
         qTaskType.push("Place");
         qTaskName.push(targetName);
@@ -310,7 +310,7 @@ void SliceDFS(BehaviourClient& c) {
         if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
           short _target_id = target[newPos.x][newPos.y][newPos.z];
           string _target_name = palette.at(_target_id);
-          if (_target_id == -1 || _target_name == "minecraft:air") continue;
+          if (_target_name == "minecraft:air") continue;
           visited[newPos.x][newPos.y][newPos.z] = true;
           pending.push(newPos);
         }

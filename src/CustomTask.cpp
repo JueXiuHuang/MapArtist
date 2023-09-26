@@ -420,13 +420,13 @@ Status check(BehaviourClient& c) {
           }
         }
 
-        if (block_name == "minecraft:air" && (target_id == -1 || target_name == "minecraft:air")) {
+        if (block_name == "minecraft:air" && target_name == "minecraft:air") {
           // continue if it is a air block
           continue;
-        } else if (block_name == "minecraft:air" && target_id != -1 && target_name != "minecraft:air") {
+        } else if (block_name == "minecraft:air" && target_name != "minecraft:air") {
           // Found air in real world, but it should be something else
           return Status::Failure;
-        } else if (block_name != "minecraft:air" && (target_id == -1 || target_name == "minecraft:air")) {
+        } else if (block_name != "minecraft:air" && target_name == "minecraft:air") {
           // Found something else, but it should be air.
           return Status::Failure;
         } else if (block_name != target_name) {

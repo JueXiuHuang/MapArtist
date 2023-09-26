@@ -324,10 +324,17 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     }
 
     while (!canTake.empty() && !canPut.empty() && !get_all_material) {
-      SwapItemsInContainer(c, containerId, canTake.front(), canPut.front());
-      lock_guard<mutex> lock(inventory_manager->GetMutex());
+      LOG_INFO("Swap from ID " << canTake.front() << " to ID " << canPut.front());
+      Status swapResult = SwapItemsInContainer(c, containerId, canTake.front(), canPut.front());
+      if (swapResult == Status::Failure){  // if failed, wait for a while and retry
+        Utilities::SleepFor(chrono::milliseconds(500));
+        LOG_INFO("Take " << itemName << " Failed");
+        continue;
+      }
+      inventory_manager->GetMutex().lock();
       int took_amount = container->GetSlot(canPut.front()).GetItemCount();
-      LOG_INFO("Take " << itemName << " for" << took_amount);
+      inventory_manager->GetMutex().unlock();
+      LOG_INFO("Take " << itemName << " for " << took_amount);
       _need -= took_amount;
       canPut.pop();
       canTake.pop();
@@ -335,7 +342,21 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
       if (_need < 1) get_all_material = true;
     }
 
+    {
+      LOG_INFO("========== LIST ==========");
+      lock_guard<mutex> lock(inventory_manager->GetMutex());
+      const short playerInvStart = container->GetFirstPlayerInventorySlot();
+      for (auto p : container->GetSlots()){
+        if (p.first >= playerInvStart && !p.second.IsEmptySlot()){
+          LOG_INFO("Slot " << p.first << ": " << AssetsManager::getInstance().Items().at(p.second.GetItemID())->GetName()
+            << " x " << static_cast<int>(p.second.GetItemCount()));
+        }
+      }
+      LOG_INFO("======= LIST CLOSE =======");
+    }
+
     CloseContainer(c, containerId);
+    LOG_INFO("======= CHEST CLOSE =======");
     if (get_all_material) break;
   }
 

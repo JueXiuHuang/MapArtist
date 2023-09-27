@@ -693,11 +693,12 @@ Status LoadNBT(BehaviourClient& c) {
 }
 
 Status LoadConfig(BehaviourClient& c) {
-  ifstream file("config.txt");
   Blackboard& blackboard = c.GetBlackboard();
+  const string &configPath = blackboard.Get<string>("configPath");
+  ifstream file(configPath);
 
   if (!file.is_open()) {
-    cerr << "Unable to open file: config.txt" << endl;
+    cerr << "Unable to open file: " + configPath << endl;
     return Status::Failure;
   }
 

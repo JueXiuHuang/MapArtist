@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <queue>
 
 #include "Artist.hpp"
 #include "CustomSubTree.hpp"
@@ -11,29 +12,76 @@ using namespace Botcraft;
 using namespace std;
 
 struct Args {
-    const string address = "127.0.0.1:25565";
-    const string login = "33ss";
-    const string configPath = "";
-
-    int return_code = 0;
+    // initial value
+    string address = "127.0.0.1:25565";
+    string login = "33ss";
+    string configPath = "config.txt";
+    bool microsoftLogin = false;
 };
 
-int main(int argc, char* argv[]) {
+Args parseArgv(int argc, char* argv[]){
+    queue<string> q;
+    for (int i = 1; i < argc; ++i){
+        q.push(string(argv[i]));
+    }
+
+    Args args;
+    string help_str = string(argv[0]) + " [-a address] [-l login] [-c config] [-m microsoft] [-h help]\n";
+    help_str += "--address (-a): Address of server. [Default: " + args.address + "]\n";
+    help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
+    help_str += "--config (-c): Path of config file. [Default: " + args.configPath + "]\n";
+    help_str += "--help (-h): Show help information.\n";
+    
     try {
+        while (!q.empty()){
+            string token = q.front(); q.pop();
+            if (token == "--address" || token == "-a") {
+                if (q.empty() || q.front()[0] == '-') throw invalid_argument("Address value is mandatory");
+                string val = q.front(); q.pop();
+                args.address = val;
+            } else if (token == "--login" || token == "-l") {
+                if (q.empty() || q.front()[0] == '-') throw invalid_argument("Login value is mandatory");
+                string val = q.front(); q.pop();
+                args.login = val;
+            } else if (token == "--config" || token == "-c") {
+                if (q.empty() || q.front()[0] == '-') throw invalid_argument("Config value is mandatory");
+                string val = q.front(); q.pop();
+                args.configPath = val;
+            } else if (token == "--microsoft" || token == "-m") {
+                args.microsoftLogin = true;
+            } else if (token == "--help" || token == "-h") {
+                cout << help_str << "\n";
+                exit(EXIT_SUCCESS);
+            } else {
+                throw invalid_argument("Unknown arguement: " + token);
+            }
+        }
+    } catch (invalid_argument &err) {
+        cerr << "ERROR: " << err.what() << "\n";
+        cout << help_str << "\n";
+        exit(EXIT_FAILURE);
+    }
+    return args;
+}
+
+int main(int argc, char* argv[]) {
+
+    try {
+        Args args = parseArgv(argc, argv);
+
         // Init logging, log everything >= Info, only to console, no file
         Logger::GetInstance().SetLogLevel(LogLevel::Info);
         Logger::GetInstance().SetFilename("");
         // Add a name to this thread for logging
         Logger::GetInstance().RegisterThread("main");
-
-        Args args;
         
         Artist client(true);
 
         const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 
         LOG_INFO("Starting connection process");
-        client.Connect(args.address, args.login);
+        client.Connect(args.address, args.login, args.microsoftLogin);
+        client.GetBlackboard().Set<string>("configPath", args.configPath);
         client.SetBehaviourTree(tree);
         client.RunBehaviourUntilClosed();
         client.Disconnect();

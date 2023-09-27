@@ -30,6 +30,7 @@ Args parseArgv(int argc, char* argv[]){
     help_str += "--address (-a): Address of server. [Default: " + args.address + "]\n";
     help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
     help_str += "--config (-c): Path of config file. [Default: " + args.configPath + "]\n";
+    help_str += "--microsoft (-m): Login with Microsoft account. [Default: " + string((args.microsoftLogin ? "True" : "False")) + "]\n";
     help_str += "--help (-h): Show help information.\n";
     
     try {

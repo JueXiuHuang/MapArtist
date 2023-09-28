@@ -12,5 +12,6 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     protected:
         virtual void Handle(ProtocolCraft::ClientboundPlayerChatPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundSystemChatPacket& msg) override;
+        virtual void Handle(ProtocolCraft::ClientboundTabListPacket& msg) override;
 };
 #endif

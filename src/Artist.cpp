@@ -40,5 +40,14 @@ void Artist::Handle(ClientboundSystemChatPacket& msg)
 {
     ManagersClient::Handle(msg);
 
-    std::cout << msg.GetContent().GetText() << std::endl;
+    std::cout << msg.GetContent().GetRawText() << std::endl;
+}
+
+void Artist::Handle(ClientboundTabListPacket& msg)
+{
+    ManagersClient::Handle(msg);
+
+    LOG_INFO("Header: " << msg.GetHeader().GetRawText() << std::endl);
+    LOG_INFO("Footer: " << msg.GetFooter().GetRawText() << std::endl);
+
 }

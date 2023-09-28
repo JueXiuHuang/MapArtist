@@ -694,8 +694,8 @@ Status LoadNBT(BehaviourClient& c) {
 
 Status LoadConfig(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
-  const string &configPath = blackboard.Get<string>("configPath");
-  ifstream file(configPath);
+  const std::string &configPath = blackboard.Get<std::string>("configPath");
+  ifstream file(configPath, std::ios::in);
 
   if (!file.is_open()) {
     cerr << "Unable to open file: " + configPath << endl;

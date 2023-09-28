@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 
         LOG_INFO("Starting connection process");
         client.Connect(args.address, args.login, args.microsoftLogin);
-        // client.SetBehaviourTree(tree, {{"configPath", args.configPath}});
+        client.SetBehaviourTree(tree, {{"configPath", args.configPath}});
         client.RunBehaviourUntilClosed();
         client.Disconnect();
 

@@ -13,6 +13,8 @@
 #include "botcraft/AI/BehaviourTree.hpp"
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 
+#include <nlohmann/json.hpp>
+
 using namespace Botcraft;
 using namespace ProtocolCraft;
 
@@ -34,6 +36,9 @@ void Artist::Handle(ClientboundPlayerChatPacket& msg)
             SendChatMessage("I'm not hungry.");
         }
     }
+    if(text.size() > 0 && text[0] == '{'){
+        LOG_INFO(nlohmann::json::parse(text).dump(4));
+    }
 }
 
 void Artist::Handle(ClientboundSystemChatPacket& msg)
@@ -41,6 +46,8 @@ void Artist::Handle(ClientboundSystemChatPacket& msg)
     ManagersClient::Handle(msg);
 
     std::cout << msg.GetContent().GetRawText() << std::endl;
+
+    LOG_INFO(nlohmann::json::parse(msg.GetContent().GetRawText()).dump(4));
 }
 
 void Artist::Handle(ClientboundTabListPacket& msg)

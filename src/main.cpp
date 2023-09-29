@@ -15,7 +15,7 @@ struct Args {
     // initial value
     string address = "127.0.0.1:25565";
     string login = "33ss";
-    string configPath = "config.txt";
+    string configPath = "config_local.txt";
     bool microsoftLogin = false;
 };
 

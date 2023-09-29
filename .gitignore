@@ -1,6 +1,5 @@
 Botcraft/
 bin/*
-# !bin/config.txt
 !bin/config_local.txt
 !bin/config_online.txt
 build/

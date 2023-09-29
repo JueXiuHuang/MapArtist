@@ -273,7 +273,7 @@ Status CollectAllMaterial(BehaviourClient& c) {
 }
 
 Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
-  LOG_INFO("Collecting " << itemName << " for " << needed);
+  LOG_INFO(endl << "Collecting " << itemName << " for " << needed);
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
   Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
@@ -632,7 +632,7 @@ Status LoadNBT(BehaviourClient& c) {
   stringstream needed;
   needed << "Block needed:\n";
   for (auto it = num_blocks_used.begin(); it != num_blocks_used.end(); ++it) {
-    needed << "\t" << palette[it->first] << "\t\t" << it->second << "\n";
+    needed << setw(35) << palette[it->first] << "----" << it->second << "\n";
   }
   LOG_INFO(needed.rdbuf());
 

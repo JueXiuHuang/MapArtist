@@ -1,18 +1,5 @@
 #include "CustomTask.hpp"
 #include "Algorithm.hpp"
-
-#include <chrono>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <iterator>
-#include <set>
-#include <sstream>
-#include <string>
-#include <unordered_set>
-#include <vector>
-#include <map>
-
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/AssetsManager.hpp"
 #include "botcraft/Game/Entities/EntityManager.hpp"
@@ -23,8 +10,19 @@
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Network/NetworkManager.hpp"
 #include "botcraft/Utilities/Logger.hpp"
-#include "botcraft/Utilities/SleepUtilities.hpp"
 #include "botcraft/Utilities/MiscUtilities.hpp"
+#include "botcraft/Utilities/SleepUtilities.hpp"
+#include <chrono>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <set>
+#include <sstream>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -67,7 +65,6 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
 
   // Sort the chest and make sure the first slot in hotbar is empty
   // Food will place in this slot
-  // SortInventory(c);
   SwapItemsInContainer(c, Window::PLAYER_INVENTORY_INDEX,
                           Window::INVENTORY_HOTBAR_START, 
                           Window::INVENTORY_OFFHAND_INDEX);
@@ -85,6 +82,7 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
   for (size_t index = 0; index < chests.size(); ++index) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
+    GoTo(c, chests[i], 1, 1, 1, 10);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
@@ -140,10 +138,6 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
 Status SortChestWithDesirePlace(BehaviourClient& c) {
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
   shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
-  // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
-  Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
-  // Start sprinting
-  StartSprinting(c);
   Status state = SortInventory(c);
   queue<short> taskSrc, taskDst;
   {
@@ -201,6 +195,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
+    GoTo(c, chest, 1, 1, 1, 10);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -291,6 +286,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     LOG_INFO("========== CHEST ==========");
     SortInventory(c);
+    GoTo(c, chest, 1, 1, 1, 10);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -407,6 +403,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   StartSprinting(c);
   Blackboard& board = c.GetBlackboard();
 
+  GoTo(c, blockPos, 2, 2, 2, 10);
   if (action == "Dig") {
     return Dig(c, blockPos, true);
   } else if (action == "Place") {
@@ -504,7 +501,7 @@ Status CheckCompletion(BehaviourClient& c) {
   const bool full_check = true;
 
   for (auto cp : checkpoints) {
-    GoTo(c, anchor+cp, 4, 4, 4);
+    GoTo(c, anchor+cp, 4, 4, 4, 10);
     if (check(c) == Status::Failure) return Status::Failure;
   }
 

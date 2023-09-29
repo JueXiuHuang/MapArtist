@@ -65,6 +65,14 @@
     "thread": "cpp",
     "typeindex": "cpp",
     "typeinfo": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "codecvt": "cpp",
+    "csignal": "cpp",
+    "cstdarg": "cpp",
+    "forward_list": "cpp",
+    "list": "cpp",
+    "regex": "cpp",
+    "ranges": "cpp",
+    "valarray": "cpp"
   }
 }

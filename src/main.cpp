@@ -1,12 +1,10 @@
-#include <iostream>
-#include <string>
-#include <queue>
-
 #include "Artist.hpp"
 #include "CustomSubTree.hpp"
-
 #include "botcraft/Game/ManagersClient.hpp"
 #include "botcraft/Utilities/Logger.hpp"
+#include <iostream>
+#include <queue>
+#include <string>
 
 #include <Windows.h>  // must put here to avoid macro error
 
@@ -85,13 +83,12 @@ int main(int argc, char* argv[]) {
         // Add a name to this thread for logging
         Logger::GetInstance().RegisterThread("main");
         
-        Artist client(true);
+        Artist client(true, args.configPath);
 
         const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 
         LOG_INFO("Starting connection process");
         client.Connect(args.address, args.login, args.microsoftLogin);
-        client.SetBehaviourTree(tree, {{"configPath", args.configPath}});
         client.RunBehaviourUntilClosed();
         client.Disconnect();
 

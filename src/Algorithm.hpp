@@ -1,6 +1,5 @@
-#include <string>
-
 #include "botcraft/AI/BehaviourClient.hpp"
+#include <string>
 
 void SimpleBFS(Botcraft::BehaviourClient& c);
 void SimpleDFS(Botcraft::BehaviourClient& c);

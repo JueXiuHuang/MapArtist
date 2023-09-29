@@ -6,7 +6,8 @@
 
 class Artist : public Botcraft::SimpleBehaviourClient {
     public:
-        Artist(const bool use_renderer);
+        std::string configPath;
+        Artist(const bool use_renderer, std::string path);
         ~Artist();
 
     protected:

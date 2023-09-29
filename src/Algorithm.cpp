@@ -1,14 +1,11 @@
 #include "Algorithm.hpp"
-
-#include <queue>
-#include <stack>
-#include <utility>
-#include <algorithm>
-
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/Vector3.hpp"
 #include "botcraft/Game/World/World.hpp"
-
+#include <algorithm>
+#include <queue>
+#include <stack>
+#include <utility>
 
 using namespace Botcraft;
 using namespace std;
@@ -63,7 +60,7 @@ void SimpleBFS(BehaviourClient& c) {
         // it is a air block
         if (!world->IsLoaded(currentPos+anchor)) {
           world->GetMutex().unlock();
-          GoTo(c, currentPos+anchor, 16, 5, 5);
+          GoTo(c, currentPos+anchor, 16, 5, 5, 10);
           world->GetMutex().lock();
 
           block = world->GetBlock(currentPos+anchor);
@@ -277,7 +274,7 @@ void SliceDFS(BehaviourClient& c) {
         if (!block) {
           if (!world->IsLoaded(cp+anchor)) {
             world->GetMutex().unlock();
-            GoTo(c, cp+anchor, 16, 5, 5);
+            GoTo(c, cp+anchor, 16, 5, 5, 10);
             world->GetMutex().lock();
 
             block = world->GetBlock(cp+anchor);

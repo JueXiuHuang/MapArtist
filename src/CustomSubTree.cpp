@@ -1,9 +1,7 @@
 #include "CustomSubTree.hpp"
-
-#include <botcraft/AI/Tasks/AllTasks.hpp>
-
 #include "CustomBehaviorTree.hpp"
 #include "CustomTask.hpp"
+#include <botcraft/AI/Tasks/AllTasks.hpp>
 
 using namespace Botcraft;
 using namespace std;

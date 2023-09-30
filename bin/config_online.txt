@@ -9,6 +9,9 @@ tempblock=minecraft:cobblestone
 # available algorithm: bfs, dfs, slice_dfs
 prioritize=slice_dfs
 
+# if the bot will place it's neighboring blocks.
+neighbor=true
+
 # retry is the number of times we retry an action
 retry=4;
 

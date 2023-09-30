@@ -367,7 +367,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
 }
 
 Status TaskExecutor(BehaviourClient& c) {
-  LOG_INFO("Execute task in queue...");
+  LOG_INFO(endl << "Execute task in queue...");
   Blackboard& blackboard = c.GetBlackboard();
   queue<Position> qTaskPosition = blackboard.Get<queue<Position>>("qTaskPosition");
   queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
@@ -376,6 +376,7 @@ Status TaskExecutor(BehaviourClient& c) {
   vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1)};
 
   if (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
+    LOG_INFO(endl << "Remain " << !qTaskPosition.size() << " tasks...");
     Position taskPos = qTaskPosition.front(); qTaskPosition.pop();
     string taskType = qTaskType.front(); qTaskType.pop();
     string blockName = qTaskName.front(); qTaskName.pop();
@@ -383,7 +384,7 @@ Status TaskExecutor(BehaviourClient& c) {
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
       if (exec_result == Status::Success) break;
       else {
-        LOG_WARNING("Task fail, move to another position and try again...");
+        LOG_WARNING(endl << "Task fail, move to another position and try again...");
         GoTo(c, taskPos+offsets[i%offsets.size()]);
       }
     }
@@ -420,7 +421,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
     return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
   }
 
-  LOG_WARNING("Unknown task in ExecuteNextTask");
+  LOG_WARNING(endl << "Unknown task in ExecuteNextTask");
   return Status::Failure;
 }
 
@@ -728,6 +729,8 @@ Status LoadConfig(BehaviourClient& c) {
       blackboard.Set("prioritize", value);
     } else if (key == "retry") {
       blackboard.Set("retry", stoi(value));
+    } else if (key == "neighbor") {
+      blackboard.Set("neighbor", value == "true");
     } else {
       vector<Position> posVec;
       istringstream _iss(value);

@@ -22,6 +22,7 @@ using json = nlohmann::json;
 void cmdHandler(string cmd, Artist *artist) {
     if (cmd == "hungry") {
         Status s = IsHungry(*artist, 15);
+        LOG_INFO(endl << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood());
         if (s == Status::Success) {
             artist->SendChatMessage("I'm hungry.");
         } else {

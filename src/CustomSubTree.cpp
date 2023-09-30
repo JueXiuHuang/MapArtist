@@ -18,8 +18,10 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
         .inverter().tree(CheckCompleteTree())
         .tree(NullTree())
       .end()
-      .tree(EatTree())
-      .tree(WorkTree())
+      .repeater(0).sequence()
+        .tree(EatTree())
+        .tree(WorkTree())
+      .end()
     .end();
 }
 
@@ -49,9 +51,14 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
 shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
   return Builder<SimpleBehaviourClient>("Work Tree")
     .sequence()
-      .leaf("Task Priortize", TaskPrioritize)
-      .leaf("Dump Items", DumpItems)
-      .leaf("Collect Material", CollectAllMaterial)
+      .selector()
+        .leaf("Prioritized?", CheckBlackboardBoolData, "Task.prioritized")
+        .sequence()
+          .leaf("Task Priortize", TaskPrioritize)
+          .leaf("Dump Items", DumpItems)
+          .leaf("Collect Material", CollectAllMaterial)
+        .end()
+      .end()
       .leaf("Task Execute scheduler", TaskExecutor)
     .end();
 }

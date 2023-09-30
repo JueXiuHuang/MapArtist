@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
 
         LOG_INFO("Starting connection process");
         client.Connect(args.address, args.login, args.microsoftLogin);
+        client.SetAutoRespawn(true);
         client.RunBehaviourUntilClosed();
         client.Disconnect();
 

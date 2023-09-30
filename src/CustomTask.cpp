@@ -248,6 +248,8 @@ Status DumpItems(BehaviourClient& c) {
 Status TaskPrioritize(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
   string algo = blackboard.Get<string>("prioritize");
+  blackboard.Set("Task.prioritized", true);
+
   if (algo == "bfs") {
     SimpleBFS(c);
   } else if (algo == "dfs") {
@@ -372,10 +374,11 @@ Status TaskExecutor(BehaviourClient& c) {
   queue<string> qTaskName = blackboard.Get<queue<string>>("qTaskName");
   int retry_times = blackboard.Get<int>("retry");
   vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1)};
-  while (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
-    Position taskPos = qTaskPosition.front();
-    string taskType = qTaskType.front();
-    string blockName = qTaskName.front();
+
+  if (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
+    Position taskPos = qTaskPosition.front(); qTaskPosition.pop();
+    string taskType = qTaskType.front(); qTaskType.pop();
+    string blockName = qTaskName.front(); qTaskName.pop();
     for (int i = 0; i < retry_times; i++) {
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
       if (exec_result == Status::Success) break;
@@ -385,16 +388,23 @@ Status TaskExecutor(BehaviourClient& c) {
       }
     }
     
-    qTaskPosition.pop();
-    qTaskType.pop();
-    qTaskName.pop();
-  }
+    blackboard.Set("qTaskPosition", qTaskPosition);
+    blackboard.Set("qTaskType", qTaskType);
+    blackboard.Set("qTaskName", qTaskName);
 
-  return Status::Success;
+    // Still has task in queue, return fail.
+    return Status::Failure;
+  } else {
+    blackboard.Set("Task.prioritized", false);
+
+    // All tasks resolved, return success.
+    return Status::Success;
+  }
 }
 
 Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string blockName) {
-  LOG_INFO( "Task:" << setw(5) << action <<
+  LOG_INFO(endl <<
+          "Task:" << setw(5) << action <<
           ", Block Name:" << setw(32) << blockName <<
           ", Position:" << blockPos);
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)

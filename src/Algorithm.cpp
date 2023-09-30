@@ -25,7 +25,7 @@ void SimpleBFS(BehaviourClient& c) {
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter;
+  map<string, int, MaterialCompareOld> itemCounter;
 
   queue<Position> pending, qTaskPosition;
   queue<string> qTaskType, qTaskName;
@@ -117,7 +117,7 @@ void SimpleDFS(BehaviourClient& c){
 
   const Position size = end - start + Position(1, 1, 1);
 
-  map<string, int, MaterialCompare> itemCounter;
+  map<string, int, MaterialCompareOld> itemCounter;
   queue<Position> pending, qTaskPosition;
   queue<string> qTaskType, qTaskName;
 
@@ -243,7 +243,7 @@ void SliceDFS(BehaviourClient& c) {
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter;
+  map<string, int, MaterialCompareOld> itemCounter;
 
   queue<Position> qTaskPosition;
   queue<string> qTaskType, qTaskName;

@@ -264,7 +264,7 @@ Status TaskPrioritize(BehaviourClient& c) {
 Status CollectAllMaterial(BehaviourClient& c) {
   LOG_INFO("Trying to collect material...");
   Blackboard& blackboard = c.GetBlackboard();
-  map<string, int, MaterialCompare> itemCounter = blackboard.Get<map<string, int, MaterialCompare>>("itemCounter");
+  map<string, int, MaterialCompareOld> itemCounter = blackboard.Get<map<string, int, MaterialCompareOld>>("itemCounter");
 
   for (auto item : itemCounter) {
     CollectSingleMaterial(c, item.first, item.second);

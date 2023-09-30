@@ -20,6 +20,7 @@ retry=4;
 
 recycle=-62,-50,-91;-63,-49,-91
 minecraft:cooked_beef=-68,-60,-92
+
 minecraft:white_wool=-61,-59,-93;-61,-58,-93
 minecraft:light_gray_wool=-60,-59,-93;-60,-58,-93
 minecraft:gray_wool=-59,-59,-93;-59,-58,-93

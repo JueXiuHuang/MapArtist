@@ -1187,5 +1187,23 @@
     },
     "done": true
   },
+  "minecraft:recipes/building_blocks/spruce_planks": {
+    "criteria": {
+      "has_logs": "2023-09-29 22:48:58 +0800"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/charcoal": {
+    "criteria": {
+      "has_log": "2023-09-29 22:48:58 +0800"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/spruce_wood": {
+    "criteria": {
+      "has_log": "2023-09-29 22:48:58 +0800"
+    },
+    "done": true
+  },
   "DataVersion": 3465
 }

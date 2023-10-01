@@ -30,7 +30,7 @@ void cmdHandler(string cmd, Artist *artist) {
         }
     } else if (cmd == "stop") {
         artist->SendChatMessage("=== BOT STOP ===");
-        NullTree();
+        artist->SetBehaviourTree(nullptr);
     } else if (cmd == "start") {
         artist->SendChatMessage("=== BOT START ===");
         artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath}});

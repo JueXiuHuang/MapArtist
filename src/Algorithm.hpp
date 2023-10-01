@@ -4,6 +4,7 @@
 void SimpleBFS(Botcraft::BehaviourClient& c);
 void SimpleDFS(Botcraft::BehaviourClient& c);
 void SliceDFS(Botcraft::BehaviourClient& c);
+void SliceDFSNeighbor(Botcraft::BehaviourClient& c);
 
 // Used for material collecting optimization
 // struct MaterialCompare {

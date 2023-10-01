@@ -256,8 +256,11 @@ Status TaskPrioritize(BehaviourClient& c) {
     SimpleDFS(c);
   } else if (algo == "slice_dfs") {
     SliceDFS(c);
+  } else if (algo == "slice_dfs_neighbor") {
+    SliceDFSNeighbor(c);
   } else {
     LOG_ERROR("Get unrecognized prioritize method: " << algo);
+    return Status::Failure;
   }
 
   return Status::Success;
@@ -376,7 +379,7 @@ Status TaskExecutor(BehaviourClient& c) {
   vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1)};
 
   if (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
-    LOG_INFO(endl << "Remain " << !qTaskPosition.size() << " tasks...");
+    LOG_INFO(endl << "Remain " << qTaskPosition.size() << " tasks...");
     Position taskPos = qTaskPosition.front(); qTaskPosition.pop();
     string taskType = qTaskType.front(); qTaskType.pop();
     string blockName = qTaskName.front(); qTaskName.pop();
@@ -414,7 +417,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   StartSprinting(c);
   Blackboard& board = c.GetBlackboard();
 
-  GoTo(c, blockPos, 2, 2, 2, 10);
+  GoTo(c, blockPos, 3, 3, 3, 10);
   if (action == "Dig") {
     return Dig(c, blockPos, true);
   } else if (action == "Place") {

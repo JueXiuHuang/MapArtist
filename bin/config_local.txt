@@ -6,7 +6,7 @@ nbt=YaeMiko_2_5.nbt
 
 tempblock=minecraft:cobblestone
 
-# available algorithm: bfs, dfs, slice_dfs
+# available algorithm: bfs, dfs, slice_dfs, slice_dfs_neighbor
 prioritize=slice_dfs
 
 # if the bot will place it's neighboring blocks.

@@ -313,6 +313,9 @@ void SliceDFS(BehaviourClient& c) {
       Position cp = pending.top();
       pending.pop();
 
+      // TODO: replace part B to part A
+
+      // Part A
       // const short nbtBlockId = target[cp.x][cp.y][cp.z];
       // const string nbtBlockName = palette.at(nbtBlockId);
       
@@ -331,7 +334,9 @@ void SliceDFS(BehaviourClient& c) {
       //     if (slotCounter == 27) break;
       //   }
       // }
-      
+      // Part A end
+
+      // Part B
       const short current_target = target[cp.x][cp.y][cp.z];
       const string targetName = palette.at(current_target);
       string block_name = "minecraft:air";
@@ -369,6 +374,7 @@ void SliceDFS(BehaviourClient& c) {
         qTaskType.push("Dig");
         qTaskName.push(targetName);
       }
+      // Part B end
 
       for (int i = 0; i < neighbor_offsets.size(); i++) {
         Position newPos = cp + neighbor_offsets[i];

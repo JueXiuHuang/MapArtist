@@ -14,24 +14,18 @@ string getWorldBlock(BehaviourClient& c, Position pos) {
   shared_ptr<World> world = c.GetWorld();
 
   string curBlockName = "minecraft:air";
-  {
-    world->GetMutex().lock();
-    const Block* block = world->GetBlock(pos);
+  const Blockstate* block = world->GetBlock(pos);
 
-    if (!block) {
-      // it is a air block
-      if (!world->IsLoaded(pos)) {
-        world->GetMutex().unlock();
-        GoTo(c, pos, 16, 5, 5, 10);
-        world->GetMutex().lock();
+  if (!block) {
+    // it is a air block
+    if (!world->IsLoaded(pos)) {
+      GoTo(c, pos, 16, 5, 5, 10);
 
-        block = world->GetBlock(pos);
-        if (block) curBlockName = block->GetBlockstate()->GetName();
-      }
-    } else {
-      curBlockName = block->GetBlockstate()->GetName();
+      block = world->GetBlock(pos);
+      if (block) curBlockName = block->GetName();
     }
-    world->GetMutex().unlock();
+  } else {
+    curBlockName = block->GetName();
   }
 
   return curBlockName;
@@ -101,26 +95,19 @@ void SimpleBFS(BehaviourClient& c) {
     // 3-1 if this neighbor already visited, skip
     // 3-2 if not visited, push to pending and mark it as visited
     string block_name = "minecraft:air";
-    {
-      world->GetMutex().lock();
-      const Block* block = world->GetBlock(currentPos+anchor);
+    const Blockstate* block = world->GetBlock(currentPos+anchor);
+    if (!block) {
+      // it is a air block
+      if (!world->IsLoaded(currentPos+anchor)) {
+        GoTo(c, currentPos+anchor, 16, 5, 5, 10);
 
-      if (!block) {
-        // it is a air block
-        if (!world->IsLoaded(currentPos+anchor)) {
-          world->GetMutex().unlock();
-          GoTo(c, currentPos+anchor, 16, 5, 5, 10);
-          world->GetMutex().lock();
-
-          block = world->GetBlock(currentPos+anchor);
-          if (block) block_name = block->GetBlockstate()->GetName();
-        }
-      } else {
-        block_name = block->GetBlockstate()->GetName();
+        block = world->GetBlock(currentPos+anchor);
+        if (block) block_name = block->GetName();
       }
-      world->GetMutex().unlock();
+    } else {
+      block_name = block->GetName();
     }
-
+    
     if (targetName != "minecraft:air" && block_name == "minecraft:air") {
       qTaskPosition.push(currentPos+anchor);
       qTaskType.push("Place");
@@ -217,24 +204,17 @@ void SimpleDFS(BehaviourClient& c){
 
       // get the current block name
       string curBlockName = airBlockName;
-      {
-        world->GetMutex().lock();
-        const Block* block = world->GetBlock(currentPos+anchor);
+      const Blockstate* block = world->GetBlock(currentPos+anchor);
+      if (!block) {
+        // it is a air block
+        if (!world->IsLoaded(currentPos+anchor)) {
+          GoTo(c, currentPos+anchor, 16, 5, 5, 10);
 
-        if (!block) {
-          // it is a air block
-          if (!world->IsLoaded(currentPos+anchor)) {
-            world->GetMutex().unlock();
-            GoTo(c, currentPos+anchor, 16, 5, 5, 10);
-            world->GetMutex().lock();
-
-            block = world->GetBlock(currentPos+anchor);
-            if (block) curBlockName = block->GetBlockstate()->GetName();
-          }
-        } else {
-          curBlockName = block->GetBlockstate()->GetName();
+          block = world->GetBlock(currentPos+anchor);
+          if (block) curBlockName = block->GetName();
         }
-        world->GetMutex().unlock();
+      } else {
+        curBlockName = block->GetName();
       }
       
       if (targetName != airBlockName && curBlockName == airBlockName) {
@@ -340,23 +320,17 @@ void SliceDFS(BehaviourClient& c) {
       const short current_target = target[cp.x][cp.y][cp.z];
       const string targetName = palette.at(current_target);
       string block_name = "minecraft:air";
-      {
-        world->GetMutex().lock();
-        const Block* block = world->GetBlock(cp+anchor);
+      const Blockstate* block = world->GetBlock(cp+anchor);
 
-        if (!block) {
-          if (!world->IsLoaded(cp+anchor)) {
-            world->GetMutex().unlock();
-            GoTo(c, cp+anchor, 16, 5, 5, 10);
-            world->GetMutex().lock();
+      if (!block) {
+        if (!world->IsLoaded(cp+anchor)) {
+          GoTo(c, cp+anchor, 16, 5, 5, 10);
 
-            block = world->GetBlock(cp+anchor);
-            if (block) block_name = block->GetBlockstate()->GetName();
-          }
-        } else {
-          block_name = block->GetBlockstate()->GetName();
+          block = world->GetBlock(cp+anchor);
+          if (block) block_name = block->GetName();
         }
-        world->GetMutex().unlock();
+      } else {
+        block_name = block->GetName();
       }
 
       if (targetName != "minecraft:air" && block_name == "minecraft:air") {

@@ -73,6 +73,8 @@
     "list": "cpp",
     "regex": "cpp",
     "ranges": "cpp",
-    "valarray": "cpp"
-  }
+    "valarray": "cpp",
+    "shared_mutex": "cpp"
+  },
+  "C_Cpp.default.intelliSenseMode": "windows-gcc-x64"
 }

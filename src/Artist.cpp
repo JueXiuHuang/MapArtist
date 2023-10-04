@@ -5,7 +5,6 @@
 #include "botcraft/Game/Entities/EntityManager.hpp"
 #include "botcraft/Game/Entities/LocalPlayer.hpp"
 #include "botcraft/Game/Inventory/Window.hpp"
-#include "botcraft/Game/World/Block.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Network/NetworkManager.hpp"
 #include <iomanip>

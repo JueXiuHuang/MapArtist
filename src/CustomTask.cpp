@@ -459,15 +459,11 @@ Status check(BehaviourClient& c) {
         string target_name = palette.at(target_id);
         
         string block_name = "minecraft:air";
-        {
-          lock_guard<mutex> lock(world->GetMutex());
-          const Block* block = world->GetBlock(world_pos);
-
-          if (!world->IsLoaded(world_pos)) {
+        const Blockstate* block = world->GetBlock(world_pos);
+        if (!world->IsLoaded(world_pos)) {
             continue;
-          } else if (block) {
-            block_name = block->GetBlockstate()->GetName();
-          }
+        } else if (block) {
+          block_name = block->GetName();
         }
 
         if (block_name == "minecraft:air" && target_name == "minecraft:air") {

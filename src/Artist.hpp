@@ -5,14 +5,14 @@
 // #include "protocolCraft/GenericHandler.hpp"
 
 class Artist : public Botcraft::SimpleBehaviourClient {
-    public:
-        std::string configPath;
-        Artist(const bool use_renderer, std::string path);
-        ~Artist();
+  public:
+    std::string configPath;
+    Artist(const bool use_renderer, std::string path);
+    ~Artist();
 
-    protected:
-        virtual void Handle(ProtocolCraft::ClientboundPlayerChatPacket& msg) override;
-        virtual void Handle(ProtocolCraft::ClientboundSystemChatPacket& msg) override;
-        virtual void Handle(ProtocolCraft::ClientboundTabListPacket& msg) override;
+  protected:
+    virtual void Handle(ProtocolCraft::ClientboundPlayerChatPacket& msg) override;
+    virtual void Handle(ProtocolCraft::ClientboundSystemChatPacket& msg) override;
+    virtual void Handle(ProtocolCraft::ClientboundTabListPacket& msg) override;
 };
 #endif

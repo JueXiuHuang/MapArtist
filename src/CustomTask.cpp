@@ -461,7 +461,7 @@ Status check(BehaviourClient& c) {
         string block_name = "minecraft:air";
         const Blockstate* block = world->GetBlock(world_pos);
         if (!world->IsLoaded(world_pos)) {
-            continue;
+          continue;
         } else if (block) {
           block_name = block->GetName();
         }

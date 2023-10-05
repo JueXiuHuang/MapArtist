@@ -41,11 +41,20 @@ void cmdHandler(string cmd, Artist *artist) {
     bar << "[" << string(ratio, '#') << string(20 - ratio, '-') << "]  "
         << fixed << setprecision(1) << percent << "%";
     artist->SendChatMessage(bar.str());
+  } else if (cmd == "csafe") {
+    artist->SendChatCommand(cmd);
+  } else if (cmd.find("cmd") != string::npos) {
+    regex pattern("cmd\\s+(.+)");
+    smatch matches;
+    regex_search(cmd, matches, pattern);
+    string ingameCmd = matches[1];
+    artist->SendChatCommand(ingameCmd);
   }
 }
 
 void msgProcessor(string text, Artist *artist) {
-  regex cmdPattern("::(\\S+)"), namePattern("<([^>]+)>");
+  // regex cmdPattern("::(\\S+)"), namePattern("<([^>]+)>");
+  regex cmdPattern("::(.+)"), namePattern("<([^>]+)>");
 
   smatch cmdMatch, nameMatch;
   string sendBy, cmd;
@@ -57,7 +66,7 @@ void msgProcessor(string text, Artist *artist) {
   }
 }
 
-Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer) {
+Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer), finder(make_shared<BotCraftClient>(this)) {
   configPath = path;
 }
 
@@ -75,9 +84,11 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
 
     string text = msg.GetContent().GetText();
     // Find a message from discord
+    LOG_INFO(endl << text);
     if (text.find("[#405home]") != string::npos) {
-      LOG_INFO(endl << text);
       msgProcessor(text, this);
+    } else if (text.find("[系統] 這個領地內的區域") != string::npos) {
+      SendChatMessage(text);
     }
 }
 

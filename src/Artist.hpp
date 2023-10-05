@@ -2,11 +2,12 @@
 #define ARTIST_HPP
 
 #include "botcraft/AI/SimpleBehaviourClient.hpp"
-// #include "protocolCraft/GenericHandler.hpp"
+#include "PathFinding.hpp"
 
 class Artist : public Botcraft::SimpleBehaviourClient {
   public:
     std::string configPath;
+    pf::PathFinder<BotCraftClient> finder;
     Artist(const bool use_renderer, std::string path);
     ~Artist();
 

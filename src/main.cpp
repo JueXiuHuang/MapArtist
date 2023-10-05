@@ -26,7 +26,7 @@ Args parseArgv(int argc, char* argv[]){
   }
 
   Args args;
-  string help_str = string(argv[0]) + " [-a address] [-l login] [-c config] [-m microsoft] [-h help]\n";
+  string help_str = string(argv[0]) + " [-a address] [-l login] [-c config] [-m] [-h]\n";
   help_str += "--address (-a): Address of server. [Default: " + args.address + "]\n";
   help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
   help_str += "--config (-c): Path of config file. [Default: " + args.configPath + "]\n";

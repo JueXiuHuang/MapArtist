@@ -66,7 +66,9 @@ void msgProcessor(string text, Artist *artist) {
   }
 }
 
-Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer), finder(make_shared<BotCraftClient>(this)) {
+Artist::Artist(const bool use_renderer, string path) : 
+    SimpleBehaviourClient(use_renderer), 
+    finder(std::make_shared<BotCraftClient<Artist>>(std::shared_ptr<Artist>(this))) {
   configPath = path;
 }
 

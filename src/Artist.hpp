@@ -7,7 +7,7 @@
 class Artist : public Botcraft::SimpleBehaviourClient {
   public:
     std::string configPath;
-    pf::PathFinder<BotCraftClient> finder;
+    pf::PathFinder<BotCraftClient<Artist>> finder;
     Artist(const bool use_renderer, std::string path);
     ~Artist();
 

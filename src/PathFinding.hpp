@@ -11,7 +11,8 @@
 
 namespace pf = pathfinding;
 
-class BotCraftClient final : public pf::SimpleClient<BotCraftClient> {
+template <class T>
+class BotCraftClient final : public pf::SimpleClient<BotCraftClient<T>> {
  public:
   virtual std::string getBlockImpl(const pf::Position& pos) const override {
     auto world = client->GetWorld();
@@ -114,9 +115,9 @@ class BotCraftClient final : public pf::SimpleClient<BotCraftClient> {
     return true;
   }
 
-  BotCraftClient(std::shared_ptr<Botcraft::SimpleBehaviourClient> _client)
+  BotCraftClient(std::shared_ptr<T> _client)
       : client(_client) {}
 
  private:
-  std::shared_ptr<Botcraft::SimpleBehaviourClient> client;
+  std::shared_ptr<T> client;
 };

@@ -1,4 +1,5 @@
 #include "Algorithm.hpp"
+#include "CustomTask.hpp"
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/Vector3.hpp"
 #include "botcraft/Game/World/World.hpp"
@@ -19,7 +20,8 @@ string getWorldBlock(BehaviourClient& c, Position pos) {
   if (!block) {
     // it is a air block
     if (!world->IsLoaded(pos)) {
-      GoTo(c, pos, 16, 5, 5, 10);
+      // GoTo(c, pos, 16, 5, 5, 10);
+      FindPathAndMove(c, pos);
 
       block = world->GetBlock(pos);
       if (block) curBlockName = block->GetName();
@@ -324,7 +326,8 @@ void SliceDFS(BehaviourClient& c) {
 
       if (!block) {
         if (!world->IsLoaded(cp+anchor)) {
-          GoTo(c, cp+anchor, 16, 5, 5, 10);
+          // GoTo(c, cp+anchor, 16, 5, 5, 10);
+          FindPathAndMove(c, cp+anchor);
 
           block = world->GetBlock(cp+anchor);
           if (block) block_name = block->GetName();

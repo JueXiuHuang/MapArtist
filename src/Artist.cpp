@@ -32,7 +32,7 @@ void cmdHandler(string cmd, Artist *artist) {
     artist->SetBehaviourTree(nullptr);
   } else if (cmd == "start") {
     artist->SendChatMessage("=== BOT START ===");
-    artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath}});
+    artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath}, {"pathFinder", artist->finder}});
   } else if (cmd == "bar") {
     int xCheckStart = artist->GetBlackboard().Get<int>("SliceDFS.xCheckStart", 0);
     int ratio = (xCheckStart + 1) * 20 / 128;
@@ -68,7 +68,7 @@ void msgProcessor(string text, Artist *artist) {
 
 Artist::Artist(const bool use_renderer, string path) : 
     SimpleBehaviourClient(use_renderer), 
-    finder(std::make_shared<BotCraftClient<Artist>>(std::shared_ptr<Artist>(this))) {
+    finder(make_shared<BotCraftClient<BehaviourClient>>(shared_ptr<BehaviourClient>(this))) {
   configPath = path;
 }
 

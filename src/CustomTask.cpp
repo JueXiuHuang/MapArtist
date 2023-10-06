@@ -12,6 +12,7 @@
 #include "botcraft/Utilities/Logger.hpp"
 #include "botcraft/Utilities/MiscUtilities.hpp"
 #include "botcraft/Utilities/SleepUtilities.hpp"
+#include "PathFinding.hpp"
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -82,7 +83,8 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
   for (size_t index = 0; index < chests.size(); ++index) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
-    GoTo(c, chests[i], 1, 1, 1, 10);
+    // GoTo(c, chests[i], 1, 1, 1, 10);
+    FindPathAndMove(c, chests[i]);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
@@ -195,7 +197,8 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    GoTo(c, chest, 1, 1, 1, 10);
+    // GoTo(c, chest, 1, 1, 1, 10);
+    FindPathAndMove(c, chest);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -292,7 +295,8 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     LOG_INFO("========== CHEST ==========");
     SortInventory(c);
-    GoTo(c, chest, 1, 1, 1, 10);
+    // GoTo(c, chest, 1, 1, 1, 10);
+    FindPathAndMove(c, chest);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -389,7 +393,8 @@ Status TaskExecutor(BehaviourClient& c) {
       if (exec_result == Status::Success) break;
       else {
         LOG_WARNING(endl << "Task fail, move to another position and try again...");
-        GoTo(c, taskPos+offsets[i%offsets.size()]);
+        FindPathAndMove(c, taskPos+offsets[i%offsets.size()]);
+        // GoTo(c, taskPos+offsets[i%offsets.size()]);
       }
     }
     
@@ -418,7 +423,8 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   StartSprinting(c);
   Blackboard& board = c.GetBlackboard();
 
-  GoTo(c, blockPos, 3, 3, 3, 10);
+  // GoTo(c, blockPos, 3, 3, 3, 10);
+  FindPathAndMove(c, blockPos);
   if (action == "Dig") {
     return Dig(c, blockPos, true);
   } else if (action == "Place") {
@@ -427,6 +433,35 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
 
   LOG_WARNING(endl << "Unknown task in ExecuteNextTask");
   return Status::Failure;
+}
+
+Status FindPathAndMove(BehaviourClient&c, Position pos) {
+  Blackboard& blackboard = c.GetBlackboard();
+  auto finder = blackboard.Get<pf::PathFinder<BotCraftClient<BehaviourClient>>>("pathFinder");
+
+  // get player location
+  pf::Position from;
+  {
+    shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
+    lock_guard<mutex> player_lock(local_player->GetMutex());
+    auto player_pos = local_player->GetPosition();
+    from.x = floor(player_pos.x);
+    from.y = floor(player_pos.y) - 1;
+    from.z = floor(player_pos.z);
+  }
+
+  pf::Position to{pos.x, pos.y, pos.z};
+  chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
+  auto path = finder.findPath<pf::eval::MaxAxisOffset>(from, to);
+  chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
+
+  cout << (*path) << "Length: " << path->size() << endl;
+  cout << "Took: " << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count()
+            << "ms" << endl;
+  cout << "Moveing..." << endl;
+  finder.Move(path);
+
+  return Status::Success;
 }
 
 Status check(BehaviourClient& c) {
@@ -702,8 +737,8 @@ Status LoadNBT(BehaviourClient& c) {
 
 Status LoadConfig(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
-  const std::string &configPath = blackboard.Get<std::string>("configPath");
-  ifstream file(configPath, std::ios::in);
+  const string &configPath = blackboard.Get<string>("configPath");
+  ifstream file(configPath, ios::in);
 
   if (!file.is_open()) {
     cerr << "Unable to open file: " + configPath << endl;

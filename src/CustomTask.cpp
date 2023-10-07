@@ -84,7 +84,7 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
     // GoTo(c, chests[i], 1, 1, 1, 10);
-    FindPathAndMove(c, chests[i]);
+    FindPathAndMove(c, chests[i], 1, 1, 1);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
@@ -198,7 +198,7 @@ Status DumpItems(BehaviourClient& c) {
 
   for (auto chest : chestPositions) {
     // GoTo(c, chest, 1, 1, 1, 10);
-    FindPathAndMove(c, chest);
+    FindPathAndMove(c, chest, 1, 1, 1);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -296,7 +296,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     LOG_INFO("========== CHEST ==========");
     SortInventory(c);
     // GoTo(c, chest, 1, 1, 1, 10);
-    FindPathAndMove(c, chest);
+    FindPathAndMove(c, chest, 1, 1, 1);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -393,7 +393,7 @@ Status TaskExecutor(BehaviourClient& c) {
       if (exec_result == Status::Success) break;
       else {
         LOG_WARNING(endl << "Task fail, move to another position and try again...");
-        FindPathAndMove(c, taskPos+offsets[i%offsets.size()]);
+        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 0, 0);
         // GoTo(c, taskPos+offsets[i%offsets.size()]);
       }
     }
@@ -424,7 +424,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   Blackboard& board = c.GetBlackboard();
 
   // GoTo(c, blockPos, 3, 3, 3, 10);
-  FindPathAndMove(c, blockPos);
+  FindPathAndMove(c, blockPos, 3, 3, 3);
   if (action == "Dig") {
     return Dig(c, blockPos, true);
   } else if (action == "Place") {
@@ -435,9 +435,9 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   return Status::Failure;
 }
 
-Status FindPathAndMove(BehaviourClient&c, Position pos) {
+Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, int z_tol) {
   Blackboard& blackboard = c.GetBlackboard();
-  auto finder = blackboard.Get<pf::PathFinder<BotCraftClient<BehaviourClient>>>("pathFinder");
+  auto finder = blackboard.Get<BotCraftFinder>("pathFinder");
 
   // get player location
   pf::Position from;
@@ -452,14 +452,14 @@ Status FindPathAndMove(BehaviourClient&c, Position pos) {
 
   pf::Position to{pos.x, pos.y, pos.z};
   chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
-  auto path = finder.findPath<pf::eval::MaxAxisOffset>(from, to);
+  auto path = finder.findPath(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol));
   chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
 
   cout << (*path) << "Length: " << path->size() << endl;
   cout << "Took: " << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count()
             << "ms" << endl;
   cout << "Moveing..." << endl;
-  finder.Move(path);
+  finder.go(path);
 
   return Status::Success;
 }

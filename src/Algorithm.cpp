@@ -21,7 +21,7 @@ string getWorldBlock(BehaviourClient& c, Position pos) {
     // it is a air block
     if (!world->IsLoaded(pos)) {
       // GoTo(c, pos, 16, 5, 5, 10);
-      FindPathAndMove(c, pos);
+      FindPathAndMove(c, pos, 5, 5, 5);
 
       block = world->GetBlock(pos);
       if (block) curBlockName = block->GetName();
@@ -327,7 +327,7 @@ void SliceDFS(BehaviourClient& c) {
       if (!block) {
         if (!world->IsLoaded(cp+anchor)) {
           // GoTo(c, cp+anchor, 16, 5, 5, 10);
-          FindPathAndMove(c, cp+anchor);
+          FindPathAndMove(c, cp+anchor, 5, 5, 5);
 
           block = world->GetBlock(cp+anchor);
           if (block) block_name = block->GetName();

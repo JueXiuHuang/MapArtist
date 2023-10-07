@@ -1,6 +1,6 @@
-#include <Client/SimpleClient.hpp>
 #include <Evaluate/Evaluate.hpp>
-#include <PathFinder.hpp>
+#include <Finder/Finder.hpp>
+#include <Goal/RangeGoal.hpp>
 
 #include "botcraft/AI/SimpleBehaviourClient.hpp"
 #include "botcraft/AI/Tasks/PathfindingTask.hpp"
@@ -11,10 +11,9 @@
 
 namespace pf = pathfinding;
 
-template <class T>
-class BotCraftClient final : public pf::SimpleClient<BotCraftClient<T>> {
+class BotCraftFinder final : public pf::AstarFinder<BotCraftFinder> {
  public:
-  virtual std::string getBlockImpl(const pf::Position& pos) const override {
+  virtual std::string getBlockNameImpl(const pf::Position& pos) const override {
     auto world = client->GetWorld();
     if (world->IsLoaded(Botcraft::Position{pos.x, pos.y, pos.z})) {
       const Botcraft::Blockstate* block =
@@ -26,14 +25,14 @@ class BotCraftClient final : public pf::SimpleClient<BotCraftClient<T>> {
     }
   }
 
-  virtual inline float calFallDamageImpl(
+  virtual inline float getFallDamageImpl(
       [[maybe_unused]] const pf::Position& landingPos,
       [[maybe_unused]] const typename pf::Position::value_type& height)
       const override {
     return 0.0;
   }
 
-  virtual inline bool moveImpl(const pf::Position& offset) override {
+  virtual inline bool playerMoveImpl(const pf::Position& offset) override {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
 
@@ -115,9 +114,9 @@ class BotCraftClient final : public pf::SimpleClient<BotCraftClient<T>> {
     return true;
   }
 
-  BotCraftClient(std::shared_ptr<T> _client)
-      : client(_client) {}
+  BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
+      : pf::AstarFinder<BotCraftFinder>({true, 9999999}), client(_client) {}
 
  private:
-  std::shared_ptr<T> client;
+  std::shared_ptr<Botcraft::BehaviourClient> client;
 };

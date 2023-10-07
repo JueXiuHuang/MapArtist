@@ -198,7 +198,7 @@ Status DumpItems(BehaviourClient& c) {
 
   for (auto chest : chestPositions) {
     // GoTo(c, chest, 1, 1, 1, 10);
-    FindPathAndMove(c, chest, 1, 1, 1);
+    FindPathAndMove(c, chest, 3, 1, 3);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -451,15 +451,8 @@ Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, in
   }
 
   pf::Position to{pos.x, pos.y, pos.z};
-  chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
-  auto path = finder.findPath(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol));
-  chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
-
-  cout << (*path) << "Length: " << path->size() << endl;
-  cout << "Took: " << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count()
-            << "ms" << endl;
-  cout << "Moveing..." << endl;
-  finder.go(path);
+  std::cout << from << " " << to << "\n";
+  finder.findPathAndGo(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol));
 
   return Status::Success;
 }

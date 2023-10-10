@@ -9,6 +9,7 @@
 #include "botcraft/Game/Entities/LocalPlayer.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Utilities/Logger.hpp"
+#include "botcraft/Utilities/SleepUtilities.hpp"
 
 namespace pf = pathfinding;
 
@@ -81,66 +82,137 @@ class BotCraftFinder final
           true);
     }
 
-    // jump
-    if (offset.y > 0) {
-      std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-      local_player->Jump();
-    }
-
-    const double speed = Botcraft::LocalPlayer::WALKING_SPEED;
     double norm = std::sqrt(realOffset.getXZ().template squaredNorm<double>());
-
     auto startTime = std::chrono::steady_clock::now(), preTime = startTime;
-    pf::Vec3<double> total_v;
-    while (true) {
-      auto nowTime = std::chrono::steady_clock::now();
-      const double elapsed_t = static_cast<double>(
-          std::chrono::duration_cast<std::chrono::milliseconds>(nowTime -
-                                                                startTime)
-              .count());
-      const double delta_t = static_cast<double>(
-          std::chrono::duration_cast<std::chrono::milliseconds>(nowTime -
-                                                                preTime)
-              .count());
-      pf::Vec3<double> delta_v =
-          (static_cast<pf::Vec3<double>>(realOffset) / norm) *
-          ((delta_t / 1000.0) * speed);
+
+    auto timeElapsed = [](const std::chrono::steady_clock::time_point& a,
+                          const std::chrono::steady_clock::time_point& b) {
+      return std::chrono::duration_cast<std::chrono::milliseconds>(b - a)
+          .count();
+    };
+
+    pf::Vec3<double> realTargetPos = targetPos;
+    if (offset.y == 0) {
+      const double speed = Botcraft::LocalPlayer::WALKING_SPEED;
+
+      while (true) {
+        auto nowTime = std::chrono::steady_clock::now();
+        auto untilTime = nowTime + std::chrono::milliseconds(50);
+        const double elapsed_t =
+            static_cast<double>(timeElapsed(startTime, nowTime));
+        const double delta_t =
+            static_cast<double>(timeElapsed(preTime, nowTime));
+        pf::Vec3<double> delta_v =
+            (static_cast<pf::Vec3<double>>(realOffset) / norm) *
+            ((delta_t / 1000.0) * speed);
+        {
+          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+          if ((elapsed_t / 1000.0) > norm / speed) {
+            local_player->SetX(targetPos.x);
+            local_player->SetZ(targetPos.z);
+            break;
+          } else {
+            local_player->AddPlayerInputsX(delta_v.x);
+            local_player->AddPlayerInputsZ(delta_v.z);
+          }
+        }
+        preTime = nowTime;
+        Botcraft::Utilities::SleepUntil(untilTime);
+      }
+    } else if (offset.y > 0) {
+      double expectTime;
+      auto targetBlock = client->GetWorld()->GetBlock(
+          Botcraft::Position{static_cast<int>(std::floor(targetPos.x)),
+                             static_cast<int>(std::floor(targetPos.y) - 1),
+                             static_cast<int>(std::floor(targetPos.z))});
+      if (targetBlock->GetName().find("slab") != std::string::npos) {
+        if (targetBlock->GetVariableValue("type") == "top") {
+          expectTime = 7 * 0.05 * 1000;  // 7 ticks
+        } else {
+          expectTime = 9 * 0.05 * 1000;  // 9 ticks
+          realTargetPos.adjust(0, 0.5, 0);
+        }
+      } else if (targetBlock->GetName().find("carpet") != std::string::npos) {
+        expectTime = 11 * 0.05 * 1000;  // 11 ticks
+        realTargetPos.adjust(0, 1.0 / 32, 0);
+      } else {
+        expectTime = 7 * 0.05 * 1000;  // 7 ticks
+      }
+
+      // jump
       {
         std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-        if ((elapsed_t / 1000.0) > norm / speed) {
-          local_player->SetX(targetPos.x);
-
-          auto targetBlock = client->GetWorld()->GetBlock(
-              Botcraft::Position{static_cast<int>(std::floor(targetPos.x)),
-                                 static_cast<int>(std::floor(targetPos.y) - 1),
-                                 static_cast<int>(std::floor(targetPos.z))});
-          if (targetBlock->GetName().find("slab") != std::string::npos) {
-            if (targetBlock->GetVariableValue("type") == "top") {
-              local_player->SetY(targetPos.y);
-            } else {
-              local_player->SetY(targetPos.y + 0.5);  // down slab, y + 0.5
-            }
-          }
-
-          local_player->SetZ(targetPos.z);
-          break;
-        } else {
-          local_player->AddPlayerInputsX(delta_v.x);
-          local_player->AddPlayerInputsZ(delta_v.z);
-        }
+        local_player->Jump();
       }
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      preTime = nowTime;
+
+      while (true) {
+        auto nowTime = std::chrono::steady_clock::now();
+        auto untilTime = nowTime + std::chrono::milliseconds(50);
+        const double elapsed_t =
+            static_cast<double>(timeElapsed(startTime, nowTime));
+        const double delta_t =
+            static_cast<double>(timeElapsed(preTime, nowTime));
+        pf::Vec3<double> delta_v = (static_cast<pf::Vec3<double>>(realOffset)) *
+                                   (delta_t / expectTime);
+        {
+          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+          if (elapsed_t > expectTime) {
+            local_player->SetX(targetPos.x);
+            local_player->SetZ(targetPos.z);
+            break;
+          } else {
+            local_player->AddPlayerInputsX(delta_v.x);
+            local_player->AddPlayerInputsZ(delta_v.z);
+          }
+        }
+        preTime = nowTime;
+        Botcraft::Utilities::SleepUntil(untilTime);
+      }
+    } else if (offset.y < 0) {
+      double expectTime = 0;
+      double fallingY = offset.abs().y;
+      double velocity = 0;
+      while (fallingY > 0) {
+        velocity = (velocity + 0.08) * 0.98;
+        fallingY -= velocity;
+        expectTime += 50;  // 50 ms, 1 tick
+      }
+      expectTime -= 50;
+
+      while (true) {
+        auto nowTime = std::chrono::steady_clock::now();
+        auto untilTime = nowTime + std::chrono::milliseconds(50);
+        const double elapsed_t =
+            static_cast<double>(timeElapsed(startTime, nowTime));
+        const double delta_t =
+            static_cast<double>(timeElapsed(preTime, nowTime));
+        pf::Vec3<double> delta_v = (static_cast<pf::Vec3<double>>(realOffset)) *
+                                   (delta_t / expectTime);
+        {
+          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+          if (elapsed_t > expectTime) {
+            local_player->SetX(targetPos.x);
+            local_player->SetZ(targetPos.z);
+            break;
+          } else {
+            local_player->AddPlayerInputsX(delta_v.x);
+            local_player->AddPlayerInputsZ(delta_v.z);
+          }
+        }
+        preTime = nowTime;
+        Botcraft::Utilities::SleepUntil(untilTime);
+      }
     }
 
     // wait for falling
-    while (!local_player->GetOnGround()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    while (!local_player->GetOnGround() || local_player->GetSpeedY() > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     {
       std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-      local_player->SetY(targetPos.y);
+      local_player->SetY(realTargetPos.y);
     }
+
     return true;
   }
 

@@ -1,6 +1,7 @@
 #include <Evaluate/Evaluate.hpp>
 #include <Finder/Finder.hpp>
-#include <Goal/RangeGoal.hpp>
+#include <Goal/Goal.hpp>
+#include <Weighted/Weighted.hpp>
 
 #include "botcraft/AI/SimpleBehaviourClient.hpp"
 #include "botcraft/AI/Tasks/PathfindingTask.hpp"
@@ -11,18 +12,47 @@
 
 namespace pf = pathfinding;
 
-class BotCraftFinder final : public pf::AstarFinder<BotCraftFinder> {
+template <template <typename, typename> class TFinder = pf::AstarFinder,
+          class TWeight = pf::weight::ConstWeighted<2, 3>>
+class BotCraftFinder final
+    : public TFinder<BotCraftFinder<TFinder, TWeight>, TWeight> {
  public:
   virtual std::string getBlockNameImpl(const pf::Position& pos) const override {
+    // get block information
     auto world = client->GetWorld();
     if (world->IsLoaded(Botcraft::Position{pos.x, pos.y, pos.z})) {
       const Botcraft::Blockstate* block =
           world->GetBlock(Botcraft::Position{pos.x, pos.y, pos.z});
-      std::string blockName = (block ? block->GetName() : "minecraft:air");
-      return blockName;
+      return (block != nullptr ? block->GetName() : "minecraft:air");
     } else {
       return "";
     }
+  }
+
+  virtual std::vector<std::string> getBlockNameImpl(
+      const std::vector<pf::Position>& pos) const override {
+    std::vector<Botcraft::Position> botcraftPos;
+    std::transform(pos.begin(), pos.end(), std::back_inserter(botcraftPos),
+                   [](const pf::Position& p) {
+                     return Botcraft::Position{p.x, p.y, p.z};
+                   });
+
+    // get block information
+    auto world = client->GetWorld();
+    std::vector<const Botcraft::Blockstate*> blocks =
+        world->GetBlocks(botcraftPos);
+
+    std::vector<std::string> blockNames;
+    for (int i = 0; i < pos.size(); ++i) {
+      if (world->IsLoaded(botcraftPos[i])) {
+        blockNames.push_back(
+            (blocks[i] != nullptr ? blocks[i]->GetName() : "minecraft:air"));
+      } else {
+        blockNames.push_back("");
+      }
+    }
+
+    return blockNames;
   }
 
   virtual inline float getFallDamageImpl(
@@ -115,7 +145,7 @@ class BotCraftFinder final : public pf::AstarFinder<BotCraftFinder> {
   }
 
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
-      : pf::AstarFinder<BotCraftFinder>({true, 9999999}), client(_client) {}
+      : TFinder<BotCraftFinder<TFinder, TWeight>, TWeight>({true, 9999999}), client(_client) {}
 
  private:
   std::shared_ptr<Botcraft::BehaviourClient> client;

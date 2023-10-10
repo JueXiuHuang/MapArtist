@@ -198,7 +198,7 @@ Status DumpItems(BehaviourClient& c) {
 
   for (auto chest : chestPositions) {
     // GoTo(c, chest, 1, 1, 1, 10);
-    FindPathAndMove(c, chest, 3, 1, 3);
+    FindPathAndMove(c, chest, 5, 1, 5);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -437,7 +437,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
 
 Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, int z_tol) {
   Blackboard& blackboard = c.GetBlackboard();
-  auto finder = blackboard.Get<BotCraftFinder>("pathFinder");
+  auto finder = blackboard.Get<BotCraftFinder<>>("pathFinder");
 
   // get player location
   pf::Position from;

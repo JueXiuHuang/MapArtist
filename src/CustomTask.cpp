@@ -198,7 +198,7 @@ Status DumpItems(BehaviourClient& c) {
 
   for (auto chest : chestPositions) {
     // GoTo(c, chest, 1, 1, 1, 10);
-    FindPathAndMove(c, chest, 5, 1, 5);
+    FindPathAndMove(c, chest, 5, 5, 5);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;

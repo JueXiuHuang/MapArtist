@@ -83,7 +83,6 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
   for (size_t index = 0; index < chests.size(); ++index) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
-    // GoTo(c, chests[i], 1, 1, 1, 10);
     FindPathAndMove(c, chests[i], 1, 1, 1);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
@@ -113,11 +112,11 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
       }
 
       if (slots_src.size() > 0) {
-        LOG_INFO("Found food in chest.");
+        cout << "Found food in chest." << endl;
         const int src_index = 0;
         // Try to swap the items
         if (SwapItemsInContainer(c, container_id, slots_src[src_index], player_dst) == Status::Success) {
-          LOG_INFO("Get food success.");
+          cout << "Get food success." << endl;
           item_taken = true;
           break;
         }
@@ -187,7 +186,7 @@ Status SortChestWithDesirePlace(BehaviourClient& c) {
 // Dump everything to recycle chest.
 // Player is src, recycle chest is dst.
 Status DumpItems(BehaviourClient& c) {
-  LOG_INFO("Trying to dump items to recycle chest...");
+  cout << "Trying to dump items to recycle chest..." << endl;
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
   Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
@@ -197,7 +196,6 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    // GoTo(c, chest, 1, 1, 1, 10);
     FindPathAndMove(c, chest, 5, 5, 5);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
@@ -234,7 +232,7 @@ Status DumpItems(BehaviourClient& c) {
     while (!slotSrc.empty() && !slotDst.empty()) {
       if (SwapItemsInContainer(c, containerId, slotSrc.front(), slotDst.front()) == Status::Failure) {
         CloseContainer(c, containerId);
-        LOG_WARNING("Error when trying to dump items to chest.");
+        cout << "Error when trying to dump items to chest..." << endl;
       }
       slotSrc.pop();
       slotDst.pop();
@@ -270,7 +268,7 @@ Status TaskPrioritize(BehaviourClient& c) {
 }
 
 Status CollectAllMaterial(BehaviourClient& c) {
-  LOG_INFO("Trying to collect material...");
+  cout << "Trying to collect material..." << endl;
   Blackboard& blackboard = c.GetBlackboard();
   // map<string, int, MaterialCompareOld> itemCounter = blackboard.Get<map<string, int, MaterialCompareOld>>("itemCounter");
   map<string, int, MaterialCompare> itemCounter = blackboard.Get<map<string, int, MaterialCompare>>("itemCounter");
@@ -282,7 +280,7 @@ Status CollectAllMaterial(BehaviourClient& c) {
 }
 
 Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
-  LOG_INFO(endl << "Collecting " << itemName << " for " << needed);
+  cout << "Collecting " << itemName << " for " << needed << endl;
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
   Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
@@ -293,9 +291,8 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
 
   bool get_all_material = false;
   for (auto chest : availableChests) {
-    LOG_INFO("========== CHEST ==========");
+    cout << "========== CHEST ==========" << endl;
     SortInventory(c);
-    // GoTo(c, chest, 1, 1, 1, 10);
     FindPathAndMove(c, chest, 1, 1, 1);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
@@ -330,17 +327,17 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     }
 
     while (!canTake.empty() && !canPut.empty() && !get_all_material) {
-      LOG_INFO("Swap from ID " << canTake.front() << " to ID " << canPut.front());
+      cout << "Swap from ID " << canTake.front() << " to ID " << canPut.front() << endl;
       Status swapResult = SwapItemsInContainer(c, containerId, canTake.front(), canPut.front());
       if (swapResult == Status::Failure){  // if failed, wait for a while and retry
         Utilities::SleepFor(chrono::milliseconds(500));
-        LOG_INFO("Take " << itemName << " Failed");
+        cout << "Take " << itemName << " Failed" << endl;
         continue;
       }
       inventory_manager->GetMutex().lock();
       int took_amount = container->GetSlot(canPut.front()).GetItemCount();
       inventory_manager->GetMutex().unlock();
-      LOG_INFO("Take " << itemName << " for " << took_amount);
+      cout << "Take " << itemName << " for " << took_amount << endl;
       _need -= took_amount;
       canPut.pop();
       canTake.pop();
@@ -349,25 +346,25 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     }
 
     {
-      LOG_INFO("========== LIST ==========");
+      cout << "========== LIST ==========" << endl;
       lock_guard<mutex> lock(inventory_manager->GetMutex());
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
       for (auto p : container->GetSlots()){
         if (p.first >= playerInvStart && !p.second.IsEmptySlot()){
-          LOG_INFO("Slot " << p.first << ": " << AssetsManager::getInstance().Items().at(p.second.GetItemID())->GetName()
-            << " x " << static_cast<int>(p.second.GetItemCount()));
+          cout << "Slot " << p.first << ": " << AssetsManager::getInstance().Items().at(p.second.GetItemID())->GetName()
+              << " x " << static_cast<int>(p.second.GetItemCount()) << endl;
         }
       }
-      LOG_INFO("======= LIST CLOSE =======");
+      cout << "======= LIST CLOSE =======" << endl;
     }
 
     CloseContainer(c, containerId);
-    LOG_INFO("======= CHEST CLOSE =======");
+    cout << "======= CHEST CLOSE =======" << endl;
     if (get_all_material) break;
   }
 
   if (!get_all_material) {
-    LOG_WARNING(itemName << " might not enough...");
+    cout << itemName << " might not enough..." << endl;
     Say(c, itemName+" might not enough...");
   }
 
@@ -375,7 +372,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
 }
 
 Status TaskExecutor(BehaviourClient& c) {
-  LOG_INFO(endl << "Execute task in queue...");
+  cout << "Execute task in queue..." << endl;
   Blackboard& blackboard = c.GetBlackboard();
   queue<Position> qTaskPosition = blackboard.Get<queue<Position>>("qTaskPosition");
   queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
@@ -384,7 +381,7 @@ Status TaskExecutor(BehaviourClient& c) {
   vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1)};
 
   if (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
-    LOG_INFO(endl << "Remain " << qTaskPosition.size() << " tasks...");
+    cout << "Remain " << qTaskPosition.size() << " tasks..." << endl;
     Position taskPos = qTaskPosition.front(); qTaskPosition.pop();
     string taskType = qTaskType.front(); qTaskType.pop();
     string blockName = qTaskName.front(); qTaskName.pop();
@@ -392,9 +389,8 @@ Status TaskExecutor(BehaviourClient& c) {
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
       if (exec_result == Status::Success) break;
       else {
-        LOG_WARNING(endl << "Task fail, move to another position and try again...");
-        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 0, 0, true);
-        // GoTo(c, taskPos+offsets[i%offsets.size()]);
+        cout << "Task fail, move to another position and try again..." << endl;
+        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 3, 0, true);
       }
     }
     
@@ -413,17 +409,15 @@ Status TaskExecutor(BehaviourClient& c) {
 }
 
 Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string blockName) {
-  LOG_INFO(endl <<
-          "Task:" << setw(5) << action <<
+  cout << "Task:" << setw(5) << action <<
           ", Block Name:" << setw(32) << blockName <<
-          ", Position:" << blockPos);
+          ", Position:" << blockPos << endl;
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
   Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
   StartSprinting(c);
   Blackboard& board = c.GetBlackboard();
 
-  // GoTo(c, blockPos, 3, 3, 3, 10);
   FindPathAndMove(c, blockPos, 3, 3, 3);
   if (action == "Dig") {
     return Dig(c, blockPos, true);
@@ -431,7 +425,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
     return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
   }
 
-  LOG_WARNING(endl << "Unknown task in ExecuteNextTask");
+  cout << "Unknown task in ExecuteNextTask..." << endl;
   return Status::Failure;
 }
 
@@ -533,17 +527,21 @@ Status CheckCompletion(BehaviourClient& c) {
 
   const Position& start = blackboard.Get<Position>("Structure.start");
   const Position& end = blackboard.Get<Position>("Structure.end");
+  const Position size = end - start;
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
 
-  vector<Position> checkpoints {Position(40, 10, 40), Position(80, 10, 40), Position(40, 10, 80), Position(80, 10, 80)};
+  vector<Position> checkpoints {Position(size.x*0.3, start.y, size.z*0.3), Position(size.x*0.6, start.y, size.z*0.3), 
+                                Position(size.x*0.3, start.y, size.z*0.6), Position(size.x*0.6, start.y, size.z*0.6)};
+  // vector<Position> checkpoints {Position(40, 10, 40), Position(80, 10, 40), Position(40, 10, 80), Position(80, 10, 80)};
 
   const bool log_details = false;
   const bool log_errors = true;
   const bool full_check = true;
 
   for (auto cp : checkpoints) {
-    GoTo(c, anchor+cp, 4, 4, 4, 10);
+    cout << "Check checkpoint..." << endl;
+    FindPathAndMove(c, anchor+cp, 0, 5, 0);
     if (check(c) == Status::Failure) return Status::Failure;
   }
 
@@ -551,7 +549,7 @@ Status CheckCompletion(BehaviourClient& c) {
 }
 
 Status WarnConsole(BehaviourClient& c, const string& msg) {
-  LOG_WARNING("[" << c.GetNetworkManager()->GetMyName() << "]: " << msg);
+  cout << "[" << c.GetNetworkManager()->GetMyName() << "]: " << msg << endl;
   return Status::Success;
 }
 
@@ -617,7 +615,7 @@ Status LoadNBT(BehaviourClient& c) {
   Position start = offset;
   Position end = offset + size - Position(1, 1, 1);
 
-  LOG_INFO("Start: " << start << " | " << "End: " << end);
+  cout << "Start: " << start << " | " << "End: " << end << endl;
 
   // Fill the target area with air (-1)
   vector<vector<vector<short>>> target(size.x, vector<vector<short>>(size.y, vector<short>(size.z, -1)));
@@ -635,7 +633,7 @@ Status LoadNBT(BehaviourClient& c) {
   }
 
   if (id_temp_block == -1) {
-    LOG_WARNING("Can't find the given temp block " << temp_block << " in the palette");
+    cout << "Can't find the given temp block " << temp_block << " in the palette" << endl;
   } else {
     int removed_layers = 0;
     // Check the bottom Y layers, if only
@@ -666,17 +664,17 @@ Status LoadNBT(BehaviourClient& c) {
       end.y -= 1;
     }
 
-    LOG_INFO("Removed the bottom " << removed_layers << " layer" << (removed_layers > 1 ? "s" : ""));
+    cout << "Removed the bottom " << removed_layers << " layer" << (removed_layers > 1 ? "s" : "") << endl;
   }
 
-  LOG_INFO("Total size: " << size);
+  cout << "Total size: " << size << endl;
 
   stringstream needed;
   needed << "Block needed:\n";
   for (auto it = num_blocks_used.begin(); it != num_blocks_used.end(); ++it) {
     needed << setw(35) << palette[it->first] << "----" << it->second << "\n";
   }
-  LOG_INFO(needed.rdbuf());
+  cout << needed.rdbuf() << endl;
 
   // Check if some block can't be placed (flying blocks)
   stringstream flyings;
@@ -720,7 +718,7 @@ Status LoadNBT(BehaviourClient& c) {
       }
     }
   }
-  LOG_WARNING(flyings.rdbuf());
+  cout << flyings.rdbuf() << endl;
 
   blackboard.Set("Structure.start", start);
   blackboard.Set("Structure.end", end);

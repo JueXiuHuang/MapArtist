@@ -4,6 +4,7 @@
 #include "botcraft/Game/Vector3.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include <algorithm>
+#include <iostream>
 #include <queue>
 #include <stack>
 #include <utility>
@@ -20,7 +21,6 @@ string getWorldBlock(BehaviourClient& c, Position pos) {
   if (!block) {
     // it is a air block
     if (!world->IsLoaded(pos)) {
-      // GoTo(c, pos, 16, 5, 5, 10);
       FindPathAndMove(c, pos, 5, 5, 5);
 
       block = world->GetBlock(pos);
@@ -221,7 +221,7 @@ void SimpleDFS(BehaviourClient& c){
       
       if (targetName != airBlockName && curBlockName == airBlockName) {
         qTaskPosition.push(currentPos+anchor);
-        LOG_INFO((currentPos+anchor) << targetName << " ");
+        cout << (currentPos+anchor) << targetName << endl;
         qTaskType.push("Place");
         qTaskName.push(targetName);
 
@@ -326,7 +326,6 @@ void SliceDFS(BehaviourClient& c) {
 
       if (!block) {
         if (!world->IsLoaded(cp+anchor)) {
-          // GoTo(c, cp+anchor, 16, 5, 5, 10);
           FindPathAndMove(c, cp+anchor, 5, 5, 5);
 
           block = world->GetBlock(cp+anchor);

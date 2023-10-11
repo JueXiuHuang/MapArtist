@@ -21,7 +21,7 @@ using json = nlohmann::json;
 void cmdHandler(string cmd, Artist *artist) {
   if (cmd == "hungry") {
     Status s = IsHungry(*artist, 15);
-    LOG_INFO(endl << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood());
+    cout << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood() << endl;
     if (s == Status::Success) {
       artist->SendChatMessage("I'm hungry.");
     } else {
@@ -61,7 +61,7 @@ void msgProcessor(string text, Artist *artist) {
   if (regex_search(text, nameMatch, namePattern)) sendBy = nameMatch[1].str();
   if (regex_search(text, cmdMatch, cmdPattern)) {
     cmd = cmdMatch[1].str();
-    LOG_INFO(endl << "Send by: " << sendBy << endl << "CMD: " << cmd);
+    cout << "Send by: " << sendBy << endl << "CMD: " << cmd << endl;
     cmdHandler(cmd, artist);
   }
 }
@@ -86,7 +86,7 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
 
     string text = msg.GetContent().GetText();
     // Find a message from discord
-    LOG_INFO(endl << text);
+    cout << text << endl;
     if (text.find("[#405home]") != string::npos) {
       msgProcessor(text, this);
     } else if (text.find("[系統] 這個領地內的區域") != string::npos) {

@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 
     const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 
-    LOG_INFO("Starting connection process");
+    cout << "Starting connection process" << endl;
     client.Connect(args.address, args.login, args.microsoftLogin);
     client.SetAutoRespawn(true);
     client.RunBehaviourUntilClosed();

@@ -1,8 +1,7 @@
 You need to compile botcraft file on your own.
 
 # TODO lists
-- [ ] A* optimize (走斜的+垂直降落) -> submodule
-- [ ] 移動速度
+- [ ] slice dfs neighbor has bug
 - [ ] xCheckStart might have bug.
 
 # Botcraft build

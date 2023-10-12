@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     // Add a name to this thread for logging
     Logger::GetInstance().RegisterThread("main");
     
-    Artist client(true, args.configPath);
+    Artist client(false, args.configPath);
 
     const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 

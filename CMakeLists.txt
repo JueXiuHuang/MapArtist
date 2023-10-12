@@ -25,6 +25,7 @@ target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VE
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
 target_compile_options(${TARGET_NAME} PUBLIC "-g")
+target_compile_options(${TARGET_NAME} PUBLIC "-O3")
 target_link_libraries(${TARGET_NAME} ws2_32 crypt32)
 target_link_libraries(${TARGET_NAME} botcraft protocolCraft)
 target_link_libraries(${TARGET_NAME} nlohmann_json::nlohmann_json)

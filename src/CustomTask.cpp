@@ -60,9 +60,9 @@ Status WaitServerLoad(BehaviourClient& c) {
 Status GetFood(BehaviourClient& c, const string& food_name) {
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
-  Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
+  // Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
-  StartSprinting(c);
+  // StartSprinting(c);
 
   // Sort the chest and make sure the first slot in hotbar is empty
   // Food will place in this slot
@@ -188,9 +188,9 @@ Status SortChestWithDesirePlace(BehaviourClient& c) {
 Status DumpItems(BehaviourClient& c) {
   cout << "Trying to dump items to recycle chest..." << endl;
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
-  Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
+  // Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
-  StartSprinting(c);
+  // StartSprinting(c);
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
@@ -282,9 +282,9 @@ Status CollectAllMaterial(BehaviourClient& c) {
 Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   cout << "Collecting " << itemName << " for " << needed << endl;
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
-  Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
+  // Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
-  StartSprinting(c);
+  // StartSprinting(c);
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
   vector<Position> availableChests = blackboard.Get<vector<Position>>("chest:"+itemName);
@@ -390,7 +390,7 @@ Status TaskExecutor(BehaviourClient& c) {
       if (exec_result == Status::Success) break;
       else {
         cout << "Task fail, move to another position and try again..." << endl;
-        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 3, 0, true);
+        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 2, 3, 2, true);
       }
     }
     
@@ -413,9 +413,9 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
           ", Block Name:" << setw(32) << blockName <<
           ", Position:" << blockPos << endl;
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
-  Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
+  // Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
-  StartSprinting(c);
+  // StartSprinting(c);
   Blackboard& board = c.GetBlackboard();
 
   FindPathAndMove(c, blockPos, 3, 3, 3);
@@ -512,9 +512,9 @@ Status check(BehaviourClient& c) {
 
 Status CheckCompletion(BehaviourClient& c) {
   // Stop sprinting when exiting this function (in case we don't sprint, it's a no-op)
-  Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
+  // Utilities::OnEndScope stop_sprinting([&]() { StopSprinting(c); });
   // Start sprinting
-  StartSprinting(c);
+  // StartSprinting(c);
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<World> world = c.GetWorld();
   Position anchor = blackboard.Get<Position>("anchor");

@@ -196,7 +196,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    FindPathAndMove(c, chest, 5, 5, 5);
+    FindPathAndMove(c, chest, 2, 3, 2);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -240,7 +240,7 @@ Status DumpItems(BehaviourClient& c) {
 
     // Close the chest
     CloseContainer(c, containerId);
-    if (slotDst.empty()) break;
+    if (slotSrc.empty()) break;
   }
 
   return Status::Success;
@@ -378,7 +378,8 @@ Status TaskExecutor(BehaviourClient& c) {
   queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
   queue<string> qTaskName = blackboard.Get<queue<string>>("qTaskName");
   int retry_times = blackboard.Get<int>("retry");
-  vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1)};
+  vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1),
+                            Position(2, 0, 0), Position(-2, 0, 0), Position(0, 0, 2), Position(0, 0, -2)};
 
   if (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
     cout << "Remain " << qTaskPosition.size() << " tasks..." << endl;
@@ -389,8 +390,8 @@ Status TaskExecutor(BehaviourClient& c) {
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
       if (exec_result == Status::Success) break;
       else {
-        cout << "Task fail, move to another position and try again..." << endl;
-        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 2, 3, 2, true);
+        cout << "Task fail, move to another position and try again (" << i << ")..." << endl;
+        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 3, 0, true);
       }
     }
     
@@ -531,8 +532,8 @@ Status CheckCompletion(BehaviourClient& c) {
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
 
-  vector<Position> checkpoints {Position(size.x*0.3, start.y, size.z*0.3), Position(size.x*0.6, start.y, size.z*0.3), 
-                                Position(size.x*0.3, start.y, size.z*0.6), Position(size.x*0.6, start.y, size.z*0.6)};
+  vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
+                                Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
   // vector<Position> checkpoints {Position(40, 10, 40), Position(80, 10, 40), Position(40, 10, 80), Position(80, 10, 80)};
 
   const bool log_details = false;

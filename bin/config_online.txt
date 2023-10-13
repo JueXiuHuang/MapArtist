@@ -13,7 +13,7 @@ prioritize=slice_dfs
 neighbor=true
 
 # retry is the number of times we retry an action
-retry=4;
+retry=12;
 
 # The fields below represent each block and the position of the chest they are stored in.
 # Use ; to split position if you have multiple chests.

@@ -67,7 +67,7 @@ void cmdHandler(string cmd, Artist *artist) {
       string exp_user = matches[2];
       int col = stoi(matches[3]);
 
-      if (exp_user != name && exp_user != "all") return;
+      if (exp_user != name) return;
       Blackboard& bb = artist->GetBlackboard();
       string info = "Assign user " + exp_user + " for column " + string(matches[3]);
       cout << info << endl;
@@ -91,6 +91,12 @@ void cmdHandler(string cmd, Artist *artist) {
     int workerNum = bb.Get<int>("workerNum", 1);
     string info = "Max worker: " + to_string(workerNum) + ", work col: " + to_string(workCol);
     artist->SendChatMessage(info);
+  } else if (cmd == "setDefault") {
+    Blackboard& bb = artist->GetBlackboard();
+    string info = "Reset workCol & wirkerNum value";
+    artist->SendChatMessage(info);
+    bb.Set("workCol", 0);
+    bb.Set("workerNum", 1);
   }
 }
 

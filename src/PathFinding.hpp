@@ -159,15 +159,15 @@ public:
                            local_player->GetPosition().y,
                            local_player->GetPosition().z};
       // check whether player's location equals to the source
-      auto standingBlock = now.floor();
-      if (standingBlock.getXZ() != from.offset(0, 1, 0).getXZ())
-      {
-        std::cout << "Player should be at " << from.offset(0, 1, 0)
-                  << ", but at " << standingBlock << " (" << now << ")"
-                  << std::endl
-                  << std::flush;
-        return false;
-      }
+      // auto standingBlock = now.floor();
+      // if (standingBlock.getXZ() != from.offset(0, 1, 0).getXZ())
+      // {
+      //   std::cout << "Player should be at " << from.offset(0, 1, 0)
+      //             << ", but at " << standingBlock << " (" << now << ")"
+      //             << std::endl
+      //             << std::flush;
+      //   return false;
+      // }
 
       targetPos = (now.getXZ().floor().offset(0, now.y, 0) + offset)
                       .offset(0.5, 0, 0.5); // stand in the middle of the block

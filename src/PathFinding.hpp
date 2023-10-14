@@ -142,7 +142,7 @@ public:
       pf::Vec3<double> now{local_player->GetPosition().x,
                            local_player->GetPosition().y,
                            local_player->GetPosition().z};
-      targetPos = (now.floor() + offset)
+      targetPos = (now.getXZ().floor().offset(0, now.y, 0) + offset)
                       .offset(0.5, 0, 0.5); // stand in the middle of the block
       realOffset = targetPos - now;
       const auto lookAtPos = targetPos.offset(0.0, 1.62, 0.0);
@@ -178,8 +178,8 @@ public:
         {
           auto nowTime = std::chrono::steady_clock::now();
           auto untilTime = nowTime + std::chrono::milliseconds(50);
-          if (timeElapsed(startJumpTime, nowTime) > 6 * 50)
-          {               // 6 ticks
+          if (timeElapsed(startJumpTime, nowTime) > 6 * 50)  // 6 ticks
+          {
             return false; // jump failed
           }
           else
@@ -283,9 +283,21 @@ public:
     }
 
     // wait for falling
-    while (!local_player->GetOnGround() || local_player->GetSpeedY() > 0)
+    while (true)
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      auto nowTime = std::chrono::steady_clock::now();
+      auto untilTime = nowTime + std::chrono::milliseconds(50);
+      if (local_player->GetOnGround() &&
+          local_player->GetSpeedY() == 0)
+      { // 12 ticks
+        break;
+      }
+      else
+      {
+        std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+        local_player->SetY(local_player->GetY() + 0.001);
+      }
+      Botcraft::Utilities::SleepUntil(untilTime);
     }
 
     return true;
@@ -293,7 +305,7 @@ public:
 
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
       : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
-            {false, 9999999}),
+            {true, 9999999}),
         client(_client) {}
 
 private:

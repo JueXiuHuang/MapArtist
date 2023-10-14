@@ -95,14 +95,29 @@ public:
           {
             blockTypes.emplace_back(pf::BlockType::DANGER, pf::BlockType::NONE);
           }
-          else if (blocks[i]->IsSolid())
-          {
-            blockTypes.emplace_back(pf::BlockType::SAFE, pf::BlockType::NONE);
-          }
           else if (blocks[i]->IsAir())
           {
             blockTypes.emplace_back(pf::BlockType::AIR,
                                     pf::BlockType::FORCE_DOWN);
+          }
+          else if (blocks[i]->IsTransparent())
+          {
+            // we don't stand on a not full block (1x1x1)
+            // except this
+            if (blocks[i]->GetName().find("slab") != std::string::npos ||
+                blocks[i]->GetName().find("stairs") != std::string::npos ||
+                blocks[i]->GetName().find("carpet") != std::string::npos)
+            {
+              blockTypes.emplace_back(pf::BlockType::SAFE, pf::BlockType::NONE);
+            }
+            else
+            {
+              blockTypes.emplace_back(pf::BlockType::AIR, pf::BlockType::NONE);
+            }
+          }
+          else if (blocks[i]->IsSolid())
+          {
+            blockTypes.emplace_back(pf::BlockType::SAFE, pf::BlockType::NONE);
           }
           else
           {
@@ -131,17 +146,29 @@ public:
     return 0.0;
   }
 
-  virtual inline bool playerMoveImpl(const pf::Position &offset) override
+  virtual inline bool playerMoveImpl(const pf::Position &from,
+                                     const pf::Position &to) override
   {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
 
-    pf::Vec3<double> targetPos, realOffset;
+    pf::Vec3<double> targetPos, realOffset, offset = to - from;
     {
       std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
       pf::Vec3<double> now{local_player->GetPosition().x,
                            local_player->GetPosition().y,
                            local_player->GetPosition().z};
+      // check whether player's location equals to the source
+      auto standingBlock = now.floor();
+      if (standingBlock.getXZ() != from.offset(0, 1, 0).getXZ())
+      {
+        std::cout << "Player should be at " << from.offset(0, 1, 0)
+                  << ", but at " << standingBlock << " (" << now << ")"
+                  << std::endl
+                  << std::flush;
+        return false;
+      }
+
       targetPos = (now.getXZ().floor().offset(0, now.y, 0) + offset)
                       .offset(0.5, 0, 0.5); // stand in the middle of the block
       realOffset = targetPos - now;
@@ -178,7 +205,7 @@ public:
         {
           auto nowTime = std::chrono::steady_clock::now();
           auto untilTime = nowTime + std::chrono::milliseconds(50);
-          if (timeElapsed(startJumpTime, nowTime) > 6 * 50)  // 6 ticks
+          if (timeElapsed(startJumpTime, nowTime) > 6 * 50) // 6 ticks
           {
             return false; // jump failed
           }

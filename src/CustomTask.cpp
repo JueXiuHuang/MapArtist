@@ -446,8 +446,8 @@ Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, in
   }
 
   pf::Position to{pos.x, pos.y, pos.z};
-  std::cout << from << " " << to << "\n";
-  finder.findPathAndGo(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol), 15000);
+  std::cout << "Find a path from " << from << " to " << to << "\n";
+  finder.findPathAndGo(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol), 10000);
 
   return Status::Success;
 }

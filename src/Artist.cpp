@@ -49,6 +49,36 @@ void cmdHandler(string cmd, Artist *artist) {
     regex_search(cmd, matches, pattern);
     string ingameCmd = matches[1];
     artist->SendChatCommand(ingameCmd);
+  } else if (cmd == "name") {
+    string name = artist->GetNetworkManager()->GetMyName();
+    artist->SendChatMessage(name);
+  } else if (cmd.find("setCol") != string::npos) {
+    string name = artist->GetNetworkManager()->GetMyName();
+    regex patternAssign("([^\\s]+) ([^\\s]+) (\\d+)");
+    smatch matches;
+    if (regex_search(cmd, matches, patternAssign)) {
+      string command = matches[1];
+      string exp_user = matches[2];
+      int col = stoi(matches[3]);
+
+      if (exp_user != name && exp_user != "all") return;
+      Blackboard bb = artist->GetBlackboard();
+      string info = "Assign user " + exp_user + " for column " + string(matches[3]);
+      cout << info << endl;
+      artist->SendChatMessage(info);
+      bb.Set("workCol", col);
+    }
+  } else if (cmd.find("maxWorker") != string::npos) {
+    regex patternAssign("([^\\s]+) (\\d+)");
+    smatch matches;
+    if (regex_search(cmd, matches, patternAssign)) {
+      Blackboard bb = artist->GetBlackboard();
+      int worker_num = stoi(matches[2]);
+      string info = "Setup total worker " + string(matches[2]);
+      cout << info << endl;
+      artist->SendChatMessage(info);
+      bb.Set("workerNum", worker_num);
+    }
   }
 }
 

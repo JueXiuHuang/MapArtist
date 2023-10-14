@@ -295,62 +295,24 @@ void SliceDFS(BehaviourClient& c) {
       Position cp = pending.top();
       pending.pop();
 
-      // TODO: replace part B to part A
-
-      // Part A
-      // const short nbtBlockId = target[cp.x][cp.y][cp.z];
-      // const string nbtBlockName = palette.at(nbtBlockId);
+      const short nbtBlockId = target[cp.x][cp.y][cp.z];
+      const string nbtBlockName = palette.at(nbtBlockId);
       
-      // string worldBlockName = getWorldBlock(c, cp+anchor);
-      // string taskType = getTaskType(worldBlockName, nbtBlockName);
+      string worldBlockName = getWorldBlock(c, cp+anchor);
+      string taskType = getTaskType(worldBlockName, nbtBlockName);
 
-      // if (taskType != "None") {
-      //   isAllDone = false;
-      //   qTaskPosition.push(cp+anchor);
-      //   qTaskType.push(taskType);
-      //   qTaskName.push(nbtBlockName);
+      if (taskType != "None") {
+        isAllDone = false;
+        qTaskPosition.push(cp+anchor);
+        qTaskType.push(taskType);
+        qTaskName.push(nbtBlockName);
 
-      //   if (taskType == "Place") {
-      //     // maintain itemCounter and slotCounter
-      //     if ((itemCounter[nbtBlockName]++) % 64 == 0) slotCounter++;
-      //     if (slotCounter == 27) break;
-      //   }
-      // }
-      // Part A end
-
-      // Part B
-      const short current_target = target[cp.x][cp.y][cp.z];
-      const string targetName = palette.at(current_target);
-      string block_name = "minecraft:air";
-      const Blockstate* block = world->GetBlock(cp+anchor);
-
-      if (!block) {
-        if (!world->IsLoaded(cp+anchor)) {
-          FindPathAndMove(c, cp+anchor, 5, 5, 5);
-
-          block = world->GetBlock(cp+anchor);
-          if (block) block_name = block->GetName();
+        if (taskType == "Place") {
+          // maintain itemCounter and slotCounter
+          if ((itemCounter[nbtBlockName]++) % 64 == 0) slotCounter++;
+          if (slotCounter == 27) break;
         }
-      } else {
-        block_name = block->GetName();
       }
-
-      if (targetName != "minecraft:air" && block_name == "minecraft:air") {
-        isAllDone = false;
-        qTaskPosition.push(cp+anchor);
-        qTaskType.push("Place");
-        qTaskName.push(targetName);
-
-        // maintain itemCounter and slotCounter
-        if ((itemCounter[targetName]++) % 64 == 0) slotCounter++;
-        if (slotCounter == 27) break;
-      } else if (block_name != "minecraft:air" && targetName != block_name) {
-        isAllDone = false;
-        qTaskPosition.push(cp+anchor);
-        qTaskType.push("Dig");
-        qTaskName.push(targetName);
-      }
-      // Part B end
 
       for (int i = 0; i < neighbor_offsets.size(); i++) {
         Position newPos = cp + neighbor_offsets[i];

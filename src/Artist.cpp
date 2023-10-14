@@ -31,8 +31,14 @@ void cmdHandler(string cmd, Artist *artist) {
     artist->SendChatMessage("=== BOT STOP ===");
     artist->SetBehaviourTree(nullptr);
   } else if (cmd == "start") {
+    Blackboard& bb = artist->GetBlackboard();
+    int workerNum = bb.Get<int>("workerNum", 1);
+    int workCol = bb.Get<int>("workCol", 0);
     artist->SendChatMessage("=== BOT START ===");
-    artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath}, {"pathFinder", artist->finder}});
+    artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath},
+                                          {"pathFinder", artist->finder}, 
+                                          {"workerNum", workerNum},
+                                          {"workCol", workCol}});
   } else if (cmd == "bar") {
     int xCheckStart = artist->GetBlackboard().Get<int>("SliceDFS.xCheckStart", 0);
     int ratio = (xCheckStart + 1) * 20 / 128;
@@ -62,23 +68,29 @@ void cmdHandler(string cmd, Artist *artist) {
       int col = stoi(matches[3]);
 
       if (exp_user != name && exp_user != "all") return;
-      Blackboard bb = artist->GetBlackboard();
+      Blackboard& bb = artist->GetBlackboard();
       string info = "Assign user " + exp_user + " for column " + string(matches[3]);
       cout << info << endl;
       artist->SendChatMessage(info);
       bb.Set("workCol", col);
     }
-  } else if (cmd.find("maxWorker") != string::npos) {
+  } else if (cmd.find("setWorker") != string::npos) {
     regex patternAssign("([^\\s]+) (\\d+)");
     smatch matches;
     if (regex_search(cmd, matches, patternAssign)) {
-      Blackboard bb = artist->GetBlackboard();
+      Blackboard& bb = artist->GetBlackboard();
       int worker_num = stoi(matches[2]);
       string info = "Setup total worker " + string(matches[2]);
       cout << info << endl;
       artist->SendChatMessage(info);
       bb.Set("workerNum", worker_num);
     }
+  } else if (cmd == "checkDuty") {
+    Blackboard& bb = artist->GetBlackboard();
+    int workCol = bb.Get<int>("workCol", 0);
+    int workerNum = bb.Get<int>("workerNum", 1);
+    string info = "Max worker: " + to_string(workerNum) + ", work col: " + to_string(workCol);
+    artist->SendChatMessage(info);
   }
 }
 

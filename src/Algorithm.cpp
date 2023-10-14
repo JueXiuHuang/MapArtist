@@ -273,6 +273,9 @@ void SliceDFS(BehaviourClient& c) {
   const Position size = end - start + Position(1, 1, 1);
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
+  const int maxWorker = blackboard.Get<int>("maxWorker", 1);
+  const int workCol = blackboard.Get<int>("workCol", 0);
+
   int slotCounter = 0;
   map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
 
@@ -284,6 +287,7 @@ void SliceDFS(BehaviourClient& c) {
                                             Position(0, 0, 1), Position(0, 0, -1)});
 
   for (int x = xCheckStart; x < size.x; x++) {
+    if (x%maxWorker != workCol) continue;
     // Put every y=0 blocks to pending stack
     for (int z = 0; z < size.z; z++) {
         pending.push(Position(x, 0, z));

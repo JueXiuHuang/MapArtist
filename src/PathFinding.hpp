@@ -112,7 +112,7 @@ public:
             }
             else
             {
-              blockTypes.emplace_back(pf::BlockType::AIR, pf::BlockType::NONE);
+              blockTypes.emplace_back(pf::BlockType::DANGER, pf::BlockType::NONE);
             }
           }
           else if (blocks[i]->IsSolid())

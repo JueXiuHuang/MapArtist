@@ -288,10 +288,24 @@ void SliceDFS(BehaviourClient& c) {
 
   for (int x = xCheckStart; x < size.x; x++) {
     if (x%workerNum != workCol) continue;
-    // Put every y=0 blocks to pending stack
+
+    // Put every y=0 blocks into pending stack.
     for (int z = 0; z < size.z; z++) {
-        pending.push(Position(x, 0, z));
-        visited[x][0][z] = true;
+      const short nbtBlockId = target[x][0][z];
+      const string nbtBlockName = palette.at(nbtBlockId);
+      if (nbtBlockName != "minecraft:air") {
+        if (z+1 < size.z) {
+          const short nextNbtBlockId = target[x][0][z+1];
+          const string nextNbtBlockName = palette.at(nextNbtBlockId);
+          if (nextNbtBlockName == "minecraft:air") {
+            pending.push(Position(x, 0, z));
+            visited[x][0][z] = true;
+          }
+        } else {
+          pending.push(Position(x, 0, z));
+          visited[x][0][z] = true;
+        }
+      }
     }
 
     bool isAllDone = true;

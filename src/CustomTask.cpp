@@ -188,7 +188,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    FindPathAndMove(c, chest, 2, 3, 2);
+    FindPathAndMove(c, chest, 3, 0, 3);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;

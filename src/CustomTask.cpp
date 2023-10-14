@@ -391,7 +391,7 @@ Status TaskExecutor(BehaviourClient& c) {
       if (exec_result == Status::Success) break;
       else {
         cout << "Task fail, move to another position and try again (" << i << ")..." << endl;
-        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 3, 0, true);
+        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 3, 0);
       }
     }
     
@@ -430,8 +430,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   return Status::Failure;
 }
 
-Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, int z_tol, 
-    bool checkGoalState) {
+Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, int z_tol) {
   Blackboard& blackboard = c.GetBlackboard();
   auto finder = blackboard.Get<BotCraftFinder<>>("pathFinder");
 
@@ -448,9 +447,7 @@ Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, in
 
   pf::Position to{pos.x, pos.y, pos.z};
   std::cout << from << " " << to << "\n";
-  finder.findPathAndGo(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol), 
-    20000,  // 20 seconds
-    checkGoalState);
+  finder.findPathAndGo(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol), 15000);
 
   return Status::Success;
 }

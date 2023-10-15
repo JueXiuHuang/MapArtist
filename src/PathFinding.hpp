@@ -345,56 +345,57 @@ public:
         }
         Botcraft::Utilities::SleepUntil(untilTime);
       }
-      else
+    }
+    else
+    {
+      const double velocity = (offset.y > 0 ? 0.12 * 0.98 : 0.15);
+      double expectTime =
+          std::floor(static_cast<double>(std::abs(offset.y)) / velocity) * 50;
+
       {
-        const double velocity = (offset.y > 0 ? 0.12 * 0.98 : 0.15);
-        double expectTime =
-            std::floor(static_cast<double>(std::abs(offset.y)) / velocity) * 50;
-
-        {
-          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-          local_player->SetIsClimbing(true);
-          local_player->SetOnGround(false);
-        }
-
-        auto startTime = std::chrono::steady_clock::now(), preTime = startTime;
-        while (true)
-        {
-          auto nowTime = std::chrono::steady_clock::now();
-          auto untilTime = nowTime + std::chrono::milliseconds(50);
-          const double elapsed_t =
-              static_cast<double>(timeElapsed(startTime, nowTime));
-          const double delta_t =
-              static_cast<double>(timeElapsed(preTime, nowTime));
-          pf::Vec3<double> delta_v = (static_cast<pf::Vec3<double>>(realOffset)) *
-                                     (delta_t / expectTime);
-          {
-            std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-            if (elapsed_t > expectTime)
-            {
-              local_player->SetX(targetPos.x);
-              local_player->SetY(targetPos.y);
-              local_player->SetZ(targetPos.z);
-              break;
-            }
-            else
-            {
-              local_player->AddPlayerInputsY(delta_v.y);
-            }
-          }
-          preTime = nowTime;
-          Botcraft::Utilities::SleepUntil(untilTime);
-        }
+        std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+        local_player->SetIsClimbing(true);
+        local_player->SetOnGround(false);
       }
 
-      return true;
+      auto startTime = std::chrono::steady_clock::now(), preTime = startTime;
+      while (true)
+      {
+        auto nowTime = std::chrono::steady_clock::now();
+        auto untilTime = nowTime + std::chrono::milliseconds(50);
+        const double elapsed_t =
+            static_cast<double>(timeElapsed(startTime, nowTime));
+        const double delta_t =
+            static_cast<double>(timeElapsed(preTime, nowTime));
+        pf::Vec3<double> delta_v = (static_cast<pf::Vec3<double>>(realOffset)) *
+                                   (delta_t / expectTime);
+        {
+          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+          if (elapsed_t > expectTime)
+          {
+            local_player->SetX(targetPos.x);
+            local_player->SetY(targetPos.y);
+            local_player->SetZ(targetPos.z);
+            break;
+          }
+          else
+          {
+            local_player->AddPlayerInputsY(delta_v.y);
+          }
+        }
+        preTime = nowTime;
+        Botcraft::Utilities::SleepUntil(untilTime);
+      }
     }
 
-    BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
-        : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
-              {true, 9999999}),
-          client(_client) {}
+    return true;
+  }
 
-  private:
-    std::shared_ptr<Botcraft::BehaviourClient> client;
-  };
+  BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
+      : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
+            {true, 9999999}),
+        client(_client) {}
+
+private:
+  std::shared_ptr<Botcraft::BehaviourClient> client;
+};

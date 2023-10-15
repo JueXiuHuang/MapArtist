@@ -1,5 +1,6 @@
 #include "Artist.hpp"
 #include "CustomSubTree.hpp"
+#include "Utils.hpp"
 #include "botcraft/AI/BehaviourTree.hpp"
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/Entities/EntityManager.hpp"
@@ -7,6 +8,7 @@
 #include "botcraft/Game/Inventory/Window.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Network/NetworkManager.hpp"
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -21,7 +23,7 @@ using json = nlohmann::json;
 void cmdHandler(string cmd, Artist *artist) {
   if (cmd == "hungry") {
     Status s = IsHungry(*artist, 15);
-    cout << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood() << endl;
+    cout << GetTime() << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood() << endl;
     if (s == Status::Success) {
       artist->SendChatMessage("I'm hungry.");
     } else {
@@ -34,6 +36,7 @@ void cmdHandler(string cmd, Artist *artist) {
     Blackboard& bb = artist->GetBlackboard();
     int workerNum = bb.Get<int>("workerNum", 1);
     int workCol = bb.Get<int>("workCol", 0);
+    cout << GetTime() << "=== BOT START ===" << endl;
     artist->SendChatMessage("=== BOT START ===");
     artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath},
                                           {"pathFinder", artist->finder}, 
@@ -70,7 +73,7 @@ void cmdHandler(string cmd, Artist *artist) {
       if (exp_user != name) return;
       Blackboard& bb = artist->GetBlackboard();
       string info = "Assign user " + exp_user + " for column " + string(matches[3]);
-      cout << info << endl;
+      cout << GetTime() << info << endl;
       artist->SendChatMessage(info);
       bb.Set("workCol", col);
     }
@@ -81,7 +84,7 @@ void cmdHandler(string cmd, Artist *artist) {
       Blackboard& bb = artist->GetBlackboard();
       int worker_num = stoi(matches[2]);
       string info = "Setup total worker " + string(matches[2]);
-      cout << info << endl;
+      cout << GetTime() << info << endl;
       artist->SendChatMessage(info);
       bb.Set("workerNum", worker_num);
     }
@@ -109,7 +112,6 @@ void msgProcessor(string text, Artist *artist) {
   if (regex_search(text, nameMatch, namePattern)) sendBy = nameMatch[1].str();
   if (regex_search(text, cmdMatch, cmdPattern)) {
     cmd = cmdMatch[1].str();
-    cout << "Send by: " << sendBy << endl << "CMD: " << cmd << endl;
     cmdHandler(cmd, artist);
   }
 }

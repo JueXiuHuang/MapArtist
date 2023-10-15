@@ -1,5 +1,6 @@
 #include "Artist.hpp"
 #include "CustomSubTree.hpp"
+#include "Utils.hpp"
 #include "botcraft/Game/ManagersClient.hpp"
 #include "botcraft/Utilities/Logger.hpp"
 #include <iostream>
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]) {
 
     const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 
-    cout << "Starting connection process" << endl;
+    cout << GetTime() << "Starting connection process" << endl;
     client.Connect(args.address, args.login, args.microsoftLogin);
     client.SetAutoRespawn(true);
     client.RunBehaviourUntilClosed();

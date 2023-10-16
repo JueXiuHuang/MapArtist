@@ -21,7 +21,7 @@ retry=12;
 # Recycle is the chest you can put everything in it.
 # You can use this chest as item classifier's source chest.
 
-recycle=-63,-50,-91;-63,-50,-92;-63,-50,-93;-63,-50,-94;-63,-50,-95;-63,-50,-96
+recycle=-62,-50,-91;-62,-50,-92;-62,-50,-93;-62,-50,-94;-62,-50,-95;-62,-50,-96
 minecraft:cooked_beef=-68,-60,-92
 
 minecraft:white_wool=-61,-59,-93;-61,-58,-93

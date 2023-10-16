@@ -317,6 +317,7 @@ public:
 
       // wait for falling
       double lastY;
+      int doNotChangeTime = 0;
       bool lastYInit = false;
       while (offset.y != 0)
       {
@@ -324,24 +325,26 @@ public:
         auto untilTime = nowTime + std::chrono::milliseconds(50);
         if (local_player->GetOnGround() && local_player->GetSpeedY() == 0)
         {
-          local_player->SetY(local_player->GetY() + 0.001);
           break;
         }
         else
         {
           std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
           double nowY = local_player->GetY();
-          if (lastYInit && std::abs(nowY - lastY) < 0.005)
+          if (lastYInit && std::abs(nowY - lastY) < 0.003)
           {
-            // player didn't move, something happened
-            break;
+            doNotChangeTime++;
+            if (doNotChangeTime > 5)
+            {
+              // player didn't move, something happened
+              break;
+            }
           }
           else
           {
             lastYInit = true;
             lastY = nowY;
           }
-          local_player->SetY(nowY + 0.001);
         }
         Botcraft::Utilities::SleepUntil(untilTime);
       }

@@ -1,3 +1,6 @@
+#ifndef CUSTOMBEHAVIORTREE_HPP_
+#define CUSTOMBEHAVIORTREE_HPP_
+
 #include "botcraft/AI/BehaviourTree.hpp"
 
 /// @brief A Decorator that ticks its child until
@@ -21,3 +24,5 @@ class RepeatUntilSuccess : public Botcraft::Decorator<Context> {
   private:
     size_t n;
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef ALGORITHM_HPP_
+#define ALGORITHM_HPP_
+
 #include "botcraft/AI/BehaviourClient.hpp"
 #include "botcraft/Game/Vector3.hpp"
 #include <string>
@@ -21,3 +24,5 @@ struct MaterialCompare {
     else return posA.x < posB.x;
   }
 };
+
+#endif

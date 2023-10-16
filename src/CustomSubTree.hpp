@@ -1,5 +1,8 @@
-#include <botcraft/AI/Tasks/AllTasks.hpp>
+#ifndef CUSTOMSUBTREE_HPP_
+#define CUSTOMSUBTREE_HPP_
+
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
+#include <botcraft/AI/Tasks/AllTasks.hpp>
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> FullTree();
 
@@ -14,3 +17,5 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> EatTre
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> NullTree();
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> WorkTree();
+
+#endif

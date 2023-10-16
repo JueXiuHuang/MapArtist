@@ -1,3 +1,6 @@
+#ifndef PATHFINDING_HPP_
+#define PATHFINDING_HPP_
+
 #include <Evaluate/Evaluate.hpp>
 #include <Finder/Finder.hpp>
 #include <Goal/Goal.hpp>
@@ -402,3 +405,5 @@ public:
 private:
   std::shared_ptr<Botcraft::BehaviourClient> client;
 };
+
+#endif

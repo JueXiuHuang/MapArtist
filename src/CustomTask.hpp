@@ -1,3 +1,6 @@
+#ifndef CUSTOMTASK_HPP_
+#define CUSTOMTASK_HPP_
+
 #include "botcraft/AI/BehaviourClient.hpp"
 #include "botcraft/AI/Status.hpp"
 #include "botcraft/Game/Vector3.hpp"
@@ -55,3 +58,5 @@ Botcraft::Status WarnConsole(Botcraft::BehaviourClient& c, const std::string& ms
 Botcraft::Status LoadNBT(Botcraft::BehaviourClient& c);
 
 Botcraft::Status LoadConfig(Botcraft::BehaviourClient& c);
+
+#endif

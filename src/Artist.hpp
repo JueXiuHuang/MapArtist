@@ -1,8 +1,8 @@
 #ifndef ARTIST_HPP
 #define ARTIST_HPP
 
-#include "botcraft/AI/SimpleBehaviourClient.hpp"
 #include "PathFinding.hpp"
+#include "botcraft/AI/SimpleBehaviourClient.hpp"
 
 class Artist : public Botcraft::SimpleBehaviourClient {
   public:

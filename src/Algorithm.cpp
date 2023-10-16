@@ -1,5 +1,6 @@
 #include "Algorithm.hpp"
 #include "CustomTask.hpp"
+#include "Utils.hpp"
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/Vector3.hpp"
 #include "botcraft/Game/World/World.hpp"
@@ -11,38 +12,6 @@
 
 using namespace Botcraft;
 using namespace std;
-
-string getWorldBlock(BehaviourClient& c, Position pos) {
-  shared_ptr<World> world = c.GetWorld();
-
-  string curBlockName = "minecraft:air";
-  const Blockstate* block = world->GetBlock(pos);
-
-  if (!block) {
-    // it is a air block
-    if (!world->IsLoaded(pos)) {
-      FindPathAndMove(c, pos, 5, 5, 5);
-
-      block = world->GetBlock(pos);
-      if (block) curBlockName = block->GetName();
-    }
-  } else {
-    curBlockName = block->GetName();
-  }
-
-  return curBlockName;
-}
-
-string getTaskType(string worldBlockName, string nbtBlockName) {
-  string taskType = "None";
-  if (nbtBlockName != "minecraft:air" && worldBlockName == "minecraft:air") {
-    taskType = "Place";
-  } else if (worldBlockName != "minecraft:air" && nbtBlockName != worldBlockName) {
-    taskType = "Dig";
-  }
-
-  return taskType;
-}
 
 vector<Position> getScanOffsets(int radius) {
   vector<Position> offsets;
@@ -316,8 +285,8 @@ void SliceDFS(BehaviourClient& c) {
       const short nbtBlockId = target[cp.x][cp.y][cp.z];
       const string nbtBlockName = palette.at(nbtBlockId);
       
-      string worldBlockName = getWorldBlock(c, cp+anchor);
-      string taskType = getTaskType(worldBlockName, nbtBlockName);
+      string worldBlockName = GetWorldBlock(c, cp+anchor);
+      string taskType = GetTaskType(worldBlockName, nbtBlockName);
 
       if (taskType != "None") {
         isAllDone = false;
@@ -399,8 +368,8 @@ void SliceDFSNeighbor(BehaviourClient& c) {
       const short nbtBlockId = target[cp.x][cp.y][cp.z];
       const string nbtBlockName = palette.at(nbtBlockId);
       
-      string worldBlockName = getWorldBlock(c, cp+anchor);
-      string taskType = getTaskType(worldBlockName, nbtBlockName);
+      string worldBlockName = GetWorldBlock(c, cp+anchor);
+      string taskType = GetTaskType(worldBlockName, nbtBlockName);
 
       if (taskType != "None" && !scheduled[cp.x][cp.y][cp.z]) {
         scheduled[cp.x][cp.y][cp.z] = true;
@@ -423,10 +392,10 @@ void SliceDFSNeighbor(BehaviourClient& c) {
         bool zCheck = (newPos+anchor).z >= start.z && (newPos+anchor).z <= end.z;
 
         if (xCheck && yCheck && zCheck && !scheduled[newPos.x][newPos.y][newPos.z]) {
-          string wbn = getWorldBlock(c, newPos+anchor);
+          string wbn = GetWorldBlock(c, newPos+anchor);
           short tid = target[newPos.x][newPos.y][newPos.z];
           string tn = palette.at(tid);
-          string tt = getTaskType(wbn, tn);
+          string tt = GetTaskType(wbn, tn);
 
           if (tt != "None") {
             scheduled[newPos.x][newPos.y][newPos.z] = true;

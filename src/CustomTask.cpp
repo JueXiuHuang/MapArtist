@@ -408,10 +408,14 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   Blackboard& board = c.GetBlackboard();
 
   FindPathAndMove(c, blockPos, 3, 3, 3);
+  string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
-    return Dig(c, blockPos, true);
+    if (bn == "minecraft:air") return Status::Success;
+    else return Dig(c, blockPos, true);
   } else if (action == "Place") {
-    return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
+    if (bn == "minecraft:air") return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
+    else if (bn != blockName) return Dig(c, blockPos, true);
+    else return Status::Success;
   }
 
   cout << GetTime() << "Unknown task in ExecuteNextTask..." << endl;

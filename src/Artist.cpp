@@ -12,8 +12,6 @@
 #include <iomanip>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <regex>
-#include <string>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -100,6 +98,15 @@ void cmdHandler(string cmd, Artist *artist) {
     artist->SendChatMessage(info);
     bb.Set("workCol", 0);
     bb.Set("workerNum", 1);
+  } else if (cmd == "exchange") {
+    Blackboard& bb = artist->GetBlackboard();
+    string rate = bb.Get<string>("ExchangeRate", "NOT_FOUND");
+    string info = "1 Villager Ingot = " + rate + " emerald.";
+    artist->SendChatMessage(info);
+  } else if (cmd == "channel") {
+    Blackboard& bb = artist->GetBlackboard();
+    string info = "Current channel: " + bb.Get<string>("ChannelNumber", "NOT_FOUND");
+    artist->SendChatMessage(info);
   }
 }
 
@@ -147,6 +154,15 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
 void Artist::Handle(ClientboundTabListPacket &msg) {
     ManagersClient::Handle(msg);
 
-    // LOG_INFO(endl << "Header: " << msg.GetHeader().GetText() << endl);
-    // LOG_INFO(endl << "Footer: " << msg.GetFooter().GetText() << endl);
+    string header = msg.GetHeader().GetText();
+    string footer = msg.GetFooter().GetText();
+    smatch match;
+    header.erase(remove(header.begin(), header.end(), ','), header.end());
+
+    if (regex_search(header, match, FalloutTabPattern)) {
+      Blackboard& bb = this->GetBlackboard();
+      bb.Set("ExchangeRate", match[12].str());
+      bb.Set("ChannelNumber", match[13].str());
+      bb.Set("CurrentPos", match[15].str());
+    }
 }

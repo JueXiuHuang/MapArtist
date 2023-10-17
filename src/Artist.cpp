@@ -118,6 +118,7 @@ void msgProcessor(string text, Artist *artist) {
   string sendBy, cmd;
   if (regex_search(text, nameMatch, namePattern)) sendBy = nameMatch[1].str();
   if (regex_search(text, cmdMatch, cmdPattern)) {
+    cout << text << endl;
     cmd = cmdMatch[1].str();
     cmdHandler(cmd, artist);
   }
@@ -143,7 +144,6 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
 
     string text = msg.GetContent().GetText();
     // Find a message from discord
-    cout << text << endl;
     if (text.find("[#405home]") != string::npos) {
       msgProcessor(text, this);
     } else if (text.find("[系統] 這個領地內的區域") != string::npos) {

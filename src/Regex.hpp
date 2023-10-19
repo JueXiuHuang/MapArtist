@@ -75,11 +75,11 @@ static regex IngotPattern("(ingot)");
 static regex ChannelPattern("(channel)");
 
 /*
-match 1: move
+match 1: move or bmove
 match 2: x position
 match 3: y position
 match 4: z position
 */
-static regex MovePattern("(move)\\s+(-?\\d+)\\s+(-?\\d+)\\s+(-?\\d+)");
+static regex MovePattern("(b?move)\\s+(-?\\d+)\\s+(-?\\d+)\\s+(-?\\d+)");
 
 #endif

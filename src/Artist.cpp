@@ -110,10 +110,13 @@ void cmdHandler(string cmd, Artist *artist) {
 
     artist->SendChatMessage(info);
   } else if (regex_search(cmd, matches, MovePattern)) {
-    artist->GetBlackboard().Get("pathFinder", artist->finder);
     int x = stoi(matches[2]), y = stoi(matches[3]), z = stoi(matches[4]);
-
-    FindPathAndMove(*artist, Position(x, y, z), 2, 2, 2);
+    if (matches[1] == "bmove") {
+      artist->SetBehaviourTree(BMoveTree(Position(x, y, z)));
+    } else {
+      artist->SetBehaviourTree(MoveTree(Position(x, y, z)), {{"configPath", artist->configPath},
+                                                              {"pathFinder", artist->finder}});
+    }
   }
 }
 

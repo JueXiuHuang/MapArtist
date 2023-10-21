@@ -228,6 +228,11 @@ public:
 
         // move x and z
         auto startTime = std::chrono::steady_clock::now(), preTime = startTime;
+        Botcraft::Vector3<double> lastPos;
+        {
+          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+          lastPos = local_player->GetPosition();
+        }
         while (true)
         {
           auto nowTime = std::chrono::steady_clock::now();
@@ -249,6 +254,19 @@ public:
               {
                 local_player->SetOnGround(false);
                 break;
+              }
+              if (lastPos == local_player->GetPosition())
+              {
+                local_player->SetX(targetPos.x);
+                if (offset.y > 0)
+                {
+                  local_player->SetY(local_player->GetY() + 0.001);
+                }
+                else
+                {
+                  local_player->SetY(targetPos.y);
+                }
+                local_player->SetZ(targetPos.z);
               }
               local_player->SetPlayerInputsX(targetPos.x -
                                              local_player->GetX() -
@@ -278,6 +296,7 @@ public:
               }
               local_player->AddPlayerInputsZ(delta_v.z);
             }
+            lastPos = local_player->GetPosition();
           }
           preTime = nowTime;
           Botcraft::Utilities::SleepUntil(untilTime);
@@ -299,7 +318,7 @@ public:
         while (true)
         {
           auto nowTime = std::chrono::steady_clock::now();
-          auto untilTime = nowTime + std::chrono::milliseconds(10);
+          auto untilTime = nowTime + std::chrono::milliseconds(50);
           const double elapsed_t =
               static_cast<double>(timeElapsed(startTime, nowTime));
           const double delta_t =
@@ -309,12 +328,22 @@ public:
               (delta_t / expectTime);
           {
             std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-            if (elapsed_t > expectTime)
+            if ((elapsed_t / 1000.0) > norm / speed)
             {
-              local_player->SetX(targetPos.x);
+              if (std::abs(local_player->GetX() - targetPos.x) +
+                      std::abs(local_player->GetZ() - targetPos.z) <
+                  1e-2)
+              {
+                local_player->SetOnGround(false);
+                break;
+              }
+              local_player->SetPlayerInputsX(targetPos.x -
+                                             local_player->GetX() -
+                                             local_player->GetSpeedX());
               local_player->SetY(local_player->GetY() + 0.001);
-              local_player->SetZ(targetPos.z);
-              break;
+              local_player->SetPlayerInputsZ(targetPos.z -
+                                             local_player->GetZ() -
+                                             local_player->GetSpeedZ());
             }
             else
             {

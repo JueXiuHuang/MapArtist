@@ -209,8 +209,8 @@ public:
           {
             auto nowTime = std::chrono::steady_clock::now();
             auto untilTime = nowTime + std::chrono::milliseconds(50);
-            if (timeElapsed(startJumpTime, nowTime) > 6 * 50)
-            {               // 6 ticks
+            if (timeElapsed(startJumpTime, nowTime) > 8 * 50)
+            {               // 8 ticks
               return false; // jump failed
             }
             else
@@ -268,20 +268,23 @@ public:
                 }
                 local_player->SetZ(targetPos.z);
               }
-              local_player->SetPlayerInputsX(targetPos.x -
-                                             local_player->GetX() -
-                                             local_player->GetSpeedX());
-              if (offset.y > 0)
-              {
-                local_player->SetY(local_player->GetY() + 0.001);
-              }
               else
               {
-                local_player->SetY(targetPos.y);
+                local_player->SetPlayerInputsX(targetPos.x -
+                                               local_player->GetX() -
+                                               local_player->GetSpeedX());
+                if (offset.y > 0)
+                {
+                  local_player->SetY(local_player->GetY() + 0.001);
+                }
+                else
+                {
+                  local_player->SetY(targetPos.y);
+                }
+                local_player->SetPlayerInputsZ(targetPos.z -
+                                               local_player->GetZ() -
+                                               local_player->GetSpeedZ());
               }
-              local_player->SetPlayerInputsZ(targetPos.z -
-                                             local_player->GetZ() -
-                                             local_player->GetSpeedZ());
             }
             else
             {
@@ -328,7 +331,7 @@ public:
               (delta_t / expectTime);
           {
             std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
-            if ((elapsed_t / 1000.0) > norm / speed)
+            if (elapsed_t > expectTime)
             {
               if (std::abs(local_player->GetX() - targetPos.x) +
                       std::abs(local_player->GetZ() - targetPos.z) <

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iostream>
 #include <queue>
+#include <vector>
 #include <stack>
 #include <utility>
 
@@ -237,9 +238,9 @@ void SliceDFS(BehaviourClient& c) {
   const Position& anchor = blackboard.Get<Position>("anchor");
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
-  int xCheckStart = blackboard.Get<int>("SliceDFS.xCheckStart", 0);
-
   const Position size = end - start + Position(1, 1, 1);
+  vector<bool> xCheck = blackboard.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
+
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
   const int workerNum = blackboard.Get<int>("workerNum", 1);
@@ -255,8 +256,9 @@ void SliceDFS(BehaviourClient& c) {
   const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
                                             Position(0, 0, 1), Position(0, 0, -1)});
 
-  for (int x = xCheckStart; x < size.x; x++) {
+  for (int x = 0; x < size.x; x++) {
     if (x%workerNum != workCol) continue;
+    if (xCheck[x]) continue;
 
     // Put every y=0 blocks into pending stack.
     for (int z = 0; z < size.z; z++) {
@@ -317,11 +319,11 @@ void SliceDFS(BehaviourClient& c) {
       }
     }
 
-    if (isAllDone) xCheckStart++;
+    if (isAllDone) xCheck[x] = true;
     if (slotCounter == 27) break;
   }
 
-  blackboard.Set("SliceDFS.xCheckStart", xCheckStart);
+  blackboard.Set("SliceDFS.xCheck", xCheck);
   blackboard.Set("qTaskPosition", qTaskPosition);
   blackboard.Set("qTaskType", qTaskType);
   blackboard.Set("qTaskName", qTaskName);

@@ -46,9 +46,13 @@ void cmdHandler(string cmd, Artist *artist) {
                                           {"workerNum", workerNum},
                                           {"workCol", workCol}});
   } else if (regex_search(cmd, matches, BarPattern)) {
-    int xCheckStart = artist->GetBlackboard().Get<int>("SliceDFS.xCheckStart", 0);
-    int ratio = (xCheckStart + 1) * 20 / 128;
-    double percent = static_cast<double>(xCheckStart + 1) * 100 / 128;
+    vector<bool> xCheck = artist->GetBlackboard().Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
+    int finish = 0;
+    for (auto x : xCheck) {
+      if (x) finish++;
+    }
+    int ratio = finish * 20 / 128;
+    double percent = static_cast<double>(finish) * 100 / 128;
 
     ostringstream bar;
     bar << "[" << string(ratio, '#') << string(20 - ratio, '-') << "]  "

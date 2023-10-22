@@ -336,7 +336,8 @@ public:
             if (elapsed_t > expectTime)
             {
               if (std::abs(local_player->GetX() - targetPos.x) +
-                      std::abs(local_player->GetZ() - targetPos.z) <
+                      std::abs(local_player->GetZ() - targetPos.z) +
+                      std::abs(local_player->GetY() - targetPos.y) <
                   1e-2)
               {
                 local_player->SetOnGround(false);

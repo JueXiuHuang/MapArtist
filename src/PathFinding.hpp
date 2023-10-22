@@ -255,7 +255,9 @@ public:
                 local_player->SetOnGround(false);
                 break;
               }
-              if (lastPos == local_player->GetPosition())
+
+              auto diff = lastPos - local_player->GetPosition();
+              if (std::abs(diff.x) + std::abs(diff.z) < 1e-2)
               {
                 local_player->SetX(targetPos.x);
                 if (offset.y > 0)

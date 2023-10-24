@@ -172,7 +172,9 @@ public:
                            local_player->GetPosition().y,
                            local_player->GetPosition().z};
 
-      targetPos = (now.getXZ().floor().offset(0, now.y, 0) + offset)
+      targetPos = (now.getXZ().floor().offsetY(
+                       std::ceil(std::floor(now.y * 1e3) / 1e3)) +
+                   offset)
                       .offset(0.5, 0, 0.5); // stand in the middle of the block
       realOffset = targetPos - now;
       const auto lookAtPos = targetPos.offset(0.0, 1.62, 0.0);
@@ -335,10 +337,9 @@ public:
             std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
             if (elapsed_t > expectTime)
             {
-              if (std::abs(local_player->GetX() - targetPos.x) +
-                      std::abs(local_player->GetZ() - targetPos.z) +
-                      std::abs(local_player->GetY() - targetPos.y) <
-                  1e-2)
+              if ((std::abs(local_player->GetX() - targetPos.x) +
+                   std::abs(local_player->GetZ() - targetPos.z)) < 1e-2 &&
+                  std::abs(local_player->GetY() - targetPos.y) < 1.0)
               {
                 local_player->SetOnGround(false);
                 break;

@@ -164,6 +164,7 @@ public:
   {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
+    const bool canFly = client->GetCreativeMode();
 
     pf::Vec3<double> targetPos, realOffset, offset = to - from;
     {
@@ -172,9 +173,7 @@ public:
                            local_player->GetPosition().y,
                            local_player->GetPosition().z};
 
-      targetPos = (now.getXZ().floor().offsetY(
-                       std::ceil(std::floor(now.y * 1e3) / 1e3)) +
-                   offset)
+      targetPos = (now.getXZ().floor().offsetY(to.y + 1) + offset.getXZ())
                       .offset(0.5, 0, 0.5); // stand in the middle of the block
       realOffset = targetPos - now;
       const auto lookAtPos = targetPos.offset(0.0, 1.62, 0.0);
@@ -197,9 +196,11 @@ public:
     {
       if (offset.y >= 0)
       {
+        double velocity = 0;
         if (offset.y > 0)
         {
           // jump
+          velocity = 0.42;
           {
             std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
             local_player->Jump();
@@ -223,7 +224,13 @@ public:
               {
                 break;
               }
+              if (canFly)
+              {
+                local_player->SetY(local_player->GetY() + velocity);
+              }
             }
+            velocity = (velocity - 0.08) * 0.98;
+            velocity = std::abs(velocity) < 0.005 ? 0 : velocity;
             Botcraft::Utilities::SleepUntil(untilTime);
           }
         }
@@ -250,12 +257,24 @@ public:
             std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
             if ((elapsed_t / 1000.0) > norm / speed)
             {
-              if (std::abs(local_player->GetX() - targetPos.x) +
-                      std::abs(local_player->GetZ() - targetPos.z) <
-                  1e-2)
+              if (!canFly || offset.y == 0)
               {
-                local_player->SetOnGround(false);
-                break;
+                if ((std::abs(local_player->GetX() - targetPos.x) +
+                     std::abs(local_player->GetZ() - targetPos.z)) < 1e-2)
+                {
+                  local_player->SetOnGround(false);
+                  break;
+                }
+              }
+              else if (offset.y > 0)
+              {
+                if (std::abs(local_player->GetY() - targetPos.y) < 1.0)
+                {
+                  local_player->SetX(targetPos.x);
+                  local_player->SetY(targetPos.y);
+                  local_player->SetZ(targetPos.z);
+                  break;
+                }
               }
 
               auto diff = lastPos - local_player->GetPosition();
@@ -264,11 +283,18 @@ public:
                 local_player->SetX(targetPos.x);
                 if (offset.y > 0)
                 {
-                  local_player->SetY(local_player->GetY() + 0.001);
+                  if (canFly)
+                  {
+                    local_player->SetY(local_player->GetY() + velocity);
+                  }
+                  else
+                  {
+                    local_player->SetY(local_player->GetY());
+                  }
                 }
                 else
                 {
-                  local_player->SetY(targetPos.y);
+                  local_player->SetY(local_player->GetY());
                 }
                 local_player->SetZ(targetPos.z);
               }
@@ -279,11 +305,18 @@ public:
                                                local_player->GetSpeedX());
                 if (offset.y > 0)
                 {
-                  local_player->SetY(local_player->GetY() + 0.001);
+                  if (canFly)
+                  {
+                    local_player->SetY(local_player->GetY() + velocity);
+                  }
+                  else
+                  {
+                    local_player->SetY(local_player->GetY());
+                  }
                 }
                 else
                 {
-                  local_player->SetY(targetPos.y);
+                  local_player->SetY(local_player->GetY());
                 }
                 local_player->SetPlayerInputsZ(targetPos.z -
                                                local_player->GetZ() -
@@ -295,16 +328,25 @@ public:
               local_player->AddPlayerInputsX(delta_v.x);
               if (offset.y > 0)
               {
-                local_player->SetY(local_player->GetY() + 0.001);
+                if (canFly)
+                {
+                  local_player->SetPlayerInputsY(-0.1);
+                }
+                else
+                {
+                  local_player->SetY(local_player->GetY());
+                }
               }
               else
               {
-                local_player->SetY(targetPos.y);
+                local_player->SetY(local_player->GetY());
               }
               local_player->AddPlayerInputsZ(delta_v.z);
             }
             lastPos = local_player->GetPosition();
           }
+          velocity = (velocity - 0.08) * 0.98;
+          velocity = std::abs(velocity) < 0.005 ? 0 : velocity;
           preTime = nowTime;
           Botcraft::Utilities::SleepUntil(untilTime);
         }
@@ -321,7 +363,13 @@ public:
           expectTime += 50; // 50 ms, 1 tick
         }
 
+        velocity = 0.0;
         auto startTime = std::chrono::steady_clock::now(), preTime = startTime;
+        Botcraft::Vector3<double> lastPos;
+        {
+          std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+          lastPos = local_player->GetPosition();
+        }
         while (true)
         {
           auto nowTime = std::chrono::steady_clock::now();
@@ -337,28 +385,72 @@ public:
             std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
             if (elapsed_t > expectTime)
             {
-              if ((std::abs(local_player->GetX() - targetPos.x) +
-                   std::abs(local_player->GetZ() - targetPos.z)) < 1e-2 &&
+              if (std::abs(local_player->GetX() - targetPos.x) < 0.1 &&
+                  std::abs(local_player->GetZ() - targetPos.z) < 0.1 &&
                   std::abs(local_player->GetY() - targetPos.y) < 1.0)
               {
-                local_player->SetOnGround(false);
+                local_player->SetX(targetPos.x);
+                if (canFly)
+                {
+                  local_player->SetY(targetPos.y);
+                }
+                else
+                {
+                  local_player->SetOnGround(false);
+                }
+                local_player->SetZ(targetPos.z);
                 break;
               }
-              local_player->SetPlayerInputsX(targetPos.x -
-                                             local_player->GetX() -
-                                             local_player->GetSpeedX());
-              local_player->SetY(local_player->GetY() + 0.001);
-              local_player->SetPlayerInputsZ(targetPos.z -
-                                             local_player->GetZ() -
-                                             local_player->GetSpeedZ());
+
+              auto diff = lastPos - local_player->GetPosition();
+              if (std::abs(diff.x) + std::abs(diff.z) < 1e-2 &&
+                  std::abs(diff.y) < 1e-2)
+              {
+                local_player->SetX(targetPos.x);
+                if (canFly)
+                {
+                  local_player->SetY(targetPos.y);
+                }
+                else
+                {
+                  local_player->SetY(local_player->GetY());
+                }
+                local_player->SetZ(targetPos.z);
+              }
+              else
+              {
+                local_player->SetPlayerInputsX(targetPos.x -
+                                               local_player->GetX() -
+                                               local_player->GetSpeedX());
+                if (canFly)
+                {
+                  local_player->SetY(local_player->GetY() - velocity);
+                }
+                else
+                {
+                  local_player->SetY(local_player->GetY() + 0.001);
+                }
+                local_player->SetPlayerInputsZ(targetPos.z -
+                                               local_player->GetZ() -
+                                               local_player->GetSpeedZ());
+              }
             }
             else
             {
               local_player->AddPlayerInputsX(delta_v.x);
-              local_player->SetY(local_player->GetY() + 0.001);
+              if (canFly)
+              {
+                local_player->SetY(local_player->GetY() - velocity);
+              }
+              else
+              {
+                local_player->SetY(local_player->GetY() + 0.001);
+              }
               local_player->AddPlayerInputsZ(delta_v.z);
             }
+            lastPos = local_player->GetPosition();
           }
+          velocity = (velocity + 0.08) * 0.98;
           preTime = nowTime;
           Botcraft::Utilities::SleepUntil(untilTime);
         }
@@ -372,7 +464,8 @@ public:
       {
         auto nowTime = std::chrono::steady_clock::now();
         auto untilTime = nowTime + std::chrono::milliseconds(50);
-        if (local_player->GetOnGround() && local_player->GetSpeedY() == 0)
+        if (canFly ||
+            (local_player->GetOnGround() && local_player->GetSpeedY() == 0))
         {
           break;
         }

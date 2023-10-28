@@ -43,7 +43,7 @@ void cmdHandler(string cmd, Artist *artist) {
     cout << GetTime() << "=== BOT START ===" << endl;
     artist->SendChatMessage("=== BOT START ===");
     artist->hasWork = true;
-    map<string, any> initVal = artist->Recover();
+    map<string, any> &initVal = artist->Recover();
     artist->SetBehaviourTree(FullTree(), initVal);
   } else if (regex_search(cmd, matches, BarPattern)) {
     vector<bool> xCheck = artist->GetBlackboard().Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
@@ -121,7 +121,7 @@ void cmdHandler(string cmd, Artist *artist) {
     if (matches[1] == "bmove") {
       artist->SetBehaviourTree(BMoveTree(Position(x, y, z)));
     } else {
-      map<string, any> initVal = artist->Recover();
+      map<string, any> &initVal = artist->Recover();
       artist->SetBehaviourTree(MoveTree(Position(x, y, z)), initVal);
     }
   } else if (regex_search(cmd, matches, WaitingRoomPattern)) {
@@ -168,7 +168,7 @@ Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use
   inWaitingRoom = false;
   waitTpFinish = false;
   hasWork = false;
-  vector<string> key{"configPath", "finder", "workerNum", "workCol"};
+  vector<string> key{"configPath", "pathFinder", "workerNum", "workCol"};
   vector<any> initVal{path, finder, 1, 0};
   for (int i = 0; i < key.size(); i++) {
     backup[key[i]] = initVal[i];
@@ -201,7 +201,7 @@ void Artist::Backup() {
   }
 }
 
-map<string, any> Artist::Recover() {
+map<string, any>& Artist::Recover() {
   return backup;
 }
 

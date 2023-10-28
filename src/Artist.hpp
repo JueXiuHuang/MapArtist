@@ -16,7 +16,7 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     Artist(const bool use_renderer, std::string path);
     ~Artist();
     void Backup();
-    std::map<std::string, std::any> Recover();
+    std::map<std::string, std::any>& Recover();
 
   protected:
     virtual void Handle(ProtocolCraft::ClientboundPlayerChatPacket& msg) override;

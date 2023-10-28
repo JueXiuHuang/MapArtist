@@ -143,7 +143,9 @@ void cmdHandler(string cmd, Artist *artist) {
       artist->waitTpFinish = false;
       artist->SendChatMessage("Back to work...");
       if (artist->hasWork) {
-        ;
+        artist->hasWork = true;
+        map<string, any> &initVal = artist->Recover();
+        artist->SetBehaviourTree(FullTree(), initVal);
       }
     }
   }

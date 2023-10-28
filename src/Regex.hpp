@@ -94,8 +94,4 @@ static regex WaitingRoomPattern("Summoned to ([^\\d]+)(\\d*) by CONSOLE");
 
 static regex TpSuccessPattern("讀取人物成功");
 
-static regex TestAPattern("(testA)");
-
-static regex TestBPattern("(testB)");
-
 #endif

@@ -541,6 +541,11 @@ public:
             {true, 9999999}),
         client(_client) {}
 
+  BotCraftFinder& operator=(const BotCraftFinder &other){
+    this->client = other.client;
+    this->config = other.config;
+  }
+
 private:
   std::shared_ptr<Botcraft::BehaviourClient> client;
 };

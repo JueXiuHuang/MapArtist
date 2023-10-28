@@ -33,18 +33,18 @@ void cmdHandler(string cmd, Artist *artist) {
     }
   } else if (regex_search(cmd, matches, StopPattern)) {
     artist->SendChatMessage("=== BOT STOP ===");
+    // backup first, then set hasWork to false
+    artist->Backup();
+    artist->hasWork = false;
     artist->SetBehaviourTree(nullptr);
   } else if (regex_search(cmd, matches, StartPattern)) {
     Blackboard& bb = artist->GetBlackboard();
-    int workerNum = bb.Get<int>("workerNum", 1);
-    int workCol = bb.Get<int>("workCol", 0);
 
     cout << GetTime() << "=== BOT START ===" << endl;
     artist->SendChatMessage("=== BOT START ===");
-    artist->SetBehaviourTree(FullTree(), {{"configPath", artist->configPath},
-                                          {"pathFinder", artist->finder}, 
-                                          {"workerNum", workerNum},
-                                          {"workCol", workCol}});
+    artist->hasWork = true;
+    map<string, any> initVal = artist->Recover();
+    artist->SetBehaviourTree(FullTree(), initVal);
   } else if (regex_search(cmd, matches, BarPattern)) {
     vector<bool> xCheck = artist->GetBlackboard().Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
     int finish = 0;
@@ -79,7 +79,8 @@ void cmdHandler(string cmd, Artist *artist) {
 
     cout << GetTime() << info << endl;
     artist->SendChatMessage(info);
-    bb.Set("workCol", col);
+    if (artist->hasWork) bb.Set("workCol", col);
+    else artist->backup["workCol"] = col;
   } else if (regex_search(cmd, matches, SetWorkerPattern)) {
     Blackboard& bb = artist->GetBlackboard();
     int worker_num = stoi(matches[2]);
@@ -87,11 +88,12 @@ void cmdHandler(string cmd, Artist *artist) {
 
     cout << GetTime() << info << endl;
     artist->SendChatMessage(info);
-    bb.Set("workerNum", worker_num);
+    if (artist->hasWork) bb.Set("workerNum", worker_num);
+    else artist->backup["workerNum"] = worker_num;
   } else if (regex_search(cmd, matches, CheckDutyPattern)) {
     Blackboard& bb = artist->GetBlackboard();
-    int workCol = bb.Get<int>("workCol", 0);
-    int workerNum = bb.Get<int>("workerNum", 1);
+    int workCol = (artist->hasWork) ? bb.Get<int>("workCol", 0) : any_cast<int>(artist->backup["workCol"]);
+    int workerNum = (artist->hasWork) ? bb.Get<int>("workerNum", 1) : any_cast<int>(artist->backup["workerNum"]);
     string info = "Max worker: " + to_string(workerNum) + ", work col: " + to_string(workCol);
 
     artist->SendChatMessage(info);
@@ -100,8 +102,8 @@ void cmdHandler(string cmd, Artist *artist) {
     string info = "Reset workCol & workerNum value";
 
     artist->SendChatMessage(info);
-    bb.Set("workCol", 0);
-    bb.Set("workerNum", 1);
+    if (artist->hasWork) bb.Set("workCol", 0);
+    else artist->backup["workCol"] = 0;
   } else if (regex_search(cmd, matches, IngotPattern)) {
     Blackboard& bb = artist->GetBlackboard();
     string rate = bb.Get<string>("ExchangeRate", "NOT_FOUND");
@@ -115,33 +117,62 @@ void cmdHandler(string cmd, Artist *artist) {
     artist->SendChatMessage(info);
   } else if (regex_search(cmd, matches, MovePattern)) {
     int x = stoi(matches[2]), y = stoi(matches[3]), z = stoi(matches[4]);
+
     if (matches[1] == "bmove") {
       artist->SetBehaviourTree(BMoveTree(Position(x, y, z)));
     } else {
-      artist->SetBehaviourTree(MoveTree(Position(x, y, z)), {{"configPath", artist->configPath},
-                                                              {"pathFinder", artist->finder}});
+      map<string, any> initVal = artist->Recover();
+      artist->SetBehaviourTree(MoveTree(Position(x, y, z)), initVal);
+    }
+  } else if (regex_search(cmd, matches, WaitingRoomPattern)) {
+    if (matches[1] == "wait") {
+      artist->Backup();
+      artist->inWaitingRoom = true;
+      artist->SetBehaviourTree(nullptr);
+      artist->SendChatMessage("Transfered to waiting room, stop working...");
+    } else {
+      if (artist->inWaitingRoom) artist->waitTpFinish = true;
+
+      string info = "Transfered to channel " + string(matches[1]);
+
+      artist->SendChatMessage(info);
+    }
+  } else if (regex_search(cmd, matches, TpSuccessPattern)) {
+    if (artist->waitTpFinish) {
+      artist->inWaitingRoom = false;
+      artist->waitTpFinish = false;
+      artist->SendChatMessage("Back to work...");
+      if (artist->hasWork) {
+        ;
+      }
     }
   }
 }
 
 void msgProcessor(string text, Artist *artist) {
-  // regex cmdPattern("::(\\S+)"), namePattern("<([^>]+)>");
-  regex cmdPattern("::(.+)"), namePattern("<([^>]+)>");
-
-  smatch cmdMatch, nameMatch;
-  string sendBy, cmd;
-  if (regex_search(text, nameMatch, namePattern)) sendBy = nameMatch[1].str();
-  if (regex_search(text, cmdMatch, cmdPattern)) {
+  smatch match;
+  string cmd;
+  if (regex_search(text, match, CommandPattern)) {
     cout << text << endl;
-    cmd = cmdMatch[1].str();
+    cmd = match[1].str();
+    cmdHandler(cmd, artist);
+  } else if (regex_search(text, match, SystemInfoPattern)) {
+    cout << text << endl;
+    cmd = match[2].str();
     cmdHandler(cmd, artist);
   }
 }
 
-Artist::Artist(const bool use_renderer, string path) : 
-    SimpleBehaviourClient(use_renderer), 
-    finder(shared_ptr<BehaviourClient>(this)) {
+Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer), finder(shared_ptr<BehaviourClient>(this)) {
   configPath = path;
+  inWaitingRoom = false;
+  waitTpFinish = false;
+  hasWork = false;
+  vector<string> key{"configPath", "finder", "workerNum", "workCol"};
+  vector<any> initVal{path, finder, 1, 0};
+  for (int i = 0; i < key.size(); i++) {
+    backup[key[i]] = initVal[i];
+  }
 }
 
 Artist::~Artist() {}
@@ -153,6 +184,27 @@ void Artist::Handle(ClientboundPlayerChatPacket &msg) {
   msgProcessor(text, this);
 }
 
+void Artist::Backup() {
+  if (!hasWork) return;
+  Blackboard& bb = GetBlackboard();
+  vector<string> keys{"workerNum", "workCol", "configPath", "pathFinder"};
+  vector<string> types{"int", "int", "string", "BotCraftFinder<>"};
+
+  for (int i = 0; i < keys.size(); i++) {
+    if (types[i] == "int") {
+      backup[keys[i]] = bb.Get<int>(keys[i]);
+    } else if (types[i] == "string") {
+      backup[keys[i]] = bb.Get<string>(keys[i]);
+    } else if (types[i] == "BotCraftFinder<>") {
+      backup[keys[i]] = bb.Get<BotCraftFinder<>>(keys[i]);
+    }
+  }
+}
+
+map<string, any> Artist::Recover() {
+  return backup;
+}
+
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
     ManagersClient::Handle(msg);
 
@@ -161,7 +213,12 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
     if (text.find("[#405home]") != string::npos) {
       msgProcessor(text, this);
     } else if (text.find("[系統] 這個領地內的區域") != string::npos) {
+      // csafe's information
       SendChatMessage(text);
+    } else if (text.find("[系統]") != string::npos) {
+      msgProcessor(text, this);
+    } else if ("by CONSOLE") {
+      cmdHandler(text, this);
     }
 }
 

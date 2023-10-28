@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
     
     Artist client(false, args.configPath);
 
-    const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
+    // const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 
     cout << GetTime() << "Starting connection process" << endl;
     client.Connect(args.address, args.login, args.microsoftLogin);

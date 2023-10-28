@@ -5,6 +5,10 @@
 
 using namespace std;
 
+static regex CommandPattern("::(.+)");
+
+static regex SystemInfoPattern("(\\[系統\\])\\s([^\\d]+)");
+
 /*
 match 1:  < 廢土伺服器 - mcFallout.net >
 match 2:  Domain quota
@@ -81,5 +85,17 @@ match 3: y position
 match 4: z position
 */
 static regex MovePattern("(b?move)\\s+(-?\\d+)\\s+(-?\\d+)\\s+(-?\\d+)");
+
+/*
+Summoned to wait by CONSOLE or
+Summoned to server(\d+) by CONSOLE
+*/
+static regex WaitingRoomPattern("Summoned to ([^\\d]+)(\\d*) by CONSOLE");
+
+static regex TpSuccessPattern("讀取人物成功");
+
+static regex TestAPattern("(testA)");
+
+static regex TestBPattern("(testB)");
 
 #endif

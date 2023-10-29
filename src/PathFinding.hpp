@@ -169,16 +169,12 @@ public:
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
 
-    auto before = local_player->GetPosition();
     const float walk_speed = Botcraft::LocalPlayer::WALKING_SPEED;
     const float climb_speed = 0.12 * 20;
 
-    bool error = Botcraft::Move(*client, local_player, Botcraft::Position(to.x, to.y+1, to.z), 
+    bool success = Botcraft::Move(*client, local_player, Botcraft::Position(to.x, to.y+1, to.z), 
                                 walk_speed, climb_speed);
-    if(error) return false;
-    auto after = local_player->GetPosition();
-
-    return after != before;
+    return success;
   }
 
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)

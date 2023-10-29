@@ -219,7 +219,7 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
       SendChatMessage(text);
     } else if (text.find("[系統]") != string::npos) {
       msgProcessor(text, this);
-    } else if ("by CONSOLE") {
+    } else if (text.find("by CONSOLE") != string::npos) {
       cmdHandler(text, this);
     }
 }

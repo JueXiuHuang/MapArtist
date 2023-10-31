@@ -204,6 +204,16 @@ public:
     return true;
   }
 
+  virtual inline pf::Position getPlayerLocationImpl() const override {
+    std::shared_ptr<Botcraft::LocalPlayer> local_player =
+        client->GetEntityManager()->GetLocalPlayer();
+    std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
+    auto player_pos = local_player->GetPosition();
+    return {static_cast<int>(std::floor(player_pos.x)),
+            static_cast<int>(std::floor(player_pos.y)) - 1,
+            static_cast<int>(std::floor(player_pos.z))};
+  }
+
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
       : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
             {true, 9999999}),

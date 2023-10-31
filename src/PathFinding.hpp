@@ -9,10 +9,11 @@
 #include "botcraft/AI/SimpleBehaviourClient.hpp"
 #include "botcraft/AI/Tasks/PathfindingTask.hpp"
 #include "botcraft/Game/Entities/EntityManager.hpp"
+#include "botcraft/Game/Physics/PhysicsManager.hpp"
 #include "botcraft/Game/Entities/LocalPlayer.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Utilities/Logger.hpp"
-#include "botcraft/Utilities/SleepUtilities.hpp"
+#include "botcraft/Utilities/MiscUtilities.hpp"
 
 namespace Botcraft {
   bool Move(BehaviourClient& client, std::shared_ptr<LocalPlayer>& local_player, const Position& target_pos, const float speed, const float climbing_speed);
@@ -163,18 +164,44 @@ public:
     return 0.0;
   }
 
-  virtual inline bool playerMoveImpl(const pf::Position &from,
-                                     const pf::Position &to) override
-  {
+  virtual inline bool goImpl(
+      const std::shared_ptr<pf::Path<pf::Position>>& path) override {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
+    std::shared_ptr<Botcraft::PhysicsManager> physics_manager =
+        client->GetPhysicsManager();
+
+    // always set gravity to true to calculate y correctly
+    const bool has_gravity = physics_manager->GetHasGravity();
+    physics_manager->SetHasGravity(true);
+    // Reset gravity before leaving
+    Botcraft::Utilities::OnEndScope reset_gravity([physics_manager, has_gravity]() {
+      if (physics_manager != nullptr)
+        physics_manager->SetHasGravity(has_gravity);
+    });
 
     const float walk_speed = Botcraft::LocalPlayer::WALKING_SPEED;
     const float climb_speed = 0.12 * 20;
 
-    bool success = Botcraft::Move(*client, local_player, Botcraft::Position(to.x, to.y+1, to.z), 
-                                walk_speed, climb_speed);
-    return success;
+    auto& pathVec = path->get();
+    // move player, but skipping first position
+    for (int i = 1; i < pathVec.size(); ++i) {
+      const pf::Position &prevPos = pathVec[i - 1], &newPos = pathVec[i],
+                 diffPos = newPos - prevPos;
+      std::cout << "From: " << prevPos << " To: " << newPos
+                << " Diff: " << diffPos << " (" << i << "/"
+                << (path->size() - 1) << ")" << std::endl
+                << std::flush;
+
+      bool succeed =
+          Botcraft::Move(*client, local_player,
+                         Botcraft::Position(newPos.x, newPos.y + 1, newPos.z),
+                         walk_speed, climb_speed);
+      if (!succeed) {
+        return false;
+      }
+    }
+    return true;
   }
 
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)

@@ -23,7 +23,7 @@ string GetWorldBlock(BehaviourClient& c, Position pos) {
   if (!block) {
     // it is a air block
     if (!world->IsLoaded(pos)) {
-      FindPathAndMove(c, pos, 5, 5, 5);
+      FindPathAndMove(c, pos, 5, -1, 5);
 
       block = world->GetBlock(pos);
       if (block) curBlockName = block->GetName();

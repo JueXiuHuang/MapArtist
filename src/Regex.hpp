@@ -5,9 +5,15 @@
 
 using namespace std;
 
-static regex CommandPattern("::(.+)");
-
 static regex SystemInfoPattern("(\\[系統\\])\\s([^\\d]+)");
+
+static regex DiscordPattern("\\[#405home\\]");
+
+/*
+Summoned to wait by CONSOLE or
+Summoned to server(\d+) by CONSOLE
+*/
+static regex WaitingRoomPattern("Summoned to (\\w+)(\\d*) by CONSOLE");
 
 /*
 match 1:  < 廢土伺服器 - mcFallout.net >
@@ -39,44 +45,48 @@ static regex FalloutTabPattern("(< 廢土伺服器 - mcFallout.net >)"
                                 "[^\\d]+(\\d+)"
                                 "[^\\d]+(\\d+\\s/\\s\\d+)");
 
-static regex HungryPattern("(hungry)");
+static regex HungryPattern("bot\\s(hungry)");
 
-static regex StartPattern("(start)");
+/*
+match 1: start
+match 2: all or <user_name>
+*/
+static regex StartPattern("bot\\s(start)\\s(\\S+)");
 
-static regex StopPattern("(stop)");
+static regex StopPattern("bot\\s(stop)");
 
-static regex BarPattern("(bar)");
+static regex BarPattern("bot\\s(bar)");
 
-static regex CsafePattern("(csafe)");
+static regex CsafePattern("bot\\s(csafe)");
 
 /*
 match 1: cmd
 match 2: in game command
 */
-static regex CmdPattern("(cmd)\\s+(.+)");
+static regex CmdPattern("bot\\s(cmd)\\s+(.+)");
 
-static regex NamePattern("(name)");
+static regex NamePattern("bot\\s(name)");
 
 /*
-match 1: setCol
-match 2: user_name
-match 3: user responsible part
+match 1: assign
+match 2: <user_name>
+match 3: user assigned part
 */
-static regex SetColPattern("(setCol)\\s+(\\S+)\\s+(\\d+)");
+static regex AssignmentPattern("bot\\s(assign)\\s+(\\S+)\\s+(\\d+)");
 
 /*
-match 1: setWorker
+match 1: worker
 match 2: worker_num
 */
-static regex SetWorkerPattern("(setWorker)\\s+(\\d+)");
+static regex WorkerPattern("bot\\s(worker)\\s+(\\d+)");
 
-static regex CheckDutyPattern("(checkDuty)");
+static regex DutyPattern("bot\\s(duty)");
 
-static regex SetDefaultPattern("(setDefault)");
+static regex DefaultSettingPattern("bot\\s(default)");
 
-static regex IngotPattern("(ingot)");
+static regex IngotPattern("bot\\s(ingot)");
 
-static regex ChannelPattern("(channel)");
+static regex ChannelPattern("bot\\s(channel)");
 
 /*
 match 1: move or bmove
@@ -84,13 +94,7 @@ match 2: x position
 match 3: y position
 match 4: z position
 */
-static regex MovePattern("(b?move)\\s+(-?\\d+)\\s+(-?\\d+)\\s+(-?\\d+)");
-
-/*
-Summoned to wait by CONSOLE or
-Summoned to server(\d+) by CONSOLE
-*/
-static regex WaitingRoomPattern("Summoned to ([^\\d]+)(\\d*) by CONSOLE");
+static regex MovePattern("bot\\s(b?move)\\s+(-?\\d+)\\s+(-?\\d+)\\s+(-?\\d+)");
 
 static regex TpSuccessPattern("讀取人物成功");
 

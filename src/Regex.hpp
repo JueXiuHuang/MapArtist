@@ -53,7 +53,11 @@ match 2: all or <user_name>
 */
 static regex StartPattern("bot\\s(start)\\s(\\S+)");
 
-static regex StopPattern("bot\\s(stop)");
+/*
+match 1: stop
+match 2: all or <user_name>
+*/
+static regex StopPattern("bot\\s(stop)\\s(\\S+)");
 
 static regex BarPattern("bot\\s(bar)");
 

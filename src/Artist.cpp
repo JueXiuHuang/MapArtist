@@ -13,12 +13,10 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
-#include <nlohmann/json.hpp>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
 using namespace std;
-using json = nlohmann::json;
 
 void cmdHandler(string text, Artist *artist) {
   smatch matches;

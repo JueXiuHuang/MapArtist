@@ -411,7 +411,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
 
 Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, int z_tol) {
   Blackboard& blackboard = c.GetBlackboard();
-  auto finder = blackboard.Get<BotCraftFinder<>>("pathFinder");
+  auto finder = blackboard.Get<PathFinder>("pathFinder");
 
   // get player location
   pf::Position from;

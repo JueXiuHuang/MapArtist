@@ -7,7 +7,7 @@
 class Artist : public Botcraft::SimpleBehaviourClient {
   public:
     std::string configPath;
-    BotCraftFinder<> finder;
+    PathFinder finder;
     bool inWaitingRoom;
     bool waitTpFinish;
     bool hasWork;

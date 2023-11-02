@@ -190,15 +190,15 @@ void Artist::Backup() {
   if (!hasWork) return;
   Blackboard& bb = GetBlackboard();
   vector<string> keys{"workerNum", "workCol", "configPath", "pathFinder"};
-  vector<string> types{"int", "int", "string", "BotCraftFinder<>"};
+  vector<string> types{"int", "int", "string", "PathFinder"};
 
   for (int i = 0; i < keys.size(); i++) {
     if (types[i] == "int") {
       backup[keys[i]] = bb.Get<int>(keys[i]);
     } else if (types[i] == "string") {
       backup[keys[i]] = bb.Get<string>(keys[i]);
-    } else if (types[i] == "BotCraftFinder<>") {
-      backup[keys[i]] = bb.Get<BotCraftFinder<>>(keys[i]);
+    } else if (types[i] == "PathFinder") {
+      backup[keys[i]] = bb.Get<PathFinder>(keys[i]);
     }
   }
 }

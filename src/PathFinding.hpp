@@ -252,4 +252,6 @@ private:
   std::shared_ptr<Botcraft::BehaviourClient> client;
 };
 
+using PathFinder = BotCraftFinder<>;
+
 #endif

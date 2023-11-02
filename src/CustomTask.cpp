@@ -183,7 +183,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    FindPathAndMove(c, chest, 3, 0, 3);
+    FindPathAndMove(c, chest, 3, 1, 3);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -368,8 +368,12 @@ Status TaskExecutor(BehaviourClient& c) {
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
       if (exec_result == Status::Success) break;
       else {
-        cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << endl;
-        FindPathAndMove(c, taskPos+offsets[i%offsets.size()], 0, 3, 0);
+        auto nextPos = taskPos+offsets[i%offsets.size()];
+        const Botcraft::Blockstate* block = c.GetWorld()->GetBlock(nextPos);
+        if(!block->IsAir()){  // simple detect
+          cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << endl;
+          FindPathAndMove(c, nextPos, 0, 3, 0);
+        }
       }
     }
     
@@ -394,7 +398,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   
   Blackboard& board = c.GetBlackboard();
 
-  FindPathAndMove(c, blockPos, 3, 3, 3);
+  FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
   string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
     if (bn == "minecraft:air") return Status::Success;
@@ -409,21 +413,32 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   return Status::Failure;
 }
 
-Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, int z_tol) {
+Status FindPathAndMove(BehaviourClient&c, Position pos, 
+                      int x_tol, int y_tol, int z_tol, 
+                      int excl_x_dist, int excl_y_dist, int excl_z_dist) {
   Blackboard& blackboard = c.GetBlackboard();
   auto finder = blackboard.Get<PathFinder>("pathFinder");
 
   // get player location
-  pf::Position from;
+  pf::Position from, to{pos.x, pos.y, pos.z};
   shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
   auto player_pos = local_player->GetPosition();
   from.x = floor(player_pos.x);
   from.y = floor(player_pos.y) - 1;
   from.z = floor(player_pos.z);
 
-  pf::Position to{pos.x, pos.y, pos.z};
+  std::unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
+  if(excl_x_dist >= 0 || excl_y_dist >= 0 || excl_z_dist >= 0){
+    using RGoal = pf::goal::RangeGoal<pf::Position>;
+    using EGoal = pf::goal::ExclusiveRangeGoal<pf::Position>;
+    using CGoal = pf::goal::CombineGoal<pf::Position, RGoal, EGoal>;
+    goal = std::make_unique<CGoal>(to, RGoal(to, x_tol, y_tol, z_tol), EGoal(to, excl_x_dist, excl_y_dist, excl_z_dist));
+  }else{
+    goal = std::make_unique<pf::goal::RangeGoal<pf::Position>>(to, x_tol, y_tol, z_tol);
+  }
+  
   std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
-  bool r = finder.findPathAndGo(from, pf::goal::RangeGoal(to, x_tol, y_tol, z_tol), 10000);
+  bool r = finder.findPathAndGo(from, *goal, 5000);
 
   return (r ? Status::Success : Status::Failure);
 }

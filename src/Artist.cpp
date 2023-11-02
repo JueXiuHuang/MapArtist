@@ -32,6 +32,9 @@ void cmdHandler(string text, Artist *artist) {
       artist->SendChatMessage("I'm not hungry.");
     }
   } else if (regex_search(text, matches, StopPattern)) {
+    string name = artist->GetNetworkManager()->GetMyName();
+    if (string(matches[2]) != "all" && string(matches[2]) != name) return;
+    
     artist->SendChatMessage("=== BOT STOP ===");
     // backup first, then set hasWork to false
     artist->Backup();

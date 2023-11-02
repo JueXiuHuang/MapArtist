@@ -58,8 +58,8 @@ void cmdHandler(string text, Artist *artist) {
       if (i%workers != col) continue;
       if (xCheck[i]) finish++;
     }
-    int ratio = finish * 20 / 128;
-    double percent = static_cast<double>(finish) * 100 / 128;
+    int ratio = finish * 20 / (xCheck.size()/workers);
+    double percent = static_cast<double>(finish) * 100 / (xCheck.size()/workers);
 
     ostringstream bar;
     bar << "[" << string(ratio, '#') << string(20 - ratio, '-') << "]  "

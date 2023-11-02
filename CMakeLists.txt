@@ -14,8 +14,6 @@ set(PROTOCOL_VERSION 763)
 set(CXX_STANDARD 17)
 set(TARGET_NAME mapArtist)
 
-add_subdirectory(dependency/json)
-
 add_executable(${TARGET_NAME} ${SRC_FILES})
 target_include_directories(${TARGET_NAME} PUBLIC "./dependency/json/include")
 target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Botcraft/include)
@@ -28,6 +26,5 @@ target_compile_options(${TARGET_NAME} PUBLIC "-g")
 target_compile_options(${TARGET_NAME} PUBLIC "-O3")
 target_link_libraries(${TARGET_NAME} ws2_32 crypt32)
 target_link_libraries(${TARGET_NAME} botcraft protocolCraft)
-target_link_libraries(${TARGET_NAME} nlohmann_json::nlohmann_json)
 set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 

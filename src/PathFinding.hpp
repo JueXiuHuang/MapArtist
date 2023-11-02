@@ -15,8 +15,9 @@
 #include "botcraft/Utilities/Logger.hpp"
 #include "botcraft/Utilities/MiscUtilities.hpp"
 
-namespace Botcraft {
-  bool Move(BehaviourClient& client, std::shared_ptr<LocalPlayer>& local_player, const Position& target_pos, const float speed, const float climbing_speed);
+namespace Botcraft
+{
+  bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player, const Position &target_pos, const float speed, const float climbing_speed);
 }
 
 namespace pf = pathfinding;
@@ -165,7 +166,8 @@ public:
   }
 
   virtual inline bool goImpl(
-      const std::shared_ptr<pf::Path<pf::Position>>& path) override {
+      const std::shared_ptr<pf::Path<pf::Position>> &path) override
+  {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
     std::shared_ptr<Botcraft::PhysicsManager> physics_manager =
@@ -175,36 +177,58 @@ public:
     const bool has_gravity = physics_manager->GetHasGravity();
     physics_manager->SetHasGravity(true);
     // Reset gravity before leaving
-    Botcraft::Utilities::OnEndScope reset_gravity([physics_manager, has_gravity]() {
-      if (physics_manager != nullptr)
-        physics_manager->SetHasGravity(has_gravity);
-    });
+    Botcraft::Utilities::OnEndScope reset_gravity(
+        [physics_manager, has_gravity]()
+        {
+          if (physics_manager != nullptr)
+            physics_manager->SetHasGravity(has_gravity);
+        });
 
-    const float walk_speed = Botcraft::LocalPlayer::WALKING_SPEED;
     const float climb_speed = 0.12 * 20;
 
-    auto& pathVec = path->get();
+    auto &pathVec = path->get();
     // move player, but skipping first position
-    for (int i = 1; i < pathVec.size(); ++i) {
+    for (int i = 1; i < pathVec.size(); ++i)
+    {
       const pf::Position &prevPos = pathVec[i - 1], &newPos = pathVec[i],
-                 diffPos = newPos - prevPos;
+                         diffPos = newPos - prevPos;
       std::cout << "From: " << prevPos << " To: " << newPos
                 << " Diff: " << diffPos << " (" << i << "/"
                 << (path->size() - 1) << ")" << std::endl
                 << std::flush;
 
+      const float base_speed = local_player->GetIsRunning()
+                                   ? Botcraft::LocalPlayer::SPRINTING_SPEED
+                                   : Botcraft::LocalPlayer::WALKING_SPEED;
+
+      // Get speed effect
+      unsigned char speed_amplifier = 0;
+      for (const Botcraft::EntityEffect &effect : local_player->GetEffects())
+      {
+        if (effect.type == Botcraft::EntityEffectType::Speed &&
+            effect.end > std::chrono::steady_clock::now())
+        {
+          speed_amplifier =
+              effect.amplifier + 1; // amplifier is 0 for "Effect I"
+          break;
+        }
+      }
+      float movement_speed = base_speed * (1.0f + 0.2f * speed_amplifier);
+
       bool succeed =
           Botcraft::Move(*client, local_player,
                          Botcraft::Position(newPos.x, newPos.y + 1, newPos.z),
-                         walk_speed, climb_speed);
-      if (!succeed) {
+                         movement_speed, climb_speed);
+      if (!succeed)
+      {
         return false;
       }
     }
     return true;
   }
 
-  virtual inline pf::Position getPlayerLocationImpl() const override {
+  virtual inline pf::Position getPlayerLocationImpl() const override
+  {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
     auto player_pos = local_player->GetPosition();
@@ -218,7 +242,8 @@ public:
             {true, 9999999}),
         client(_client) {}
 
-  BotCraftFinder& operator=(const BotCraftFinder &other){
+  BotCraftFinder &operator=(const BotCraftFinder &other)
+  {
     this->client = other.client;
     this->config = other.config;
   }

@@ -207,7 +207,6 @@ public:
   virtual inline pf::Position getPlayerLocationImpl() const override {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
-    std::lock_guard<std::mutex> player_lock(local_player->GetMutex());
     auto player_pos = local_player->GetPosition();
     return {static_cast<int>(std::floor(player_pos.x)),
             static_cast<int>(std::floor(player_pos.y)) - 1,

@@ -51,9 +51,8 @@ Position parsePostionString(string posStr) {
 Status WaitServerLoad(BehaviourClient& c) {
   shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
   Utilities::WaitForCondition([&]() {
-        lock_guard<mutex> player_lock(local_player->GetMutex());
-        return local_player->GetPosition().y < 1000;
-      }, 10000);
+    return local_player->GetPosition().y < 1000;
+  }, 10000);
 
   return Status::Success;
 }
@@ -86,26 +85,23 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
     short player_dst = -1;
     while (true) {
       vector<short> slots_src;
-      {
-        lock_guard<mutex> inventory_lock(inventory_manager->GetMutex());
-        container_id = inventory_manager->GetFirstOpenedWindowId();
-        if (container_id == -1) continue;
+      container_id = inventory_manager->GetFirstOpenedWindowId();
+      if (container_id == -1) continue;
 
-        const shared_ptr<Window> container = inventory_manager->GetWindow(container_id);
+      const shared_ptr<Window> container = inventory_manager->GetWindow(container_id);
 
-        const short playerFirstSlot = container->GetFirstPlayerInventorySlot();
-        player_dst = playerFirstSlot + 9 * 3;
+      const short playerFirstSlot = container->GetFirstPlayerInventorySlot();
+      player_dst = playerFirstSlot + 9 * 3;
 
-        const map<short, Slot>& slots = container->GetSlots();
+      const map<short, Slot>& slots = container->GetSlots();
 
-        slots_src.reserve(slots.size());
+      slots_src.reserve(slots.size());
 
-        for (auto it = slots.begin(); it != slots.end(); ++it) {
-          // Chest is src
-          if (it->first >= 0 && it->first < playerFirstSlot && !it->second.IsEmptySlot() &&
-              AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName() == food_name)
-            slots_src.push_back(it->first);
-        }
+      for (auto it = slots.begin(); it != slots.end(); ++it) {
+        // Chest is src
+        if (it->first >= 0 && it->first < playerFirstSlot && !it->second.IsEmptySlot() &&
+            AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName() == food_name)
+          slots_src.push_back(it->first);
       }
 
       if (slots_src.size() > 0) {
@@ -138,36 +134,34 @@ Status SortChestWithDesirePlace(BehaviourClient& c) {
   shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
   Status state = SortInventory(c);
   queue<short> taskSrc, taskDst;
-  {
-    lock_guard<mutex> inventoryLock(inventory_manager->GetMutex());
-    for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_HOTBAR_START+5; i++) {
-      const Slot& slot = playerInv->GetSlot(i);
-      if (slot.IsEmptySlot()) continue;
-      string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
-      if (itemName.find("_pickaxe") != string::npos) {
-        // put pickaxe at slot 44
-        taskSrc.push(i);
-        taskDst.push(44);
-        continue;
-      }
-      if (itemName.find("_axe") != string::npos) {
-        // put axe at slot 43
-        taskSrc.push(i);
-        taskDst.push(43);
-        continue;
-      }
-      if (itemName.find("_shovel") != string::npos) {
-        // put shovel at slot 42
-        taskSrc.push(i);
-        taskDst.push(42);
-        continue;
-      }
-      if (itemName.find("shears") != string::npos) {
-        // put shears at slot 41
-        taskSrc.push(i);
-        taskDst.push(41);
-        continue;
-      }
+  
+  for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_HOTBAR_START+5; i++) {
+    const Slot& slot = playerInv->GetSlot(i);
+    if (slot.IsEmptySlot()) continue;
+    string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
+    if (itemName.find("_pickaxe") != string::npos) {
+      // put pickaxe at slot 44
+      taskSrc.push(i);
+      taskDst.push(44);
+      continue;
+    }
+    if (itemName.find("_axe") != string::npos) {
+      // put axe at slot 43
+      taskSrc.push(i);
+      taskDst.push(43);
+      continue;
+    }
+    if (itemName.find("_shovel") != string::npos) {
+      // put shovel at slot 42
+      taskSrc.push(i);
+      taskDst.push(42);
+      continue;
+    }
+    if (itemName.find("shears") != string::npos) {
+      // put shears at slot 41
+      taskSrc.push(i);
+      taskDst.push(41);
+      continue;
     }
   }
 
@@ -196,29 +190,26 @@ Status DumpItems(BehaviourClient& c) {
     short containerId, firstPlayerIndex;
 
     // Find possible swaps
-    {
-      lock_guard<mutex> inventoryLock(inventory_manager->GetMutex());
-      containerId = inventory_manager->GetFirstOpenedWindowId();
-      if (containerId == -1) continue;
+    containerId = inventory_manager->GetFirstOpenedWindowId();
+    if (containerId == -1) continue;
 
-      shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
-      firstPlayerIndex = container->GetFirstPlayerInventorySlot();
+    shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
+    firstPlayerIndex = container->GetFirstPlayerInventorySlot();
 
-      const map<short, Slot>& slots = container->GetSlots();
+    const map<short, Slot>& slots = container->GetSlots();
 
-      for (auto it = slots.begin(); it != slots.end(); ++it) {
-        if (it->first >= 0 && it->first < firstPlayerIndex && it->second.IsEmptySlot()) {
-          slotDst.push(it->first);
-        } else if (it->first >= firstPlayerIndex && !it->second.IsEmptySlot()) {
-          string itemName = AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName();
-          if (itemName == "minecraft:cooked_beef") continue;
-          if (itemName.find("_pickaxe") != string::npos) continue;
-          if (itemName.find("_axe") != string::npos) continue;
-          if (itemName.find("_shovel") != string::npos) continue;
-          if (itemName.find("shears") != string::npos) continue;
+    for (auto it = slots.begin(); it != slots.end(); ++it) {
+      if (it->first >= 0 && it->first < firstPlayerIndex && it->second.IsEmptySlot()) {
+        slotDst.push(it->first);
+      } else if (it->first >= firstPlayerIndex && !it->second.IsEmptySlot()) {
+        string itemName = AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName();
+        if (itemName == "minecraft:cooked_beef") continue;
+        if (itemName.find("_pickaxe") != string::npos) continue;
+        if (itemName.find("_axe") != string::npos) continue;
+        if (itemName.find("_shovel") != string::npos) continue;
+        if (itemName.find("shears") != string::npos) continue;
 
-          slotSrc.push(it->first);
-        }
+        slotSrc.push(it->first);
       }
     }
 
@@ -292,7 +283,6 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
 
     {
-      lock_guard<mutex> lock(inventory_manager->GetMutex());
       vector<pair<short, Slot>> _canPut;
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
 
@@ -324,9 +314,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
         cout << GetTime() << "Take " << itemName << " Failed" << endl;
         continue;
       }
-      inventory_manager->GetMutex().lock();
       int took_amount = container->GetSlot(canPut.front()).GetItemCount();
-      inventory_manager->GetMutex().unlock();
       cout << GetTime() << "Take " << itemName << " for " << took_amount << endl;
       _need -= took_amount;
       canPut.pop();
@@ -335,9 +323,8 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
       if (_need < 1) get_all_material = true;
     }
 
+    cout << GetTime() << "========== LIST ==========" << endl;
     {
-      cout << GetTime() << "========== LIST ==========" << endl;
-      lock_guard<mutex> lock(inventory_manager->GetMutex());
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
       for (auto p : container->GetSlots()){
         if (p.first >= playerInvStart && !p.second.IsEmptySlot()){
@@ -346,8 +333,8 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
               << " x " << static_cast<int>(p.second.GetItemCount()) << endl;
         }
       }
-      cout << GetTime() << "======= LIST CLOSE =======" << endl;
     }
+    cout << GetTime() << "======= LIST CLOSE =======" << endl;
 
     CloseContainer(c, containerId);
     cout << GetTime() << "======= CHEST CLOSE =======" << endl;
@@ -428,14 +415,11 @@ Status FindPathAndMove(BehaviourClient&c, Position pos, int x_tol, int y_tol, in
 
   // get player location
   pf::Position from;
-  {
-    shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
-    lock_guard<mutex> player_lock(local_player->GetMutex());
-    auto player_pos = local_player->GetPosition();
-    from.x = floor(player_pos.x);
-    from.y = floor(player_pos.y) - 1;
-    from.z = floor(player_pos.z);
-  }
+  shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
+  auto player_pos = local_player->GetPosition();
+  from.x = floor(player_pos.x);
+  from.y = floor(player_pos.y) - 1;
+  from.z = floor(player_pos.z);
 
   pf::Position to{pos.x, pos.y, pos.z};
   std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";

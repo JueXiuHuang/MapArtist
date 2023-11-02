@@ -49,9 +49,13 @@ void cmdHandler(string text, Artist *artist) {
     artist->SetBehaviourTree(FullTree(), initVal);
   } else if (regex_search(text, matches, BarPattern)) {
     vector<bool> xCheck = artist->GetBlackboard().Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
+    int workers = artist->GetBlackboard().Get<int>("workerNum", 1);
+    int col = artist->GetBlackboard().Get<int>("workCol", 0);
     int finish = 0;
-    for (auto x : xCheck) {
-      if (x) finish++;
+
+    for (int i = 0; i < xCheck.size(); i++) {
+      if (i%workers != col) continue;
+      if (xCheck[i]) finish++;
     }
     int ratio = finish * 20 / 128;
     double percent = static_cast<double>(finish) * 100 / 128;

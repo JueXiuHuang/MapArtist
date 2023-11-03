@@ -436,9 +436,9 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
   std::unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
   if(excl_x_dist >= 0 || excl_y_dist >= 0 || excl_z_dist >= 0){
     using RGoal = pf::goal::RangeGoal<pf::Position>;
-    using EGoal = pf::goal::ExclusiveRangeGoal<pf::Position>;
-    using CGoal = pf::goal::CombineGoal<pf::Position, RGoal, EGoal>;
-    goal = std::make_unique<CGoal>(to, RGoal(to, x_tol, y_tol, z_tol), EGoal(to, excl_x_dist, excl_y_dist, excl_z_dist));
+    using EGoal = pf::goal::ExclusiveGoal<RGoal>;
+    using CGoal = pf::goal::CombineGoal<RGoal, EGoal>;
+    goal = std::make_unique<CGoal>(RGoal(to, x_tol, y_tol, z_tol), EGoal(RGoal(to, excl_x_dist, excl_y_dist, excl_z_dist)));
   }else{
     goal = std::make_unique<pf::goal::RangeGoal<pf::Position>>(to, x_tol, y_tol, z_tol);
   }

@@ -6,7 +6,6 @@
 using namespace Botcraft;
 using namespace std;
 
-// TODO: 要把 CheckCompleteTree往後移
 // 順序: init, serverload, sortchest, eat, work, complete
 shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
   return Builder<SimpleBehaviourClient>("Full Tree")
@@ -14,13 +13,13 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
       .tree(InitTree())
       .leaf("Wait Server Load", WaitServerLoad)
       .leaf("Sort Chest with Desire Place", SortChestWithDesirePlace)
-      .selector()
-        .inverter().tree(CheckCompleteTree())
-        .tree(NullTree())
-      .end()
       .repeater(0).sequence()
         .tree(EatTree())
         .tree(WorkTree())
+      .end()
+      .selector()
+        .inverter().tree(CheckCompleteTree())
+        .tree(NullTree())
       .end()
     .end();
 }

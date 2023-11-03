@@ -398,7 +398,13 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   
   Blackboard& board = c.GetBlackboard();
 
-  FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
+  Status result = FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
+  if (result == Status::Failure) {
+    c.SendChatCommand("homes mapart");
+    Utilities::SleepFor(chrono::milliseconds(5000));
+    result = FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
+    if (result == Status::Failure) return Status::Failure;
+  }
   string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
     if (bn == "minecraft:air") return Status::Success;

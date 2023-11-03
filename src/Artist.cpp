@@ -20,6 +20,8 @@ using namespace std;
 
 void cmdHandler(string text, Artist *artist) {
   smatch matches;
+  Blackboard& bb = artist->GetBlackboard();
+
   if (regex_search(text, matches, HungryPattern)) {
     Status s = IsHungry(*artist, 15);
 
@@ -39,7 +41,6 @@ void cmdHandler(string text, Artist *artist) {
     artist->hasWork = false;
     artist->SetBehaviourTree(nullptr);
   } else if (regex_search(text, matches, StartPattern)) {
-    Blackboard& bb = artist->GetBlackboard();
     string name = artist->GetNetworkManager()->GetMyName();
     if (string(matches[2]) != "all" && string(matches[2]) != name) return;
 
@@ -81,7 +82,6 @@ void cmdHandler(string text, Artist *artist) {
     int col = stoi(matches[3]);
 
     if (exp_user != name) return;
-    Blackboard& bb = artist->GetBlackboard();
     string info = "Assign user " + exp_user + " for column " + string(matches[3]);
 
     cout << GetTime() << info << endl;
@@ -89,7 +89,6 @@ void cmdHandler(string text, Artist *artist) {
     if (artist->hasWork) bb.Set("workCol", col);
     else artist->backup["workCol"] = col;
   } else if (regex_search(text, matches, WorkerPattern)) {
-    Blackboard& bb = artist->GetBlackboard();
     int worker_num = stoi(matches[2]);
     string info = "Setup total worker " + string(matches[2]);
 
@@ -98,27 +97,23 @@ void cmdHandler(string text, Artist *artist) {
     if (artist->hasWork) bb.Set("workerNum", worker_num);
     else artist->backup["workerNum"] = worker_num;
   } else if (regex_search(text, matches, DutyPattern)) {
-    Blackboard& bb = artist->GetBlackboard();
     int workCol = (artist->hasWork) ? bb.Get<int>("workCol", 0) : any_cast<int>(artist->backup["workCol"]);
     int workerNum = (artist->hasWork) ? bb.Get<int>("workerNum", 1) : any_cast<int>(artist->backup["workerNum"]);
     string info = "Max worker: " + to_string(workerNum) + ", work col: " + to_string(workCol);
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, DefaultSettingPattern)) {
-    Blackboard& bb = artist->GetBlackboard();
     string info = "Reset workCol & workerNum value";
 
     artist->SendChatMessage(info);
     if (artist->hasWork) bb.Set("workCol", 0);
     else artist->backup["workCol"] = 0;
   } else if (regex_search(text, matches, IngotPattern)) {
-    Blackboard& bb = artist->GetBlackboard();
     string rate = bb.Get<string>("ExchangeRate", "NOT_FOUND");
     string info = "1 Villager Ingot = " + rate + " emerald.";
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, ChannelPattern)) {
-    Blackboard& bb = artist->GetBlackboard();
     string info = "Current channel: " + bb.Get<string>("ChannelNumber", "NOT_FOUND");
 
     artist->SendChatMessage(info);
@@ -155,21 +150,33 @@ void cmdHandler(string text, Artist *artist) {
         artist->SetBehaviourTree(FullTree(), initVal);
       }
     }
+  } else if (regex_search(text, matches, TpHomePattern)) {
+    string homeName = bb.Get<string>("home", "mapart");
+
+    if (string(matches[1]) == homeName) {
+      bb.Set("GetHome", true);
+      cout << GetTime() << "Bot teleport to home." << endl;
+    }
+    
   }
 }
 
 void msgProcessor(string text, Artist *artist) {
-  cout << text << endl;
   smatch match;
   if (regex_search(text, match, DiscordPattern)) {
-    cout << text << endl;
+    cout << "==Discord==" << text << endl;
     cmdHandler(text, artist);
   } else if (regex_search(text, match, SystemInfoPattern)) {
-    cout << text << endl;
+    cout << "==System Info==" << text << endl;
     cmdHandler(text, artist);
   } else if (regex_search(text, match, WaitingRoomPattern)) {
-    cout << text << endl;
+    cout << "==Wait Room==" << text << endl;
     cmdHandler(text, artist);
+  } else if (regex_search(text, match, TpHomePattern)) {
+    cout << "==TP Home==" << text << endl;
+    cmdHandler(text, artist);
+  } else {
+    // cout << "==Other==" << text << endl;
   }
 }
 
@@ -192,7 +199,6 @@ void Artist::Handle(ClientboundPlayerChatPacket &msg) {
   ManagersClient::Handle(msg);
   string text = msg.GetBody().GetContent();
 
-  cout << text << endl;
   cmdHandler(text, this);
 }
 
@@ -239,3 +245,5 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
       bb.Set("CurrentPos", match[15].str());
     }
 }
+
+void Artist::Handle(ClientboundTeleportEntityPacket &msg) {}

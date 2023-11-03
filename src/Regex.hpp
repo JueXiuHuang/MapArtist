@@ -15,6 +15,8 @@ Summoned to server(\d+) by CONSOLE
 */
 static regex WaitingRoomPattern("Summoned to (\\w+)(\\d*) by CONSOLE");
 
+static regex TpHomePattern("傳送到\\s(\\w+)。");
+
 /*
 match 1:  < 廢土伺服器 - mcFallout.net >
 match 2:  Domain quota

@@ -21,7 +21,7 @@ string GetWorldBlock(BehaviourClient& c, Position pos) {
   const Blockstate* block = world->GetBlock(pos);
 
   if (!block) {
-    // it is a air block
+    // it is a unload block
     if (!world->IsLoaded(pos)) {
       FindPathAndMove(c, pos, 5, -1, 5);
 

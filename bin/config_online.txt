@@ -12,6 +12,9 @@ prioritize=slice_dfs
 # if the bot will place it's neighboring blocks.
 neighbor=true
 
+# bot will try to teleport home if get stuck.
+home=mapart
+
 # retry is the number of times we retry an action
 retry=12;
 

@@ -399,12 +399,6 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   Blackboard& board = c.GetBlackboard();
 
   Status result = FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
-  if (result == Status::Failure) {
-    c.SendChatCommand("homes mapart");
-    Utilities::SleepFor(chrono::milliseconds(5000));
-    result = FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
-    if (result == Status::Failure) return Status::Failure;
-  }
   string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
     if (bn == "minecraft:air") return Status::Success;
@@ -446,9 +440,23 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
   std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
   bool r = finder.findPathAndGo(from, *goal, 5000);
 
+  if (!r) {
+    string homeName = blackboard.Get<string>("home", "mapart");
+    blackboard.Set("GetHome", false);
+    c.SendChatCommand("homes "+homeName);
+    cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
+    while (!blackboard.Get<bool>("GetHome", false)) {
+      Utilities::SleepFor(chrono::milliseconds(50));
+    }
+    r = finder.findPathAndGo(from, *goal, 5000);
+  }
+  
   return (r ? Status::Success : Status::Failure);
 }
 
+/*
+If everything is correct, return Success, otherwise return Failure.
+*/
 Status check(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<World> world = c.GetWorld();
@@ -747,6 +755,9 @@ Status LoadConfig(BehaviourClient& c) {
       blackboard.Set("tempblock", value);
     } else if (key == "prioritize") {
       blackboard.Set("prioritize", value);
+    } else if (key == "home") {
+      cout << "Set Home Point: " << value << endl;
+      blackboard.Set("home", value);
     } else if (key == "retry") {
       blackboard.Set("retry", stoi(value));
     } else if (key == "neighbor") {

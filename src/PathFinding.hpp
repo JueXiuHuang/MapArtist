@@ -22,7 +22,7 @@ namespace Botcraft
 
 namespace pf = pathfinding;
 
-template <template <typename, typename, typename, typename> class TFinder = pf::AstarFinder,
+template <template <class, class, class, class> class TFinder = pf::AstarFinder,
           class TWeight = pf::weight::ConstWeighted<1, 1>,
           class TEstimate = pf::eval::Manhattan,
           class TEdge = pf::eval::Manhattan>

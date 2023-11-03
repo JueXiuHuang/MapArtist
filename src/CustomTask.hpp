@@ -59,4 +59,6 @@ Botcraft::Status LoadNBT(Botcraft::BehaviourClient& c);
 
 Botcraft::Status LoadConfig(Botcraft::BehaviourClient& c);
 
+Botcraft::Status EatUntilFull(Botcraft::BehaviourClient& c, const std::string food);
+
 #endif

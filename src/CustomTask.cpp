@@ -778,3 +778,12 @@ Status LoadConfig(BehaviourClient& c) {
   blackboard.Set("Config.loaded", true);
   return Status::Success;
 }
+
+Status EatUntilFull(BehaviourClient& c, string food) {
+  while (IsHungry(c, 20) == Status::Success) {
+    Status r = Eat(c, food, true);
+    if (r == Status::Failure) return Status::Failure;
+  }
+
+  return Status::Success;
+}

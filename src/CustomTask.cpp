@@ -452,7 +452,7 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
     // update player's new position
     player_pos = local_player->GetPosition();
     from.x = floor(player_pos.x);
-    from.y = floor(player_pos.y);
+    from.y = floor(player_pos.y) - 1;
     from.y = floor(player_pos.z);
     r = finder.findPathAndGo(from, *goal, 5000);
   }

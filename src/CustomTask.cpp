@@ -448,6 +448,12 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
     while (!blackboard.Get<bool>("GetHome", false)) {
       Utilities::SleepFor(chrono::milliseconds(50));
     }
+
+    // update player's new position
+    player_pos = local_player->GetPosition();
+    from.x = floor(player_pos.x);
+    from.y = floor(player_pos.y);
+    from.y = floor(player_pos.z);
     r = finder.findPathAndGo(from, *goal, 5000);
   }
   

@@ -10,14 +10,18 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.hpp"
   "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
+file(GLOB_RECURSE PF_HEADER CONFIGURE_DEPENDS
+  "${PROJECT_SOURCE_DIR}/dependency/pathfinding/include/*.h"
+  "${PROJECT_SOURCE_DIR}/dependency/pathfinding/include/*.hpp"
+)
 set(PROTOCOL_VERSION 763)
 set(CXX_STANDARD 17)
 set(TARGET_NAME mapArtist)
 
 add_executable(${TARGET_NAME} ${SRC_FILES})
-target_include_directories(${TARGET_NAME} PUBLIC "./dependency/json/include")
 target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Botcraft/include)
 target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/dependency/pathfinding/include)
+target_precompile_headers(${TARGET_NAME} PUBLIC ${PF_HEADER})
 target_link_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Botcraft/lib)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")

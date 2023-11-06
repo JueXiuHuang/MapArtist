@@ -22,6 +22,15 @@ cmake --build build
 ```
 6. Executable file will in `MapArtist/bin`, use `mapArtist.exe --help` to see available arguments.
 
+# Tips
+- You can write a simple batch file to start up the bot, for example:
+```bash
+IF EXIST log.txt DEL /F log.txt
+mapArtist.exe | tee -a log.txt
+pause
+```
+this script will delete old log file and execute the bot with logging.
+
 # Commands
 All commands should add **"bot"** prefix. For example `bot hungry`.
 ## hungry

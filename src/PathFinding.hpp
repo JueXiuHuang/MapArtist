@@ -237,6 +237,14 @@ public:
             static_cast<int>(std::floor(player_pos.z))};
   }
 
+  virtual inline int getMinYImpl() const override {
+    return client->GetWorld()->GetMinY();
+  }
+
+  virtual inline int getMaxYImpl() const override {
+    return client->GetWorld()->GetHeight();
+  }
+
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
       : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
             {true, 9999999}),

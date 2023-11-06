@@ -131,13 +131,14 @@ void cmdHandler(string text, Artist *artist) {
       artist->Backup();
       artist->inWaitingRoom = true;
       artist->SetBehaviourTree(nullptr);
-      artist->SendChatMessage("Transfered to waiting room, stop working...");
+      cout << GetTime() << "Transfered to waiting room, stop working..." << endl;
+      // artist->SendChatMessage("Transfered to waiting room, stop working...");
     } else {
       if (artist->inWaitingRoom) artist->waitTpFinish = true;
 
-      string info = "Transfered to channel " + string(matches[1]);
+      // string info = "Transfered to channel " + string(matches[1]);
 
-      artist->SendChatMessage(info);
+      // artist->SendChatMessage(info);
     }
   } else if (regex_search(text, matches, TpSuccessPattern)) {
     if (artist->waitTpFinish) {
@@ -157,7 +158,6 @@ void cmdHandler(string text, Artist *artist) {
       bb.Set("GetHome", true);
       cout << GetTime() << "Bot teleport to home." << endl;
     }
-    
   }
 }
 

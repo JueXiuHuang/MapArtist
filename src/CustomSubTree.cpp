@@ -77,12 +77,13 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
           .end()
           .leaf("Notify", WarnConsole, "Can't find food anywhere!")
         .end()
-        .selector()
-          .leaf("Eat until full", EatUntilFull, "minecraft:cooked_beef")
-          .inverter().leaf("Notify", WarnConsole, "Can't eat!")
-          // If we are here, hungry and can't eat --> Disconnect
-          .tree(NullTree())
-        .end()
+        .leaf("Eat until full", EatUntilFull, "minecraft:cooked_beef")
+        // .selector()
+        //   .leaf("Eat until full", EatUntilFull, "minecraft:cooked_beef")
+        //   .inverter().leaf("Notify", WarnConsole, "Can't eat!")
+        //   // If we are here, hungry and can't eat --> Disconnect
+        //   .tree(NullTree())
+        // .end()
       .end()
     .end();
 }

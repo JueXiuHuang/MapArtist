@@ -144,7 +144,8 @@ void cmdHandler(string text, Artist *artist) {
     if (artist->waitTpFinish) {
       artist->inWaitingRoom = false;
       artist->waitTpFinish = false;
-      artist->SendChatMessage("Back to work...");
+      cout << GetTime() << "Back to work..." << endl;
+      // artist->SendChatMessage("Back to work...");
       if (artist->hasWork) {
         artist->hasWork = true;
         map<string, any> &initVal = artist->Recover();

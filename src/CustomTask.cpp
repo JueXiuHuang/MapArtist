@@ -365,6 +365,15 @@ Status TaskExecutor(BehaviourClient& c) {
     string taskType = qTaskType.front(); qTaskType.pop();
     string blockName = qTaskName.front(); qTaskName.pop();
     for (int i = 0; i < retry_times; i++) {
+      if (GetItemAmount(c, blockName) == 0) {
+        // Item not enough
+        // Directly clear all tasks
+        cout << GetTime() << "Item " << blockName << " not enough, return." << endl;
+        qTaskPosition = queue<Position>();
+        qTaskType = queue<string>();
+        qTaskName = queue<string>();
+        break;
+      }
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
       if (exec_result == Status::Success) break;
       else {

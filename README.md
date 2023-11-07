@@ -34,7 +34,7 @@
     git clone https://github.com/JueXiuHuang/MapArtist.git
     ```
 
-2. Change directory to botcraft, execute below command to build botcraft, it will take a few minutes to run.
+2. Change directory to MapArtist, execute below command to build MapArtist, it will take a few minutes to run.
 
     ```bash
     cd MapArtist

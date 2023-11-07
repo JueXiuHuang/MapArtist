@@ -4,4 +4,3 @@
 [submodule "dependency/botcraft"]
 	path = dependency/botcraft
 	url = https://github.com/adepierre/Botcraft
-	ignore = dirty

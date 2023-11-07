@@ -1,3 +1,6 @@
 [submodule "dependency/pathfinding"]
 	path = dependency/pathfinding
 	url = https://github.com/ldslds449/PathFinding.git
+[submodule "dependency/botcraft"]
+	path = dependency/botcraft
+	url = https://github.com/adepierre/Botcraft

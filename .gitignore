@@ -1,4 +1,3 @@
-Botcraft/
 bin/*
 !bin/config_local.txt
 !bin/config_online.txt

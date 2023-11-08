@@ -283,12 +283,12 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
 
     {
-      vector<pair<short, Slot>> _canPut;
+      vector<pair<short, Slot>> _canPut, _canTake;
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
 
       for (auto slot : container->GetSlots()) {
         if (slot.first < playerInvStart && !slot.second.IsEmptySlot()) {
-          canTake.push(slot.first);
+          _canTake.push_back(slot);
         } else if (slot.first >= playerInvStart && !slot.second.IsEmptySlot()) {
           string _name = AssetsManager::getInstance().GetItem(slot.second.GetItemID())->GetName();
           if (_name == itemName && slot.second.GetItemCount() < 64) _canPut.push_back(slot);
@@ -303,6 +303,13 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
       });
       for (auto slot : _canPut) {
         canPut.push(slot.first);
+      }
+
+      sort(_canTake.begin(), _canTake.end(), [](const pair<const short, Slot>& a, const pair<const short, Slot>& b) {
+        return a.second.GetItemCount() > b.second.GetItemCount();
+      });
+      for (auto slot : _canTake) {
+        canTake.push(slot.first);
       }
     }
 

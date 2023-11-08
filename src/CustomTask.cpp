@@ -460,11 +460,12 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
   bool r = finder.findPathAndGo(from, *goal, 5000);
 
   if (!r) {
+    cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
     string homeName = blackboard.Get<string>("home", "mapart");
     c.SendChatCommand("homes "+homeName);
-    cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
     
     Position newPos = Position(777, 777, 777);
+    blackboard.Set("TPPos", newPos);
     while (newPos == Position(777, 777, 777)) {
       Utilities::SleepFor(chrono::milliseconds(50));
       newPos = blackboard.Get<Position>("TPPos", Position(777, 777, 777));
@@ -473,7 +474,7 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
     // update player's new position
     from.x = newPos.x;
     from.y = newPos.y - 1;
-    from.y = newPos.z;
+    from.z = newPos.z;
     r = finder.findPathAndGo(from, *goal, 5000);
   }
   

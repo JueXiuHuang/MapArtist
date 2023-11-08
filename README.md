@@ -6,6 +6,7 @@
     - [Steps](#steps)
   - [Tips](#tips)
     - [Simple batch file makes everything easier](#simple-batch-file-makes-everything-easier)
+  - [How to use MapArtist (After installation)](#how-to-use-mapartist-after-installation)
   - [Commands](#commands)
     - [hungry](#hungry)
     - [stop all / {user\_name}](#stop-all--user_name)
@@ -60,6 +61,11 @@ pause
 ```
 
 this script will delete old log file and execute the bot with logging.
+
+## How to use MapArtist (After installation)
+1. Modify config file `bin/config_online.txt` to fit your minecraft environment.
+2. Prepare map art nbt file and put it under `bin/` folder.
+3. You can start the bot with `mapArtist.exe`, and use commands to control it.
 
 ## Commands
 

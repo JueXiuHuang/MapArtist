@@ -1,23 +1,26 @@
 # MapArtist
 
-- [How to install MapArtist](#how-to-install-mapartist)
-- [Tips](#tips)
-  - [Simple batch file makes everything easier](#simple-batch-file-makes-everything-easier)
-- [Commands](#commands)
-  - [hungry](#hungry)
-  - [stop all / \<user\_name\>](#stop-all--user_name)
-  - [start all / \<user\_name\>](#start-all--user_name)
-  - [bar](#bar)
-  - [csafe](#csafe)
-  - [cmd](#cmd)
-  - [assign](#assign)
-  - [worker](#worker)
-  - [duty](#duty)
-  - [default](#default)
-  - [ingot](#ingot)
-  - [channel](#channel)
-  - [move](#move---)
-  - [bmove](#bmove---)
+- [MapArtist](#mapartist)
+  - [How to install MapArtist](#how-to-install-mapartist)
+    - [Dependencies](#dependencies)
+    - [Steps](#steps)
+  - [Tips](#tips)
+    - [Simple batch file makes everything easier](#simple-batch-file-makes-everything-easier)
+  - [Commands](#commands)
+    - [hungry](#hungry)
+    - [stop all / {user\_name}](#stop-all--user_name)
+    - [start all / {user\_name}](#start-all--user_name)
+    - [bar](#bar)
+    - [csafe](#csafe)
+    - [cmd](#cmd)
+    - [assign](#assign)
+    - [worker](#worker)
+    - [duty](#duty)
+    - [default](#default)
+    - [ingot](#ingot)
+    - [channel](#channel)
+    - [move {x} {y} {z}](#move-x-y-z)
+    - [bmove {x} {y} {z}](#bmove-x-y-z)
 
 ## How to install MapArtist
 
@@ -67,11 +70,11 @@ For example `bot hungry`.
 
 Check if player is hungry or not.
 
-### stop all / <user_name>
+### stop all / {user_name}
 
 Stop all players' or specific player's working progress.
 
-### start all / <user_name>
+### start all / {user_name}
 
 Ask specific player or all players start to work.  
 For example `bot start 211` or `bot start all`.
@@ -115,10 +118,10 @@ Display current emerald <-> villager ingot exchange rate. Used in mcfallout.
 
 Display player's current channel. Used in mcfallout.
 
-### move <x\> <y\> <z\>
+### move {x} {y} {z}
 
 Ask player move to specified position with self defined method.
 
-### bmove <x\> <y\> <z\>
+### bmove {x} {y} {z}
 
 Ask player move to specified position with botcraft GoTo.

@@ -54,7 +54,7 @@
 
 You can write a simple batch file to start up the bot, for example:
 
-```bash
+```bat
 IF EXIST log.txt DEL /F log.txt
 mapArtist.exe | tee -a log.txt
 pause

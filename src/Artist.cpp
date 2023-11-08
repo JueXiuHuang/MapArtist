@@ -225,26 +225,31 @@ map<string, any>& Artist::Recover() {
 }
 
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
-    ManagersClient::Handle(msg);
-    string text = msg.GetContent().GetText();
+  ManagersClient::Handle(msg);
+  string text = msg.GetContent().GetText();
 
-    msgProcessor(text, this);
+  msgProcessor(text, this);
 }
 
 void Artist::Handle(ClientboundTabListPacket &msg) {
-    ManagersClient::Handle(msg);
+  ManagersClient::Handle(msg);
 
-    string header = msg.GetHeader().GetText();
-    string footer = msg.GetFooter().GetText();
-    smatch match;
-    header.erase(remove(header.begin(), header.end(), ','), header.end());
+  string header = msg.GetHeader().GetText();
+  string footer = msg.GetFooter().GetText();
+  smatch match;
+  header.erase(remove(header.begin(), header.end(), ','), header.end());
 
-    if (regex_search(header, match, FalloutTabPattern)) {
-      Blackboard& bb = this->GetBlackboard();
-      bb.Set("ExchangeRate", match[12].str());
-      bb.Set("ChannelNumber", match[13].str());
-      bb.Set("CurrentPos", match[15].str());
-    }
+  if (regex_search(header, match, FalloutTabPattern)) {
+    Blackboard& bb = this->GetBlackboard();
+    bb.Set("ExchangeRate", match[12].str());
+    bb.Set("ChannelNumber", match[13].str());
+    bb.Set("CurrentPos", match[15].str());
+  }
 }
 
-void Artist::Handle(ClientboundTeleportEntityPacket &msg) {}
+void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
+  Blackboard& bb = this->GetBlackboard();
+  cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << endl;
+  cout << "=========================" << endl;
+  bb.Set("TPPos", Position(floor(msg.GetX()), floor(msg.GetY()), floor(msg.GetZ())));
+}

@@ -421,7 +421,10 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
     else return Dig(c, blockPos, true);
   } else if (action == "Place") {
     if (bn == "minecraft:air") return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
-    else if (bn != blockName) return Dig(c, blockPos, true);
+    else if (bn != blockName) {
+      Dig(c, blockPos, true);
+      return Status::Failure;
+    }
     else return Status::Success;
   }
 
@@ -458,18 +461,19 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
 
   if (!r) {
     string homeName = blackboard.Get<string>("home", "mapart");
-    blackboard.Set("GetHome", false);
     c.SendChatCommand("homes "+homeName);
     cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
-    while (!blackboard.Get<bool>("GetHome", false)) {
+    
+    Position newPos = Position(777, 777, 777);
+    while (newPos == Position(777, 777, 777)) {
       Utilities::SleepFor(chrono::milliseconds(50));
+      newPos = blackboard.Get<Position>("TPPos", Position(777, 777, 777));
     }
 
     // update player's new position
-    player_pos = local_player->GetPosition();
-    from.x = floor(player_pos.x);
-    from.y = floor(player_pos.y) - 1;
-    from.y = floor(player_pos.z);
+    from.x = newPos.x;
+    from.y = newPos.y - 1;
+    from.y = newPos.z;
     r = finder.findPathAndGo(from, *goal, 5000);
   }
   

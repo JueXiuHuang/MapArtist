@@ -82,7 +82,7 @@ Stop all players' or specific player's working progress.
 
 ### start all / {user_name}
 
-Ask specific player or all players start to work.  
+Ask specific player or all players start to work.\
 For example `bot start 211` or `bot start all`.
 
 ### bar
@@ -95,17 +95,17 @@ Execute csafe command.
 
 ### cmd
 
-Execute command in minecraft.  
+Execute command in minecraft.\
 For example `cmd gamemode survival` is equivalent to `/gamemode survival`.
 
 ### assign
 
-Define specific player's working column. Default value is 0.  
+Define specific player's working column. Default value is 0.\
 Example: `assign chishin 2`.
 
 ### worker
 
-Define max worker number. Default value is 1.  
+Define max worker number. Default value is 1.\
 Example: `worker 3`.
 
 ### duty
@@ -114,7 +114,7 @@ Display all players' set assign value and worker value.
 
 ### default
 
-Reset all players' assign & worker value
+Reset all players' assign & worker value.
 
 ### ingot
 

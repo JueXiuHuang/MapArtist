@@ -18,7 +18,6 @@ jobs:
         with:
           generator: MinGW Makefiles
           build-dir: build
-          shell: cmd
           run-build: true
       # - name: Build the project
       #   run: cmake --build build

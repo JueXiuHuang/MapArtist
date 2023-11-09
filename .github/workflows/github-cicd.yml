@@ -15,11 +15,10 @@ jobs:
 
       - name: Use CMake Action
         uses: threeal/cmake-action@v1.3.0
-
-      - name: Setup the project
-        runs: cmake -S . -B build -G "MinGW Makefiles"
+        with:
+          generator: MinGW Makefiles
+          source-dir: .
+          build-dir: build
 
       - name: Build the project
-        runs: cmake --build build
-
-            
+        run: cmake --build build

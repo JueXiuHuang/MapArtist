@@ -17,6 +17,13 @@ endif()
 
 include("cmake/botcraft.cmake")
 include("cmake/pathfinding.cmake")
+# include("cmake/opus.cmake")
+# include("cmake/sodium.cmake")
+# include("cmake/openssl.cmake")
+# include("cmake/jsonifier.cmake")
+# include("cmake/zlib.cmake")
+# include("cmake/discordCoreAPI.cmake")
+# include("cmake/dpp.cmake")
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.h"
@@ -26,8 +33,20 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
 
 add_executable(${TARGET_NAME} ${SRC_FILES})
 
-target_compile_options(${TARGET_NAME} PUBLIC "-g")
-target_compile_options(${TARGET_NAME} PUBLIC "-O3")
+if(MINGW)
+  set(MAPARTIST_CXX_FLAGS "-O3" "-std=c++17")
+  set(MAPARTIST_DEPEND_DLL 
+    "${BOTCRAFT_BINARY_PATH}/libbotcraft.dll"
+    "${BOTCRAFT_BINARY_PATH}/libprotocolCraft.dll"
+    "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll")
+elseif(MSVC)
+  set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
+  set(MAPARTIST_DEPEND_DLL 
+    "${BOTCRAFT_BINARY_PATH}/botcraft.dll"
+    "${BOTCRAFT_BINARY_PATH}/protocolCraft.dll")
+endif()
+
+target_compile_options(${TARGET_NAME} PUBLIC ${MAPARTIST_CXX_FLAGS})
 
 add_dependencies(${TARGET_NAME} Botcraft-install)
 target_include_directories(${TARGET_NAME} PUBLIC ${BOTCRAFT_HEADER_PATH})
@@ -41,13 +60,26 @@ target_link_libraries(${TARGET_NAME} botcraft protocolCraft)
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})
 target_precompile_headers(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER})
 
-set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+# add_dependencies(${TARGET_NAME} Opus-install)
+# add_dependencies(${TARGET_NAME} Sodium-install)
+# add_dependencies(${TARGET_NAME} Openssl-install)
+# add_dependencies(${TARGET_NAME} Jsonifier-install)
+# add_dependencies(${TARGET_NAME} Zlib-install)
+# add_dependencies(${TARGET_NAME} DiscordCoreAPI-install)
+# add_dependencies(${TARGET_NAME} Dpp-install)
+
+if(MSVC)
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/bin)
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/bin)
+elseif(MINGW)
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+endif()
+
 
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      "${BOTCRAFT_BINARY_PATH}/libbotcraft.dll"
-      "${BOTCRAFT_BINARY_PATH}/libprotocolCraft.dll"
-      "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll"
+      ${MAPARTIST_DEPEND_DLL}
       $<TARGET_FILE_DIR:${TARGET_NAME}>)
 
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD

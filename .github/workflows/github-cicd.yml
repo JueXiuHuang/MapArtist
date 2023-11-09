@@ -16,9 +16,9 @@ jobs:
       - name: Use CMake Action
         uses: threeal/cmake-action@v1.3.0
         with:
-          shell: cmd
           generator: MinGW Makefiles
           build-dir: build
-
-      - name: Build the project
-        run: cmake --build build
+          shell: cmd
+          run-build: true
+      # - name: Build the project
+      #   run: cmake --build build

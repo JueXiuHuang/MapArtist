@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Actions
 
 on:
   push:
@@ -16,8 +16,8 @@ jobs:
       - name: Use CMake Action
         uses: threeal/cmake-action@v1.3.0
         with:
+          shell: cmd
           generator: MinGW Makefiles
-          source-dir: .
           build-dir: build
 
       - name: Build the project

@@ -424,8 +424,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
     else if (bn != blockName) {
       Dig(c, blockPos, true);
       return Status::Failure;
-    }
-    else return Status::Success;
+    } else return Status::Success;
   }
 
   cout << GetTime() << "Unknown task in ExecuteNextTask..." << endl;

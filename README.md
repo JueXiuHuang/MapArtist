@@ -65,7 +65,8 @@ this script will delete old log file and execute the bot with logging.
 ## How to use MapArtist (After installation)
 1. Modify config file `bin/config_online.txt` to fit your minecraft environment.
 2. Prepare map art nbt file and put it under `bin/` folder.
-3. You can start the bot with `mapArtist.exe`, and use commands to control it.
+3. Before you start the bot, you can only leave shears, axe, pickaxe, shovel and steak in your inventory (including left hand).
+4. You can start the bot with `mapArtist.exe`, and use commands to control it.
 
 ## Commands
 

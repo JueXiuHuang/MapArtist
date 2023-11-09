@@ -5,6 +5,7 @@
 #include "botcraft/Game/Inventory/Window.hpp"
 #include <iomanip>
 #include <string>
+#include <sstream>
 
 using namespace std;
 using namespace Botcraft;

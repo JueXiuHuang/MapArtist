@@ -17,7 +17,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           generator: MinGW Makefiles
-          build-dir: build
+          # build-dir: build
           run-build: true
       # - name: Build the project
       #   run: cmake --build build

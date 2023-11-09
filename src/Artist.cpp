@@ -248,6 +248,7 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
 }
 
 void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
+  ConnectionClient::Handle(msg);
   Blackboard& bb = this->GetBlackboard();
   cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << endl;
   cout << "=========================" << endl;

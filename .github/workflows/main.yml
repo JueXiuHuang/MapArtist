@@ -1,0 +1,23 @@
+name: GitHub Actions Demo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Project
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Use CMake Action
+        uses: threeal/cmake-action@v1.3.0
+
+      - name: Setup the project
+        run: cmake -S . -B build -G "MinGW Makefiles"
+
+      - name: Build the project
+        run: cmake --build build

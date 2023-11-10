@@ -30,9 +30,9 @@ jobs:
         with:
           path: ${{ github.workspace }}/executable.zip
 
-      - name: Release
-        uses: ncipollo/release-action@v1.13.0
-        with:
-          artifacts: "executable.zip"
-          body: "This is sample body o.o"
-          tag: "v0.0.1"
+      # - name: Release
+      #   uses: ncipollo/release-action@v1.13.0
+      #   with:
+      #     artifacts: "executable.zip"
+      #     body: "This is sample body o.o"
+      #     tag: "v0.0.1"

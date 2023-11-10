@@ -1,4 +1,4 @@
-name: Actions
+name: Build & Release
 
 on:
   push:
@@ -25,7 +25,12 @@ jobs:
           files: bin
           dest: executable.zip
 
-      - name: Check Artifact
-        uses: actions/upload-artifact@v3.1.3
+      # - name: Check Artifact
+      #   uses: actions/upload-artifact@v3.1.3
+      #   with:
+      #     path: ${{ github.workspace }}/executable.zip
+
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.15
         with:
-          path: ${{ github.workspace }}/executable.zip
+          files: executable.zip

@@ -35,3 +35,4 @@ jobs:
         with:
           artifacts: "executable.zip"
           body: "This is sample body o.o"
+          tag: "v0.0.1"

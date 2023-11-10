@@ -13,11 +13,11 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Use CMake Action
-        uses: threeal/cmake-action@v1.3.0
-        with:
-          generator: MinGW Makefiles
-          run-build: true
+      # - name: Use CMake Action
+      #   uses: threeal/cmake-action@v1.3.0
+      #   with:
+      #     generator: MinGW Makefiles
+      #     run-build: true
       
       - name: Zip Binaries
         uses: vimtor/action-zip@v1.1

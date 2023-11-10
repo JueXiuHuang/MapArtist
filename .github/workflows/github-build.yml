@@ -17,6 +17,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           generator: MinGW Makefiles
+          options: CMAKE_BUILD_TYPE=Release
           run-build: true
       
       - name: Zip Binaries
@@ -41,6 +42,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           generator: Visual Studio 17 2022
+          build-args: --config Release
           run-build: true
       
       - name: Zip Binaries

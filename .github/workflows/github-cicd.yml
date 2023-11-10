@@ -17,7 +17,14 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           generator: MinGW Makefiles
-          # build-dir: build
           run-build: true
-      # - name: Build the project
-      #   run: cmake --build build
+      
+      - name: Zip Binaries
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: bin
+          dest: executable.zip
+
+      - name: Check Artifact
+        uses: actions/upload-artifact@v3.1.3
+        path: ${{ github.workspace }}/executable.zip

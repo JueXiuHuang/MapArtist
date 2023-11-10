@@ -41,4 +41,4 @@ jobs:
         uses: softprops/action-gh-release@v0.1.15
         with:
           files: "executable.zip"
-          body: "This is sample body o.ob"
+          body: "This is sample body o.obbbb"

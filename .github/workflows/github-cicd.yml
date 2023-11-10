@@ -31,6 +31,7 @@ jobs:
           path: ${{ github.workspace }}/executable.zip
 
       - name: Release
-        uses: softprops/action-gh-release@v0.1.15
+        uses: ncipollo/release-action@v1.13.0
         with:
-          files: executable.zip
+          artifacts: "executable.zip"
+          body: "This is sample body"

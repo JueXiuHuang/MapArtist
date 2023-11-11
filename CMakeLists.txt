@@ -54,7 +54,7 @@ target_link_directories(${TARGET_NAME} PUBLIC ${BOTCRAFT_LIB_PATH})
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
-target_link_libraries(${TARGET_NAME} ws2_32 crypt32)
+target_link_libraries(${TARGET_NAME} ws2_32)
 target_link_libraries(${TARGET_NAME} botcraft protocolCraft)
 
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})

@@ -38,7 +38,8 @@ if(MINGW)
   set(MAPARTIST_DEPEND_DLL 
     "${BOTCRAFT_BINARY_PATH}/libbotcraft.dll"
     "${BOTCRAFT_BINARY_PATH}/libprotocolCraft.dll"
-    "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll")
+    "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll"
+    "${BOTCRAFT_BUILD_PATH}/3rdparty/zlib/install/bin/libzlib.dll")
 elseif(MSVC)
   set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
   set(MAPARTIST_DEPEND_DLL 

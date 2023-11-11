@@ -4,7 +4,7 @@ set(BOTCRAFT_GIT_REPOSITORY "https://github.com/adepierre/Botcraft")
 set(BOTCRAFT_GIT_BRANCH "master")
 
 set(BOTCRAFT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/dependency/botcraft")
-set(BOTCRAFT_BUILD_PATH "${BOTCRAFT_ROOT}/build")
+set(BOTCRAFT_BUILD_PATH "${CMAKE_CURRENT_BINARY_DIR}/dependency/botcraft/build")
 set(BOTCRAFT_INSTALL_PATH "${BOTCRAFT_BUILD_PATH}/install")
 set(BOTCRAFT_HEADER_PATH "${BOTCRAFT_INSTALL_PATH}/include")
 set(BOTCRAFT_LIB_PATH "${BOTCRAFT_INSTALL_PATH}/lib")

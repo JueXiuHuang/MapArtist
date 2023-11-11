@@ -15,13 +15,27 @@ if(NOT GIT_FOUND)
   message(FATAL_ERROR "Git not found, please install git first.")
 endif()
 
-include("cmake/botcraft.cmake")
+if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
+  if(NOT CMAKE_GENERATOR_PLATFORM STREQUAL "")
+    list(APPEND BUILD_PLATFORM "-A ${CMAKE_GENERATOR_PLATFORM}")
+  endif()
+  if(NOT CMAKE_GENERATOR_TOOLSET STREQUAL "")
+    list(APPEND BUILD_PLATFORM "-T ${CMAKE_GENERATOR_TOOLSET}")
+  endif()
+  message(STATUS "BUILD_PLATFORM: " ${BUILD_PLATFORM})
+elseif(MINGW)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+  set(BUILD_PLATFORM "")
+endif()
+
 include("cmake/pathfinding.cmake")
+include("cmake/openssl.cmake")
+include("cmake/zlib.cmake")
+include("cmake/botcraft.cmake")
 # include("cmake/opus.cmake")
 # include("cmake/sodium.cmake")
-# include("cmake/openssl.cmake")
 # include("cmake/jsonifier.cmake")
-# include("cmake/zlib.cmake")
 # include("cmake/discordCoreAPI.cmake")
 # include("cmake/dpp.cmake")
 
@@ -38,8 +52,7 @@ if(MINGW)
   set(MAPARTIST_DEPEND_DLL 
     "${BOTCRAFT_BINARY_PATH}/libbotcraft.dll"
     "${BOTCRAFT_BINARY_PATH}/libprotocolCraft.dll"
-    "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll"
-    "${BOTCRAFT_BUILD_PATH}/3rdparty/zlib/install/bin/libzlib.dll")
+    "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll")
 elseif(MSVC)
   set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
   set(MAPARTIST_DEPEND_DLL 
@@ -63,9 +76,7 @@ target_precompile_headers(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER})
 
 # add_dependencies(${TARGET_NAME} Opus-install)
 # add_dependencies(${TARGET_NAME} Sodium-install)
-# add_dependencies(${TARGET_NAME} Openssl-install)
 # add_dependencies(${TARGET_NAME} Jsonifier-install)
-# add_dependencies(${TARGET_NAME} Zlib-install)
 # add_dependencies(${TARGET_NAME} DiscordCoreAPI-install)
 # add_dependencies(${TARGET_NAME} Dpp-install)
 

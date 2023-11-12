@@ -38,6 +38,6 @@ add_custom_command(TARGET Botcraft-install POST_BUILD
       ${BOTCRAFT_DEPEND_DLL}
       ${MAPARTIST_OUTPUT_DIR})
 add_custom_command(TARGET Botcraft-install POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
       ${BOTCRAFT_BINARY_PATH}/Assets
       ${MAPARTIST_OUTPUT_DIR}/Assets)

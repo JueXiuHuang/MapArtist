@@ -12,7 +12,7 @@ set(ZLIB_BINARY_PATH "${ZLIB_INSTALL_PATH}/bin")
 
 if(NOT EXISTS "${ZLIB_SRC_PATH}/.git")
   message(STATUS "Update submodule")
-  execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+  execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --remote --recursive ${ZLIB_SRC_PATH}
                           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                           RESULT_VARIABLE GIT_SUBMOD_RESULT)
 endif()

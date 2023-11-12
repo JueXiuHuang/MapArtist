@@ -12,7 +12,7 @@ set(BOTCRAFT_BINARY_PATH "${BOTCRAFT_INSTALL_PATH}/bin")
 
 if(NOT EXISTS "${BOTCRAFT_SRC_PATH}/.git")
   message(STATUS "Update submodule")
-  execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+  execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --remote --recursive ${BOTCRAFT_SRC_PATH}
                           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                           RESULT_VARIABLE GIT_SUBMOD_RESULT)
 endif()

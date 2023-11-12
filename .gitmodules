@@ -11,3 +11,6 @@
 [submodule "dependency/zlib"]
 	path = dependency/zlib
 	url = https://github.com/madler/zlib
+[submodule "dependency/dpp"]
+	path = dependency/dpp
+	url = https://github.com/brainboxdotcc/DPP

@@ -33,11 +33,15 @@ include("cmake/pathfinding.cmake")
 include("cmake/openssl.cmake")
 include("cmake/zlib.cmake")
 include("cmake/botcraft.cmake")
+
+if(MSVC)
+  include("cmake/dpp.cmake")
+endif()
+
 # include("cmake/opus.cmake")
 # include("cmake/sodium.cmake")
 # include("cmake/jsonifier.cmake")
 # include("cmake/discordCoreAPI.cmake")
-# include("cmake/dpp.cmake")
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.h"
@@ -74,11 +78,14 @@ target_link_libraries(${TARGET_NAME} botcraft protocolCraft)
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})
 target_precompile_headers(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER})
 
+if(MSVC)
+  add_dependencies(${TARGET_NAME} Dpp-install)
+endif()
+
 # add_dependencies(${TARGET_NAME} Opus-install)
 # add_dependencies(${TARGET_NAME} Sodium-install)
 # add_dependencies(${TARGET_NAME} Jsonifier-install)
 # add_dependencies(${TARGET_NAME} DiscordCoreAPI-install)
-# add_dependencies(${TARGET_NAME} Dpp-install)
 
 if(MSVC)
   set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)

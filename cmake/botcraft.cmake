@@ -32,7 +32,8 @@ add_dependencies(Botcraft-install Openssl-install Zlib-install)
 include_directories(${BOTCRAFT_HEADER_PATH})
 link_directories(${BOTCRAFT_LIB_PATH})
 
-file(GLOB BOTCRAFT_DEPEND_DLL ${BOTCRAFT_BINARY_PATH}/*.dll)
+list(APPEND BOTCRAFT_DEPEND_DLL ${BOTCRAFT_BINARY_PATH}/botcraft.dll)
+list(APPEND BOTCRAFT_DEPEND_DLL ${BOTCRAFT_BINARY_PATH}/protocolCraft.dll)
 add_custom_command(TARGET Botcraft-install POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${BOTCRAFT_DEPEND_DLL}

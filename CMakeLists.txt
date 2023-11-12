@@ -38,11 +38,6 @@ if(MSVC)
   include("cmake/dpp.cmake")
 endif()
 
-# include("cmake/opus.cmake")
-# include("cmake/sodium.cmake")
-# include("cmake/jsonifier.cmake")
-# include("cmake/discordCoreAPI.cmake")
-
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.h"
   "${PROJECT_SOURCE_DIR}/src/*.hpp"
@@ -82,10 +77,9 @@ if(MSVC)
   add_dependencies(${TARGET_NAME} Dpp-install)
 endif()
 
-# add_dependencies(${TARGET_NAME} Opus-install)
-# add_dependencies(${TARGET_NAME} Sodium-install)
-# add_dependencies(${TARGET_NAME} Jsonifier-install)
-# add_dependencies(${TARGET_NAME} DiscordCoreAPI-install)
+if(MINGW)
+  target_link_options(${TARGET_NAME} "-static-libgcc" "-static-libstdc++")
+endif()
 
 if(MSVC)
   set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)

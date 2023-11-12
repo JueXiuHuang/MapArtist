@@ -28,19 +28,12 @@ ExternalProject_Add(Dpp
   INSTALL_COMMAND ${CMAKE_COMMAND} --install ${DPP_BUILD_PATH} --prefix ${DPP_INSTALL_PATH}
 )
 
-# find_library(DPP_LIBRARY
-#   NAMES dpp
-#   HINTS ${DPP_LIB_PATH}
-#   PATH_SUFFIXES dpp
-# )
-# message(${DPP_LIBRARY})
-# get_filename_component(dpp_last_dir ${DPP_LIBRARY} PATH)
-# message(${dpp_last_dir})
-# get_filename_component(dpp_dir_name ${dpp_last_dir} NAME)
-# message(${dpp_dir_name})
-# set(DPP_LIB_PATH ${DPP_LIB_PATH}/${dpp_dir_name})
-
 file(GLOB DPP_DEPEND_DLL ${DPP_SRC_PATH}/win32/bin/*.dll)
+if(MINGW)
+  list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/libdpp.dll)
+elseif(MSVC)
+  list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/dpp.dll)
+endif()
 add_custom_command(
   TARGET Dpp-install POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different

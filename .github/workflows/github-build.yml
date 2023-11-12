@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-mingw:
-    name: Build Project
+    name: Build Project (MinGW)
     runs-on: windows-latest
     steps:
       - name: Checkout Repo
@@ -32,7 +32,7 @@ jobs:
           path: ${{ github.workspace }}/executable-MinGW.zip
 
   build-msvc:
-    name: Build Project
+    name: Build Project (MSVC)
     runs-on: windows-latest
     steps:
       - name: Checkout Repo

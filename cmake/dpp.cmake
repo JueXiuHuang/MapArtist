@@ -32,8 +32,11 @@ find_library(DPP_LIBRARY
   NAMES dpp
   PATH_SUFFIXES dpp
 )
+message(${DPP_LIBRARY})
 get_filename_component(dpp_last_dir ${DPP_LIBRARY} PATH)
+message(${dpp_last_dir})
 get_filename_component(dpp_dir_name ${dpp_last_dir} NAME)
+message(${dpp_dir_name})
 set(DPP_LIB_PATH ${DPP_LIB_PATH}/${dpp_dir_name})
 include_directories(${DPP_HEADER_PATH}/${dpp_dir_name})
 link_directories(${DPP_LIB_PATH})

@@ -56,25 +56,27 @@ elseif(MSVC)
   set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
   set(MAPARTIST_DEPEND_DLL 
     "${BOTCRAFT_BINARY_PATH}/botcraft.dll"
-    "${BOTCRAFT_BINARY_PATH}/protocolCraft.dll")
+    "${BOTCRAFT_BINARY_PATH}/protocolCraft.dll"
+    "${DPP_BINARY_PATH}/dpp.dll")
 endif()
 
 target_compile_options(${TARGET_NAME} PUBLIC ${MAPARTIST_CXX_FLAGS})
 
+# botcraft
 add_dependencies(${TARGET_NAME} Botcraft-install)
-target_include_directories(${TARGET_NAME} PUBLIC ${BOTCRAFT_HEADER_PATH})
-target_link_directories(${TARGET_NAME} PUBLIC ${BOTCRAFT_LIB_PATH})
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
-target_link_libraries(${TARGET_NAME} ws2_32)
-target_link_libraries(${TARGET_NAME} botcraft protocolCraft)
+target_link_libraries(${TARGET_NAME} ws2_32 botcraft protocolCraft)
 
+# pathfinding
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})
 target_precompile_headers(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER})
 
+# dpp
 if(MSVC)
   add_dependencies(${TARGET_NAME} Dpp-install)
+  target_link_libraries(${TARGET_NAME} dpp)
 endif()
 
 if(MINGW)

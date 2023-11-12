@@ -28,3 +28,6 @@ ExternalProject_Add(Botcraft
 )
 
 add_dependencies(Botcraft-install Openssl-install Zlib-install)
+
+include_directories(${BOTCRAFT_HEADER_PATH})
+link_directories(${BOTCRAFT_LIB_PATH})

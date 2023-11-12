@@ -27,3 +27,11 @@ ExternalProject_Add(Dpp
   BUILD_COMMAND ${CMAKE_COMMAND} --build ${DPP_BUILD_PATH} --config Release
   INSTALL_COMMAND ${CMAKE_COMMAND} --install ${DPP_BUILD_PATH} --prefix ${DPP_INSTALL_PATH}
 )
+
+include_directories(${DPP_HEADER_PATH})
+find_library(DPP_LIBRARY
+  NAMES dpp
+  PATH_SUFFIXES dpp
+)
+get_filename_component(DPP_LIB_PATH ${DPP_LIBRARY} PATH)
+link_directories(${DPP_LIB_PATH})

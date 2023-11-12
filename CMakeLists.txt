@@ -29,6 +29,8 @@ elseif(MINGW)
   set(BUILD_PLATFORM "")
 endif()
 
+set(MAPARTIST_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
+
 include("cmake/pathfinding.cmake")
 include("cmake/openssl.cmake")
 include("cmake/zlib.cmake")
@@ -48,16 +50,8 @@ add_executable(${TARGET_NAME} ${SRC_FILES})
 
 if(MINGW)
   set(MAPARTIST_CXX_FLAGS "-O3" "-std=c++17")
-  set(MAPARTIST_DEPEND_DLL 
-    "${BOTCRAFT_BINARY_PATH}/libbotcraft.dll"
-    "${BOTCRAFT_BINARY_PATH}/libprotocolCraft.dll"
-    "${BOTCRAFT_BINARY_PATH}/libstdc++-6.dll")
 elseif(MSVC)
   set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
-  set(MAPARTIST_DEPEND_DLL 
-    "${BOTCRAFT_BINARY_PATH}/botcraft.dll"
-    "${BOTCRAFT_BINARY_PATH}/protocolCraft.dll"
-    "${DPP_BINARY_PATH}/dpp.dll")
 endif()
 
 target_compile_options(${TARGET_NAME} PUBLIC ${MAPARTIST_CXX_FLAGS})
@@ -84,20 +78,10 @@ if(MINGW)
 endif()
 
 if(MSVC)
-  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/bin)
-  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/bin)
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MAPARTIST_OUTPUT_DIR})
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${MAPARTIST_OUTPUT_DIR})
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${MAPARTIST_OUTPUT_DIR})
 elseif(MINGW)
-  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+  set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MAPARTIST_OUTPUT_DIR})
 endif()
 
-
-add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${MAPARTIST_DEPEND_DLL}
-      $<TARGET_FILE_DIR:${TARGET_NAME}>)
-
-add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-      "${BOTCRAFT_BINARY_PATH}/Assets"
-      "$<TARGET_FILE_DIR:${TARGET_NAME}>/Assets")

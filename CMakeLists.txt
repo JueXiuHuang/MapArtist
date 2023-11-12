@@ -77,7 +77,8 @@ if(MSVC)
 endif()
 
 if(MINGW)
-  target_link_options(${TARGET_NAME} PRIVATE "-static-libgcc" "-static-libstdc++")
+  target_link_libraries()
+  target_link_options(${TARGET_NAME} PRIVATE "-static-libgcc" "-static-libstdc++" "-static")
 endif()
 
 if(MSVC)

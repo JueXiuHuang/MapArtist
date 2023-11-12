@@ -28,21 +28,33 @@ ExternalProject_Add(Dpp
   INSTALL_COMMAND ${CMAKE_COMMAND} --install ${DPP_BUILD_PATH} --prefix ${DPP_INSTALL_PATH}
 )
 
-find_library(DPP_LIBRARY
-  NAMES dpp
-  PATH_SUFFIXES dpp
-)
-message(${DPP_LIBRARY})
-get_filename_component(dpp_last_dir ${DPP_LIBRARY} PATH)
-message(${dpp_last_dir})
-get_filename_component(dpp_dir_name ${dpp_last_dir} NAME)
-message(${dpp_dir_name})
-set(DPP_LIB_PATH ${DPP_LIB_PATH}/${dpp_dir_name})
-include_directories(${DPP_HEADER_PATH}/${dpp_dir_name})
-link_directories(${DPP_LIB_PATH})
+# find_library(DPP_LIBRARY
+#   NAMES dpp
+#   HINTS ${DPP_LIB_PATH}
+#   PATH_SUFFIXES dpp
+# )
+# message(${DPP_LIBRARY})
+# get_filename_component(dpp_last_dir ${DPP_LIBRARY} PATH)
+# message(${dpp_last_dir})
+# get_filename_component(dpp_dir_name ${dpp_last_dir} NAME)
+# message(${dpp_dir_name})
+# set(DPP_LIB_PATH ${DPP_LIB_PATH}/${dpp_dir_name})
 
 file(GLOB DPP_DEPEND_DLL ${DPP_SRC_PATH}/win32/bin/*.dll)
-add_custom_command(TARGET Dpp-install POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${DPP_DEPEND_DLL}
-      ${MAPARTIST_OUTPUT_DIR})
+add_custom_command(
+  TARGET Dpp-install POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${DPP_DEPEND_DLL}
+    ${MAPARTIST_OUTPUT_DIR})
+
+file(READ "${DPP_SRC_PATH}/include/dpp/version.h" version_h)
+string(REGEX MATCH "DPP_VERSION_SHORT ([0-9][0-9])([0-9][0-9])([0-9][0-9])" _ ${version_h})
+  
+math(EXPR DPP_VERSION_MAJOR "${CMAKE_MATCH_1}")
+math(EXPR DPP_VERSION_MINOR "${CMAKE_MATCH_2}")
+math(EXPR DPP_VERSION_PATCH "${CMAKE_MATCH_3}")
+
+set(dpp_subfolder dpp-${DPP_VERSION_MAJOR}.${DPP_VERSION_MINOR})
+message(STATUS "DPP Version: " ${dpp_subfolder})
+include_directories(${DPP_HEADER_PATH}/${dpp_subfolder})
+link_directories(${DPP_LIB_PATH}/${dpp_subfolder})

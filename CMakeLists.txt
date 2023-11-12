@@ -45,6 +45,9 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.hpp"
   "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
+if(MINGW)
+  list(FILTER SRC_FILES EXCLUDE REGEX ".*Bot.*")
+endif()
 
 add_executable(${TARGET_NAME} ${SRC_FILES})
 

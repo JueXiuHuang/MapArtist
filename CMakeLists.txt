@@ -81,10 +81,10 @@ if(MINGW)
   list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/libstdc++-6.dll)
   list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/libgcc_s_seh-1.dll)
   list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/libwinpthread-1.dll)
-  add_custom_command(TARGET botcraft POST_BUILD
+  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
           ${MAPARTIST_DEPEND_DLL}
-          $<TARGET_FILE_DIR:botcraft>)
+          $<TARGET_FILE_DIR:${TARGET_NAME}>)
 endif()
 
 if(MSVC)

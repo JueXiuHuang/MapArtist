@@ -16,18 +16,20 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
       
+      - name: Build Project (MSVC)
+        uses: threeal/cmake-action@v1.3.0
+        with:
+          generator: Visual Studio 17 2022
+          build-args: --config Release
+          run-build: true
+      
       - name: Zip Binaries
         uses: vimtor/action-zip@v1.1
         with:
           files: bin
-          dest: executable-MinGW.zip
-
-      - name: Check Artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          path: ${{ github.workspace }}/executable-MinGW.zip
+          dest: executable-MSVC.zip
 
       - name: Release
         uses: softprops/action-gh-release@v0.1.15
         with:
-          files: "executable-MinGW.zip"
+          files: "executable-MSVC.zip"

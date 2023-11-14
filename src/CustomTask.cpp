@@ -470,6 +470,8 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
       newPos = blackboard.Get<Position>("TPPos", Position(777, 777, 777));
     }
 
+    while (WaitServerLoad(c) == Status::Failure) Utilities::SleepFor(chrono::milliseconds(50));
+
     // update player's new position
     from.x = newPos.x;
     from.y = newPos.y - 1;

@@ -2,7 +2,7 @@
 anchor=-576,60,4415
 
 # the nbt file you want to build
-nbt=YaeMiko_3_2.nbt
+nbt=YaeMiko_3_3.nbt
 
 tempblock=minecraft:cobblestone
 

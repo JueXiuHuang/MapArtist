@@ -18,6 +18,7 @@ struct Args {
   string login = "33ss";
   string configPath = "config_local.txt";
   bool microsoftLogin = false;
+  bool gui = false;
 };
 
 Args parseArgv(int argc, char* argv[]){
@@ -27,11 +28,12 @@ Args parseArgv(int argc, char* argv[]){
   }
 
   Args args;
-  string help_str = string(argv[0]) + " [-a address] [-l login] [-c config] [-m] [-h]\n";
+  string help_str = string(argv[0]) + " [-a --address] [-l --login] [-c --config] [-m] [-h] [--gui]\n";
   help_str += "--address (-a): Address of server. [Default: " + args.address + "]\n";
   help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
   help_str += "--config (-c): Path of config file. [Default: " + args.configPath + "]\n";
   help_str += "--microsoft (-m): Login with Microsoft account. [Default: " + string((args.microsoftLogin ? "True" : "False")) + "]\n";
+  help_str += "--gui: Open GUI. [Default: " + string((args.gui ? "True" : "False")) + "]\n";
   help_str += "--help (-h): Show help information.\n";
   
   try {
@@ -51,7 +53,9 @@ Args parseArgv(int argc, char* argv[]){
         args.configPath = val;
       } else if (token == "--microsoft" || token == "-m") {
         args.microsoftLogin = true;
-      } else if (token == "--help" || token == "-h") {
+      } else if (token == "--gui") {
+        args.gui = true;
+      }else if (token == "--help" || token == "-h") {
         cout << help_str << "\n";
         exit(EXIT_SUCCESS);
       } else {
@@ -84,7 +88,7 @@ int main(int argc, char* argv[]) {
     // Add a name to this thread for logging
     Logger::GetInstance().RegisterThread("main");
     
-    Artist client(false, args.configPath);
+    Artist client(args.gui, args.configPath);
 
     // const shared_ptr<BehaviourTree<SimpleBehaviourClient>> tree = FullTree();
 

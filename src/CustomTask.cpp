@@ -2,6 +2,7 @@
 #include "Algorithm.hpp"
 #include "PathFinding.hpp"
 #include "Utils.hpp"
+#include "Artist.hpp"
 #include "botcraft/AI/Tasks/AllTasks.hpp"
 #include "botcraft/Game/AssetsManager.hpp"
 #include "botcraft/Game/Entities/EntityManager.hpp"
@@ -79,7 +80,7 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
   for (size_t index = 0; index < chests.size(); ++index) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
-    FindPathAndMove(c, chests[i], 1, 1, 1);
+    if (FindPathAndMove(c, chests[i], 1, 1, 1) == Status::Failure) continue;
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
@@ -183,7 +184,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    FindPathAndMove(c, chest, 3, 1, 3);
+    if (FindPathAndMove(c, chest, 3, 1, 3) == Status::Failure) continue;
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -274,7 +275,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    FindPathAndMove(c, chest, 1, 1, 1);
+    if (FindPathAndMove(c, chest, 1, 1, 1) == Status::Failure) continue;
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -414,7 +415,10 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   
   Blackboard& board = c.GetBlackboard();
 
-  Status result = FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0);
+  if(FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0) == Status::Failure){
+    cout << GetTime() << "Move Error" << endl;
+    return Status::Failure;
+  }
   string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
     if (bn == "minecraft:air") return Status::Success;
@@ -441,9 +445,9 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
   pf::Position from, to{pos.x, pos.y, pos.z};
   shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
   auto player_pos = local_player->GetPosition();
-  from.x = floor(player_pos.x);
-  from.y = floor(player_pos.y) - 1;
-  from.z = floor(player_pos.z);
+  from.x = static_cast<int>(floor(player_pos.x));
+  from.y = static_cast<int>(floor(player_pos.y)) - 1;
+  from.z = static_cast<int>(floor(player_pos.z));
 
   std::unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
   if(excl_x_dist >= 0 || excl_y_dist >= 0 || excl_z_dist >= 0){
@@ -460,22 +464,29 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
 
   if (!r) {
     cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
+    auto tp_future = static_cast<Artist&>(c).waitTP();
     string homeName = blackboard.Get<string>("home", "mapart");
-    c.SendChatCommand("homes "+homeName);
+    cout << GetTime() << "Send TP Command" << endl;
+    c.SendChatCommand("homes " + homeName);
+    cout << GetTime() << "Wait for TP..." << endl;
     
-    Position newPos = Position(777, 777, 777);
-    blackboard.Set("TPPos", newPos);
-    while (newPos == Position(777, 777, 777)) {
-      Utilities::SleepFor(chrono::milliseconds(50));
-      newPos = blackboard.Get<Position>("TPPos", Position(777, 777, 777));
+    // wait for 10 seconds
+    if(tp_future.wait_for(std::chrono::seconds(10)) == std::future_status::timeout){
+      cout << GetTime() << "TP Failed" << endl;
+      return Status::Failure;
     }
+    cout << GetTime() << "TP Success" << endl;
 
+    cout << GetTime() << "World loading..." << endl;
     WaitServerLoad(c);  // always return true
+    cout << GetTime() << "Finish world loading" << endl;
 
     // update player's new position
-    from.x = newPos.x;
-    from.y = newPos.y - 1;
-    from.z = newPos.z;
+    auto player_pos = c.GetEntityManager()->GetLocalPlayer()->GetPosition();
+    from.x = static_cast<int>(floor(player_pos.x));
+    from.y = static_cast<int>(floor(player_pos.y)) - 1;
+    from.z = static_cast<int>(floor(player_pos.z));
+    cout << GetTime() << "Find path" << endl;
     r = finder.findPathAndGo(from, *goal, 5000);
   }
   
@@ -568,7 +579,7 @@ Status CheckCompletion(BehaviourClient& c) {
 
   for (auto cp : checkpoints) {
     cout << GetTime() << "Check checkpoint..." << endl;
-    FindPathAndMove(c, anchor+cp, 0, 5, 0);
+    if (FindPathAndMove(c, anchor+cp, 0, 5, 0) == Status::Failure) return Status::Failure;
     if (check(c) == Status::Failure) return Status::Failure;
   }
 

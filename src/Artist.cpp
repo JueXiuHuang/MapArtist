@@ -224,6 +224,10 @@ map<string, any>& Artist::Recover() {
   return backup;
 }
 
+std::future<void> Artist::waitTP(){
+  return tpNotifier.add();
+}
+
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
   ManagersClient::Handle(msg);
   string text = msg.GetContent().GetText();
@@ -249,8 +253,13 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
 
 void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
   ConnectionClient::Handle(msg);
-  Blackboard& bb = this->GetBlackboard();
   cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << endl;
+  cout << GetTime() << "Notify all listeners" << endl;
+  while(tpNotifier.size() > 0){
+    auto t = tpNotifier.pop();
+    if(!t) break;
+    t->set_value();
+  }
+  cout << GetTime() << "Finish notifying all listeners" << endl;
   cout << "=========================" << endl;
-  bb.Set("TPPos", Position(floor(msg.GetX()), floor(msg.GetY()), floor(msg.GetZ())));
 }

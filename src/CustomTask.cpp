@@ -387,9 +387,9 @@ Status TaskExecutor(BehaviourClient& c) {
       else {
         auto nextPos = taskPos+offsets[i%offsets.size()];
         const Botcraft::Blockstate* block = c.GetWorld()->GetBlock(nextPos);
-        if(!block->IsAir()){  // simple detect
+        if(block != nullptr && !block->IsAir()){  // simple detect
           cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << endl;
-          FindPathAndMove(c, nextPos, 0, 3, 0);
+          if(FindPathAndMove(c, nextPos, 0, 3, 0) == Status::Failure) return Status::Failure;
         }
       }
     }
@@ -460,10 +460,17 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
   }
   
   std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
-  bool r = finder.findPathAndGo(from, *goal, 5000);
+  bool r = false;
+  for(int i = 0; i < 2; ++i){
+    r = finder.findPathAndGo(from, *goal, 15000);
+    if(r) break;
+    cout << GetTime() << "Failed, retry after 5 seconds..." << endl;
+    Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
+  }
 
   if (!r) {
     cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
+    Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
     auto tp_future = static_cast<Artist&>(c).waitTP();
     string homeName = blackboard.Get<string>("home", "mapart");
     cout << GetTime() << "Send TP Command" << endl;

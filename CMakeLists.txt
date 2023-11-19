@@ -16,6 +16,7 @@ if(NOT GIT_FOUND)
 endif()
 
 if(MSVC)
+  message(STATUS "Config Type: ${CMAKE_CONFIGURATION_TYPES}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
   if(NOT CMAKE_GENERATOR_PLATFORM STREQUAL "")
     list(APPEND BUILD_PLATFORM "-A ${CMAKE_GENERATOR_PLATFORM}")
@@ -64,7 +65,7 @@ add_dependencies(${TARGET_NAME} Botcraft-install)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
-target_link_libraries(${TARGET_NAME} ws2_32 botcraft protocolCraft)
+target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
 
 # pathfinding
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})

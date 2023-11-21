@@ -80,7 +80,7 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
   for (size_t index = 0; index < chests.size(); ++index) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
-    if (FindPathAndMove(c, chests[i], 1, 1, 1) == Status::Failure) continue;
+    FindPathAndMove(c, chests[i], 1, 1, 1);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
@@ -184,7 +184,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    if (FindPathAndMove(c, chest, 3, 1, 3) == Status::Failure) continue;
+    FindPathAndMove(c, chest, 3, 1, 3);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -275,7 +275,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    if (FindPathAndMove(c, chest, 1, 1, 1) == Status::Failure) continue;
+    FindPathAndMove(c, chest, 1, 1, 1);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -389,7 +389,7 @@ Status TaskExecutor(BehaviourClient& c) {
         const Botcraft::Blockstate* block = c.GetWorld()->GetBlock(nextPos);
         if(block != nullptr && !block->IsAir()){  // simple detect
           cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << endl;
-          if(FindPathAndMove(c, nextPos, 0, 3, 0) == Status::Failure) return Status::Failure;
+          FindPathAndMove(c, nextPos, 0, 3, 0);
         }
       }
     }
@@ -586,7 +586,7 @@ Status CheckCompletion(BehaviourClient& c) {
 
   for (auto cp : checkpoints) {
     cout << GetTime() << "Check checkpoint..." << endl;
-    if (FindPathAndMove(c, anchor+cp, 0, 5, 0) == Status::Failure) return Status::Failure;
+    FindPathAndMove(c, anchor+cp, 0, 5, 0);
     if (check(c) == Status::Failure) return Status::Failure;
   }
 

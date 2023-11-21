@@ -13,7 +13,7 @@
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/bin",
       "environment": [],
-      "console": "externalTerminal"
+      "console": "integratedTerminal"
     },
     {
       "name": "Debug Local",
@@ -24,7 +24,7 @@
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/bin",
       "environment": [],
-      "console": "externalTerminal"
+      "console": "integratedTerminal"
     }
   ]
 }

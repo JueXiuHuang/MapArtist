@@ -6,20 +6,20 @@
 using namespace Botcraft;
 using namespace std;
 
-// 順序: init, serverload, sortchest, eat, work, complete
+// 順序: init, serverload, sortchest, complete, eat & work
 shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
   return Builder<SimpleBehaviourClient>("Full Tree")
     .sequence()
       .tree(InitTree())
       .leaf("Wait Server Load", WaitServerLoad)
-      .leaf("Sort Chest with Desire Place", SortChestWithDesirePlace)
-      .repeater(0).sequence()
-        .tree(EatTree())
-        .tree(WorkTree())
-      .end()
+      .leaf("Sort Player's Inventory", SortChestWithDesirePlace)
       .selector()
         .inverter().tree(CheckCompleteTree())
         .tree(NullTree())
+      .end()
+      .repeater(0).sequence()
+        .tree(EatTree())
+        .tree(WorkTree())
       .end()
     .end();
 }

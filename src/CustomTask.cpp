@@ -503,12 +503,14 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
 /*
 If everything is correct, return Success, otherwise return Failure.
 */
-Status check(BehaviourClient& c) {
+Status checkCompletion(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<World> world = c.GetWorld();
   Position anchor = blackboard.Get<Position>("anchor");
 
   Position target_pos, world_pos;
+
+  vector<vector<vector<bool>>> mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
 
   int additional_blocks = 0;
   int wrong_blocks = 0;
@@ -518,6 +520,8 @@ Status check(BehaviourClient& c) {
   const Position& end = blackboard.Get<Position>("Structure.end");
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+
+  Status isComplete = Status::Success;
 
   for (int x = start.x; x < end.x; x++) {
     world_pos.x = x;
@@ -545,18 +549,23 @@ Status check(BehaviourClient& c) {
           continue;
         } else if (block_name == "minecraft:air" && target_name != "minecraft:air") {
           // Found air in real world, but it should be something else
-          return Status::Failure;
+          isComplete = Status::Failure;
+          mapMemory[target_pos.x][target_pos.y][target_pos.z] = false;
         } else if (block_name != "minecraft:air" && target_name == "minecraft:air") {
           // Found something else, but it should be air.
-          return Status::Failure;
+          isComplete = Status::Failure;
+          mapMemory[target_pos.x][target_pos.y][target_pos.z] = false;
         } else if (block_name != target_name) {
           // The name of block not match.
-          return Status::Failure;
+          isComplete = Status::Failure;
+          mapMemory[target_pos.x][target_pos.y][target_pos.z] = false;
         }
       }
     }
   }
-  return Status::Success;
+
+  blackboard.Set("map_memory", mapMemory);
+  return isComplete;
 }
 
 Status CheckCompletion(BehaviourClient& c) {
@@ -578,19 +587,41 @@ Status CheckCompletion(BehaviourClient& c) {
 
   vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
-  // vector<Position> checkpoints {Position(40, 10, 40), Position(80, 10, 40), Position(40, 10, 80), Position(80, 10, 80)};
+
+  // initialize map recorder
+  // default value will set to true, if the block is incorrect will set to false
+  vector<vector<vector<bool>>> mapMemory(size.x, vector(size.y, vector(size.z, true)));
+  blackboard.Set("map_memory", mapMemory);
 
   const bool log_details = false;
   const bool log_errors = true;
   const bool full_check = true;
 
+  Status isComplete = Status::Success;
   for (auto cp : checkpoints) {
     cout << GetTime() << "Check checkpoint..." << endl;
     FindPathAndMove(c, anchor+cp, 0, 5, 0);
-    if (check(c) == Status::Failure) return Status::Failure;
+    if (checkCompletion(c) == Status::Failure) isComplete = Status::Failure;
   }
 
-  return Status::Success;
+  // update xCheck
+  mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
+  vector<bool> xCheck = vector(size.x, false);
+
+  for (int x = 0; x < size.x; x++) {
+    bool isAllDone = true;
+    for (int y = 0; y < size.y; y++) {
+      for (int z = 0; z < size.z; z++) {
+        if (!mapMemory[x][y][z]) isAllDone = false;
+      }
+    }
+
+    xCheck[x] = isAllDone;
+  }
+
+  blackboard.Set("SliceDFS.xCheck", xCheck);
+
+  return isComplete;
 }
 
 Status WarnConsole(BehaviourClient& c, const string& msg) {

@@ -581,7 +581,7 @@ Status CheckCompletion(BehaviourClient& c) {
 
   const Position& start = blackboard.Get<Position>("Structure.start");
   const Position& end = blackboard.Get<Position>("Structure.end");
-  const Position size = end - start;
+  const Position size = end - start + Position(1, 1, 1);
   const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
   const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
 

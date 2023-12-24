@@ -523,13 +523,13 @@ Status checkCompletion(BehaviourClient& c) {
 
   Status isComplete = Status::Success;
 
-  for (int x = start.x; x < end.x; x++) {
+  for (int x = start.x; x <= end.x; x++) {
     world_pos.x = x;
     target_pos.x = x - start.x;
-    for (int y = start.y; y < end.y; y++) {
+    for (int y = start.y; y <= end.y; y++) {
       world_pos.y = y;
       target_pos.y = y - start.y;
-      for (int z = start.z; z < end.z; z++) {
+      for (int z = start.z; z <= end.z; z++) {
         world_pos.z = z;
         target_pos.z = z - start.z;
 

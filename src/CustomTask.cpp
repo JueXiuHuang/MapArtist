@@ -608,7 +608,12 @@ Status CheckCompletion(BehaviourClient& c) {
   mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
   vector<bool> xCheck = vector(size.x, false);
 
+  int workers = blackboard.Get<int>("workerNum", 1);
+  int col = blackboard.Get<int>("workCol", 0);
+
   for (int x = 0; x < size.x; x++) {
+    if (x%workers != col) continue;
+    
     bool isAllDone = true;
     for (int y = 0; y < size.y; y++) {
       for (int z = 0; z < size.z; z++) {

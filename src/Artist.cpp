@@ -165,11 +165,10 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
   smatch match;
   header.erase(remove(header.begin(), header.end(), ','), header.end());
 
-  cout << "================" << endl;
-  cout << header << endl;
-  cout << "================" << endl;
+  // cout << "================" << endl;
+  // cout << header << endl;
+  // cout << "================" << endl;
   if (regex_search(header, match, FalloutTabPatternVer2)) {
-    cout << match[14].str() << endl;
     Blackboard& bb = this->GetBlackboard();
     bb.Set("ExchangeRate", match[14].str());
     bb.Set("ChannelNumber", match[15].str());

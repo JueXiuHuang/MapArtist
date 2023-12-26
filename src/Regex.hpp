@@ -47,6 +47,45 @@ static regex FalloutTabPattern(R"((< 廢土伺服器 - mcFallout.net >))"
                                 R"([^\d]+(\d+))"
                                 R"([^\d]+(\d+\s/\s\d+))");
 
+/*
+match 1:  Domain quota (remain)
+match 2:  Domain quota (max)
+match 3:  Domain quota from online (remain)
+match 4:  Domain quota from online (max)
+match 5:  Domain quota from ingot
+match 6:  Domain quota from bonus
+match 7:  Fly available time (second)
+match 8:  Fly total time (second)
+match 9:  Fly time recover 1
+match 10: Fly time recover 2
+match 11: Infinite fly day count
+match 12: Emerald in bank
+match 13: Ingot we have
+match 14: Ingot price
+match 15: Channel number
+match 16: World (Nether, End,...)
+match 17: In game time
+match 18: In game position
+match 19: Channel palyer count
+match 20: Online player count
+*/
+static regex FalloutTabPatternVer2(R"(\s*§\S廢土伺服器 §\S- §\SmcFallout.net\s*\n)"
+                                  R"(\s*\n)"
+                                  R"(\s*§\S當前分流領地資訊§\S :\s*\n)"
+                                  R"(\s*§\S剩餘額度§\S : §\S(\d+) §\S/§\S(\d+) 格\s*\n)"
+                                  R"(\s*\n)"
+                                  R"(\s*§\S數量來自 :\s*\n)"
+                                  R"(\s*§\S線上累積§\S : §\S(\d+) §\S/(\d+) 格 §\S\+ §\S村民錠購買§\S : §\S(\d+) §\S格\s*\n)"
+                                  R"(\s*§\S階級 §\S§\S§\S§\S§\S\S+§\S §\S §\S給予的紅利§\S : §\S(\d+) §\S格\s*\n)"
+                                  R"(\s*§\S免費領地飛行§\S : §\S(\d+) §\S/(\d+) 秒 \(§\S不使用時每(\d+) §\S秒§\S\+(\d+) §\S秒\)\s*\n)"
+                                  R"(\s*§\S無限領地飛行§\S : §\S(\d+) §\S 天 §\S\(使用村民錠購買\)\s*\n)"
+                                  R"(\s*\n)"
+                                  R"(\s*§\S綠寶石餘額§\S : §\S(\d+) §\S/ §\S村民錠餘額§\S : §\S(\d+) §\S/ §\S村民錠價格 : 每個約 §\S(\d+) 綠\s*\n)"
+                                  R"(\s*§\S所處位置 §\S: §\S分流(\d+)§\S-§\S§\S(地獄|主世界|終界) §\S-§\S(\d+:\d+\s(?:AM|PM)) §\S-§\S座標§\S : §\S(-?\d+ -?\d+ -?\d+)\s*\n)"
+                                  R"(\s*\n)"
+                                  R"(\s*§\S當前分流人數 §\S: §\S§\S(\d+)\s*\n)"
+                                  R"(\s*§\S線上人數 §\S: §\S(\d+) §\S/ §\S(\d+))");
+
 static regex HungryPattern(R"(bot\s(hungry))");
 
 /*

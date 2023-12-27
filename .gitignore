@@ -1,5 +1,7 @@
 bin/*
 !bin/config_local.txt
 !bin/config_online.txt
+!bin/_run_local.bat
+!bin/_run_login.bat
 build/
 install/*

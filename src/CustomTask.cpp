@@ -526,7 +526,7 @@ Status checkCompletion(BehaviourClient& c) {
   int col = blackboard.Get<int>("workCol", 0);
 
   for (int x = start.x; x <= end.x; x++) {
-    if ((x-end.x)%workers != col) continue;
+    if ((x-start.x)%workers != col) continue;
 
     world_pos.x = x;
     target_pos.x = x - start.x;

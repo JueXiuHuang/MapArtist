@@ -227,13 +227,15 @@ void cmdBar(Artist *artist) {
   int workers = artist->GetBlackboard().Get<int>("workerNum", 1);
   int col = artist->GetBlackboard().Get<int>("workCol", 0);
   int finish = 0;
+  int duty = 0;
 
   for (int i = 0; i < xCheck.size(); i++) {
     if (i%workers != col) continue;
+    duty++;
     if (xCheck[i]) finish++;
   }
-  int ratio = finish * 20 / (xCheck.size()/workers);
-  double percent = static_cast<double>(finish) * 100 / (xCheck.size()/workers);
+  int ratio = finish * 20 / duty;
+  double percent = static_cast<double>(finish) * 100 / duty;
 
   ostringstream bar;
   bar << "[" << string(ratio, '#') << string(20 - ratio, '-') << "]  "

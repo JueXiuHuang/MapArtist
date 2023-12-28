@@ -12,7 +12,6 @@
 #include "botcraft/Game/Vector3.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Network/NetworkManager.hpp"
-#include "botcraft/Utilities/Logger.hpp"
 #include "botcraft/Utilities/MiscUtilities.hpp"
 #include "botcraft/Utilities/SleepUtilities.hpp"
 #include <chrono>

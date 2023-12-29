@@ -312,7 +312,8 @@ void SliceDFS(BehaviourClient& c) {
         if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
           short _target_id = target[newPos.x][newPos.y][newPos.z];
           string _target_name = palette.at(_target_id);
-          if (_target_name == "minecraft:air") continue;
+          string _worldBlockName = GetWorldBlock(c, newPos+anchor);
+          if (_target_name == "minecraft:air" && _worldBlockName == "minecraft:air") continue;
           visited[newPos.x][newPos.y][newPos.z] = true;
           pending.push(newPos);
         }

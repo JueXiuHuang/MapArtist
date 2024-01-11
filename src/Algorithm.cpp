@@ -228,7 +228,6 @@ void SimpleDFS(BehaviourClient& c){
   blackboard.Set("itemCounter", itemCounter);
 }
 
-// TODO: need to check extra block and dig it.
 void SliceDFS(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
   shared_ptr<World> world = c.GetWorld();
@@ -438,6 +437,130 @@ void SliceDFSNeighbor(BehaviourClient& c) {
   }
 
   blackboard.Set("SliceDFS.xCheckStart", xCheckStart);
+  blackboard.Set("qTaskPosition", qTaskPosition);
+  blackboard.Set("qTaskType", qTaskType);
+  blackboard.Set("qTaskName", qTaskName);
+  blackboard.Set("itemCounter", itemCounter);
+}
+
+void SliceDFSSnake(BehaviourClient& c) {
+  Blackboard& blackboard = c.GetBlackboard();
+  shared_ptr<World> world = c.GetWorld();
+
+  const Position& start = blackboard.Get<Position>("Structure.start");
+  const Position& end = blackboard.Get<Position>("Structure.end");
+  const Position& anchor = blackboard.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position size = end - start + Position(1, 1, 1);
+  vector<bool> xCheck = blackboard.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
+
+  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+
+  const int workerNum = blackboard.Get<int>("workerNum", 1);
+  const int workCol = blackboard.Get<int>("workCol", 0);
+
+  int slotCounter = 0;
+  map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
+
+  queue<Position> qTaskPosition;
+  queue<string> qTaskType, qTaskName;
+  stack<Position> pending;
+
+  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
+                                            Position(0, 0, 1), Position(0, 0, -1)});
+
+  bool inverse = false;
+  for (int x = 0; x < size.x; x++) {
+    if (x%workerNum != workCol) continue;
+    if (xCheck[x]) continue;
+    inverse = !inverse;
+
+    // Put every y=0 blocks into pending stack.
+    if (inverse) {
+      for (int z = size.z-1; z > -1; z--) {
+        const short nbtBlockId = target[x][0][z];
+        const string nbtBlockName = palette.at(nbtBlockId);
+        if (nbtBlockName != "minecraft:air") {
+          if (z-1 > -1) {
+            const short nextNbtBlockId = target[x][0][z-1];
+            const string nextNbtBlockName = palette.at(nextNbtBlockId);
+            if (nextNbtBlockName == "minecraft:air") {
+              pending.push(Position(x, 0, z));
+              visited[x][0][z] = true;
+            }
+          } else {
+            pending.push(Position(x, 0, z));
+            visited[x][0][z] = true;
+          }
+        }
+      }
+    } else {
+      for (int z = 0; z < size.z; z++) {
+        const short nbtBlockId = target[x][0][z];
+        const string nbtBlockName = palette.at(nbtBlockId);
+        if (nbtBlockName != "minecraft:air") {
+          if (z+1 < size.z) {
+            const short nextNbtBlockId = target[x][0][z+1];
+            const string nextNbtBlockName = palette.at(nextNbtBlockId);
+            if (nextNbtBlockName == "minecraft:air") {
+              pending.push(Position(x, 0, z));
+              visited[x][0][z] = true;
+            }
+          } else {
+            pending.push(Position(x, 0, z));
+            visited[x][0][z] = true;
+          }
+        }
+      }
+    }
+
+    bool isAllDone = true;
+    while (!pending.empty()) {
+      Position cp = pending.top();
+      pending.pop();
+
+      const short nbtBlockId = target[cp.x][cp.y][cp.z];
+      const string nbtBlockName = palette.at(nbtBlockId);
+      
+      string worldBlockName = GetWorldBlock(c, cp+anchor);
+      string taskType = GetTaskType(worldBlockName, nbtBlockName);
+
+      if (taskType != "None") {
+        isAllDone = false;
+        qTaskPosition.push(cp+anchor);
+        qTaskType.push(taskType);
+        qTaskName.push(nbtBlockName);
+
+        if (taskType == "Place") {
+          // maintain itemCounter and slotCounter
+          if ((itemCounter[nbtBlockName]++) % 64 == 0) slotCounter++;
+          if (slotCounter == 27) break;
+        }
+      }
+
+      for (int i = 0; i < neighbor_offsets.size(); i++) {
+        Position newPos = cp + neighbor_offsets[i];
+        bool xCheck = (newPos+anchor).x >= start.x && (newPos+anchor).x <= end.x;
+        bool yCheck = (newPos+anchor).y >= start.y && (newPos+anchor).y <= end.y;
+        bool zCheck = (newPos+anchor).z >= start.z && (newPos+anchor).z <= end.z;
+
+        if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
+          short _target_id = target[newPos.x][newPos.y][newPos.z];
+          string _target_name = palette.at(_target_id);
+          string _worldBlockName = GetWorldBlock(c, newPos+anchor);
+          if (_target_name == "minecraft:air" && _worldBlockName == "minecraft:air") continue;
+          visited[newPos.x][newPos.y][newPos.z] = true;
+          pending.push(newPos);
+        }
+      }
+    }
+
+    if (isAllDone) xCheck[x] = true;
+    if (slotCounter == 27) break;
+  }
+
+  blackboard.Set("SliceDFS.xCheck", xCheck);
   blackboard.Set("qTaskPosition", qTaskPosition);
   blackboard.Set("qTaskType", qTaskType);
   blackboard.Set("qTaskName", qTaskName);

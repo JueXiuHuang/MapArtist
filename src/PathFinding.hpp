@@ -239,7 +239,7 @@ public:
 
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
       : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
-            {true, 9999999}),
+            {false, 9999999}),  // do not use 8-connect
         client(_client) {}
 
   BotCraftFinder &operator=(const BotCraftFinder &other)

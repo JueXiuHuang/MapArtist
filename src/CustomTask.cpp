@@ -274,7 +274,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    FindPathAndMove(c, chest, 2, 1, 2, 0, -1, 0);
+    FindPathAndMove(c, chest, 2, 0, 2, 0, -1, 0);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;

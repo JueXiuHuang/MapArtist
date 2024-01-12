@@ -2,7 +2,7 @@
 anchor=-576,60,4415
 
 # the nbt file you want to build
-nbt=YaeMiko_3_5.nbt
+nbt=kafka_swim_suit_0_0.nbt
 
 tempblock=minecraft:cobblestone
 

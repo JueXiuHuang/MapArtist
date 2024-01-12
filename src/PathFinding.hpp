@@ -9,7 +9,6 @@
 #include "botcraft/AI/SimpleBehaviourClient.hpp"
 #include "botcraft/AI/Tasks/PathfindingTask.hpp"
 #include "botcraft/Game/Entities/EntityManager.hpp"
-#include "botcraft/Game/Physics/PhysicsManager.hpp"
 #include "botcraft/Game/Entities/LocalPlayer.hpp"
 #include "botcraft/Game/World/World.hpp"
 #include "botcraft/Utilities/Logger.hpp"
@@ -17,7 +16,8 @@
 
 namespace Botcraft
 {
-  bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player, const Position &target_pos, const float speed, const float climbing_speed);
+  bool Move(BehaviourClient& client, std::shared_ptr<LocalPlayer>& local_player, const Position& target_pos, const float speed_factor, const bool sprint);
+  void AdjustPosSpeed(BehaviourClient& client);
 }
 
 namespace pf = pathfinding;
@@ -170,21 +170,9 @@ public:
   {
     std::shared_ptr<Botcraft::LocalPlayer> local_player =
         client->GetEntityManager()->GetLocalPlayer();
-    std::shared_ptr<Botcraft::PhysicsManager> physics_manager =
-        client->GetPhysicsManager();
+    std::shared_ptr<Botcraft::World> world = client->GetWorld();
 
-    // always set gravity to true to calculate y correctly
-    const bool has_gravity = physics_manager->GetHasGravity();
-    physics_manager->SetHasGravity(true);
-    // Reset gravity before leaving
-    Botcraft::Utilities::OnEndScope reset_gravity(
-        [physics_manager, has_gravity]()
-        {
-          if (physics_manager != nullptr)
-            physics_manager->SetHasGravity(has_gravity);
-        });
-
-    const float climb_speed = 0.12 * 20;
+    const float speed_factor = 1.0;
 
     auto &pathVec = path->get();
     // move player, but skipping first position
@@ -197,33 +185,37 @@ public:
                 << (path->size() - 1) << ")" << std::endl
                 << std::flush;
 
-      const float base_speed = local_player->GetIsRunning()
-                                   ? Botcraft::LocalPlayer::SPRINTING_SPEED
-                                   : Botcraft::LocalPlayer::WALKING_SPEED;
-
-      // Get speed effect
-      unsigned char speed_amplifier = 0;
-      for (const Botcraft::EntityEffect &effect : local_player->GetEffects())
+      // Basic verification to check we won't try to walk on air.
+      // If so, it means some blocks have changed, better to
+      // recompute a new path
+      const Botcraft::Blockstate* next_target = world->GetBlock(Botcraft::Position(newPos.x, newPos.y, newPos.z));
+      const Botcraft::Blockstate* above = world->GetBlock(Botcraft::Position(newPos.x, newPos.y + 1, newPos.z));
+      if ((above == nullptr || (!above->IsClimbable() && !above->IsFluid())) &&
+          (next_target == nullptr || next_target->IsAir()))
       {
-        if (effect.type == Botcraft::EntityEffectType::Speed &&
-            effect.end > std::chrono::steady_clock::now())
-        {
-          speed_amplifier =
-              effect.amplifier + 1; // amplifier is 0 for "Effect I"
           break;
-        }
       }
-      float movement_speed = base_speed * (1.0f + 0.2f * speed_amplifier);
 
-      bool succeed =
-          Botcraft::Move(*client, local_player,
-                         Botcraft::Position(newPos.x, newPos.y + 1, newPos.z),
-                         movement_speed, climb_speed);
-      if (!succeed)
+      // If something went wrong, break and
+      // replan the whole path to the goal
+      if (!Move(*client, local_player, Botcraft::Position(newPos.x, newPos.y + 1, newPos.z), speed_factor, true))
       {
         return false;
       }
+      // Otherwise just update current position for
+      // next move
+      else
+      {
+          const Botcraft::Vector3<double> local_player_pos = local_player->GetPosition();
+          // Get the position, we add 0.25 to Y in case we are at X.97 instead of X+1
+          Botcraft::Position current_position = Botcraft::Position(
+              static_cast<int>(std::floor(local_player_pos.x)),
+              static_cast<int>(std::floor(local_player_pos.y + 0.25)),
+              static_cast<int>(std::floor(local_player_pos.z))
+          );
+      }
     }
+    AdjustPosSpeed(*client);
     return true;
   }
 

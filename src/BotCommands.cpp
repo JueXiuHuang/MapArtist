@@ -25,8 +25,10 @@ void cmdStop(smatch matches, Artist *artist) {
   artist->SendChatMessage("=== BOT STOP ===");
   // backup first, then set hasWork to false
   artist->Backup();
-  artist->hasWork = false;
-  artist->SetBehaviourTree(nullptr);
+  if(artist->hasWork) {
+    artist->SetBehaviourTree(nullptr);
+    artist->hasWork = false;
+  }
 }
 
 void cmdStart(smatch matches, Artist *artist) {
@@ -35,9 +37,11 @@ void cmdStart(smatch matches, Artist *artist) {
 
   cout << GetTime() << "=== BOT START ===" << endl;
   artist->SendChatMessage("=== BOT START ===");
-  artist->hasWork = true;
   map<string, any> &initVal = artist->Recover();
-  artist->SetBehaviourTree(FullTree(), initVal);
+  if(!artist->hasWork) {
+    artist->SetBehaviourTree(FullTree(), initVal);
+    artist->hasWork = true;
+  }
 }
 
 void cmdBar(Artist *artist) {

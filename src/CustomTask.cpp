@@ -183,7 +183,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    FindPathAndMove(c, chest, 3, 1, 3);
+    FindPathAndMove(c, chest, 3, 6, 3);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -274,7 +274,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    FindPathAndMove(c, chest, 1, 1, 1);
+    FindPathAndMove(c, chest, 2, 1, 2, 0, -1, 0);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -493,7 +493,7 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
     from.y = static_cast<int>(floor(player_pos.y)) - 1;
     from.z = static_cast<int>(floor(player_pos.z));
     cout << GetTime() << "Find path" << endl;
-    r = finder.findPathAndGo(from, *goal, 5000);
+    r = finder.findPathAndGo(from, *goal, 15000);
   }
   
   return (r ? Status::Success : Status::Failure);

@@ -65,7 +65,11 @@ add_dependencies(${TARGET_NAME} Botcraft-install)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")
 target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
-target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
+if(MINGW)
+  target_link_libraries(${TARGET_NAME} ws2_32 botcraft protocolCraft)
+elseif(MSVC)
+  target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
+endif()
 
 # pathfinding
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})

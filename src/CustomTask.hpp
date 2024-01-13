@@ -39,7 +39,10 @@ Botcraft::Status WaitServerLoad(Botcraft::BehaviourClient& c);
 /// @return Success if the task was correctly executed, failure otherwise
 Botcraft::Status ExecuteTask(Botcraft::BehaviourClient& c, std::string action, Botcraft::Position blockPos, std::string blockName);
 
-Botcraft::Status FindPathAndMove(Botcraft::BehaviourClient&c, Botcraft::Position pos, int x_tol, int y_tol, int z_tol, int excl_x_dist = -1, int excl_y_dist = -1, int excl_z_dist = -1);
+Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient&c, Botcraft::Position pos, pathfinding::goal::GoalBase<pathfinding::Position> &goal);
+Botcraft::Status FindPathAndMove(Botcraft::BehaviourClient&c, Botcraft::Position pos, 
+  int x_tol_pos, int x_tol_neg, int y_tol_pos, int y_tol_neg, int z_tol_pos, int z_tol_neg, 
+  int excl_x_pos, int excl_x_neg, int excl_y_pos, int excl_y_neg, int excl_z_pos, int excl_z_neg);
 
 /// @brief Check if the whole structure is built, check in the blackboard for CheckCompletion.(print_details, print_errors and full_check) to know if details should be displayed in the console
 /// @param c The client performing the action

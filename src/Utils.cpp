@@ -28,7 +28,7 @@ string GetWorldBlock(BehaviourClient& c, Position pos) {
   if (!block) {
     // it is a unload block
     if (!world->IsLoaded(pos)) {
-      FindPathAndMove(c, pos, 5, -1, 5);
+      FindPathAndMove(c, pos,  5, 5, -1, -1, 5, 5,  -1, -1, -1, -1, -1, -1);
 
       block = world->GetBlock(pos);
       if (block) curBlockName = block->GetName();

@@ -202,18 +202,6 @@ public:
       {
         return false;
       }
-      // Otherwise just update current position for
-      // next move
-      else
-      {
-          const Botcraft::Vector3<double> local_player_pos = local_player->GetPosition();
-          // Get the position, we add 0.25 to Y in case we are at X.97 instead of X+1
-          Botcraft::Position current_position = Botcraft::Position(
-              static_cast<int>(std::floor(local_player_pos.x)),
-              static_cast<int>(std::floor(local_player_pos.y + 0.25)),
-              static_cast<int>(std::floor(local_player_pos.z))
-          );
-      }
     }
     AdjustPosSpeed(*client);
     return true;
@@ -225,7 +213,8 @@ public:
         client->GetEntityManager()->GetLocalPlayer();
     auto player_pos = local_player->GetPosition();
     return {static_cast<int>(std::floor(player_pos.x)),
-            static_cast<int>(std::floor(player_pos.y)) - 1,
+            // Get the position, we add 0.25 to Y in case we are at X.97 instead of X+1
+            static_cast<int>(std::floor(player_pos.y + 0.25)) - 1,
             static_cast<int>(std::floor(player_pos.z))};
   }
 

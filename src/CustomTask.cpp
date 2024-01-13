@@ -79,7 +79,7 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
   for (size_t index = 0; index < chests.size(); ++index) {
     const size_t i = chests_indices[index];
     // If we can't open this chest for a reason
-    FindPathAndMove(c, chests[i], 1, 1, 1);
+    FindPathAndMove(c, chests[i],  1, 1, 1, 1, 1, 1,  0, 0, 0, 0, 0, 0);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
@@ -183,7 +183,7 @@ Status DumpItems(BehaviourClient& c) {
   vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
-    FindPathAndMove(c, chest, 3, 6, 3);
+    FindPathAndMove(c, chest,  3, 3, 0, 6, 3, 3,  3, 3, 0, 0, 3, 3);
     if (OpenContainer(c, chest) == Status::Failure) continue;
 
     queue<short> slotSrc, slotDst;
@@ -274,7 +274,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    FindPathAndMove(c, chest, 2, 0, 2, 0, -1, 0);
+    FindPathAndMove(c, chest,  2, 2, 2, 2, 2, 2,  0, 0, -1, 0, 0, 0);
     if (OpenContainer(c, chest) == Status::Failure) continue;
     
     int _need = needed;
@@ -388,7 +388,7 @@ Status TaskExecutor(BehaviourClient& c) {
         const Botcraft::Blockstate* block = c.GetWorld()->GetBlock(nextPos);
         if(block != nullptr && !block->IsAir()){  // simple detect
           cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << endl;
-          FindPathAndMove(c, nextPos, 0, 3, 0);
+          FindPathAndMove(c, nextPos,  0, 0, 3, 3, 0, 0,  -1, -1, -1, -1, -1, -1);
         }
       }
     }
@@ -414,7 +414,7 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
   
   Blackboard& board = c.GetBlackboard();
 
-  if(FindPathAndMove(c, blockPos, 3, 3, 3, 0, 1, 0) == Status::Failure){
+  if(FindPathAndMove(c, blockPos,  3, 3, 3, 3, 3, 3,  0, 0, 0, 2, 0, 0) == Status::Failure){
     cout << GetTime() << "Move Error" << endl;
     return Status::Failure;
   }
@@ -435,8 +435,25 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
 }
 
 Status FindPathAndMove(BehaviourClient&c, Position pos, 
-                      int x_tol, int y_tol, int z_tol, 
-                      int excl_x_dist, int excl_y_dist, int excl_z_dist) {
+    int x_tol_pos, int x_tol_neg, int y_tol_pos, int y_tol_neg, int z_tol_pos, int z_tol_neg, 
+    int excl_x_pos, int excl_x_neg, int excl_y_pos, int excl_y_neg, int excl_z_pos, int excl_z_neg) {
+  pf::Position to{pos.x, pos.y, pos.z};
+  std::unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
+  if(excl_x_pos >= 0 || excl_x_neg >= 0 || excl_y_pos >= 0 || excl_y_neg >= 0 || excl_z_pos >= 0 || excl_z_neg >= 0){
+    using RGoal = pf::goal::RangeGoal<pf::Position>;
+    using EGoal = pf::goal::ExclusiveGoal<RGoal>;
+    using CGoal = pf::goal::CombineGoal<RGoal, EGoal>;
+    CGoal goal(
+      RGoal(to, x_tol_pos, x_tol_neg, y_tol_pos, y_tol_neg, z_tol_pos, z_tol_neg), 
+      EGoal(RGoal(to, excl_x_pos, excl_x_neg, excl_y_pos, excl_y_neg, excl_z_pos, excl_z_neg)));
+    return FindPathAndMoveImpl(c, pos, goal);
+  }else{
+    pf::goal::RangeGoal<pf::Position> goal(to, x_tol_pos, x_tol_neg, y_tol_pos, y_tol_neg, z_tol_pos, z_tol_neg);
+    return FindPathAndMoveImpl(c, pos, goal);
+  }
+}
+
+Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<pf::Position> &goal) {
   Blackboard& blackboard = c.GetBlackboard();
   auto finder = blackboard.Get<PathFinder>("pathFinder");
 
@@ -447,21 +464,11 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
   from.x = static_cast<int>(floor(player_pos.x));
   from.y = static_cast<int>(floor(player_pos.y)) - 1;
   from.z = static_cast<int>(floor(player_pos.z));
-
-  std::unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
-  if(excl_x_dist >= 0 || excl_y_dist >= 0 || excl_z_dist >= 0){
-    using RGoal = pf::goal::RangeGoal<pf::Position>;
-    using EGoal = pf::goal::ExclusiveGoal<RGoal>;
-    using CGoal = pf::goal::CombineGoal<RGoal, EGoal>;
-    goal = std::make_unique<CGoal>(RGoal(to, x_tol, y_tol, z_tol), EGoal(RGoal(to, excl_x_dist, excl_y_dist, excl_z_dist)));
-  }else{
-    goal = std::make_unique<pf::goal::RangeGoal<pf::Position>>(to, x_tol, y_tol, z_tol);
-  }
   
   std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
   bool r = false;
   for(int i = 0; i < 2; ++i){
-    r = finder.findPathAndGo(from, *goal, 15000);
+    r = finder.findPathAndGo(from, goal, 15000);
     if(r) break;
     cout << GetTime() << "Failed, retry after 5 seconds..." << endl;
     Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
@@ -493,7 +500,7 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
     from.y = static_cast<int>(floor(player_pos.y)) - 1;
     from.z = static_cast<int>(floor(player_pos.z));
     cout << GetTime() << "Find path" << endl;
-    r = finder.findPathAndGo(from, *goal, 15000);
+    r = finder.findPathAndGo(from, goal, 15000);
   }
   
   return (r ? Status::Success : Status::Failure);
@@ -603,7 +610,7 @@ Status CheckCompletion(BehaviourClient& c) {
   Status isComplete = Status::Success;
   for (auto cp : checkpoints) {
     cout << GetTime() << "Check checkpoint..." << endl;
-    FindPathAndMove(c, anchor+cp, 0, 5, 0);
+    FindPathAndMove(c, anchor+cp,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1);
     if (checkCompletion(c) == Status::Failure) isComplete = Status::Failure;
   }
 

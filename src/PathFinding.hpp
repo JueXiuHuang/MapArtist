@@ -16,8 +16,8 @@
 
 namespace Botcraft
 {
-  bool Move(BehaviourClient& client, std::shared_ptr<LocalPlayer>& local_player, const Position& target_pos, const float speed_factor, const bool sprint);
-  void AdjustPosSpeed(BehaviourClient& client);
+  bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player, const Position &target_pos, const float speed_factor, const bool sprint);
+  void AdjustPosSpeed(BehaviourClient &client);
 }
 
 namespace pf = pathfinding;
@@ -30,131 +30,54 @@ class BotCraftFinder final
     : public TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>
 {
 public:
-  virtual std::string getBlockNameImpl(const pf::Position &pos) const override
+  virtual pf::BlockType getBlockTypeImpl(
+      const pf::Position &pos) const override
   {
-    // get block information
-    auto world = client->GetWorld();
-    if (world->IsLoaded(Botcraft::Position{pos.x, pos.y, pos.z}))
-    {
-      const Botcraft::Blockstate *block =
-          world->GetBlock(Botcraft::Position{pos.x, pos.y, pos.z});
-      return (block != nullptr ? block->GetName() : "minecraft:air");
-    }
-    else
-    {
-      return "";
-    }
-  }
-
-  virtual std::vector<std::string> getBlockNameImpl(
-      const std::vector<pf::Position> &pos) const override
-  {
-    std::vector<Botcraft::Position> botcraftPos;
-    botcraftPos.reserve(pos.size());
-    for (const pf::Position &p : pos)
-    {
-      botcraftPos.emplace_back(p.x, p.y, p.z);
-    }
+    Botcraft::Position botcraftPos(pos.x, pos.y, pos.z);
 
     // get block information
     auto world = client->GetWorld();
-    std::vector<const Botcraft::Blockstate *> blocks =
-        world->GetBlocks(botcraftPos);
+    const Botcraft::Blockstate *block = world->GetBlock(botcraftPos);
 
-    std::vector<std::string> blockNames;
-    for (int i = 0; i < pos.size(); ++i)
+    if (world->IsLoaded(botcraftPos))
     {
-      if (world->IsLoaded(botcraftPos[i]))
+      if (block != nullptr)
       {
-        blockNames.emplace_back(
-            (blocks[i] != nullptr ? blocks[i]->GetName() : "minecraft:air"));
-      }
-      else
-      {
-        blockNames.emplace_back("");
-      }
-    }
-
-    return blockNames;
-  }
-
-  virtual std::vector<pf::BlockType> getBlockTypeImpl(
-      const std::vector<pf::Position> &pos) const override
-  {
-    std::vector<Botcraft::Position> botcraftPos;
-    botcraftPos.reserve(pos.size());
-    for (const pf::Position &p : pos)
-    {
-      botcraftPos.emplace_back(p.x, p.y, p.z);
-    }
-
-    // get block information
-    auto world = client->GetWorld();
-    std::vector<const Botcraft::Blockstate *> blocks =
-        world->GetBlocks(botcraftPos);
-
-    std::vector<pf::BlockType> blockTypes;
-    for (int i = 0; i < blocks.size(); ++i)
-    {
-      if (world->IsLoaded(botcraftPos[i]))
-      {
-        if (blocks[i] != nullptr)
+        if (block->IsHazardous())
         {
-          if (blocks[i]->IsHazardous())
-          {
-            blockTypes.emplace_back(pf::BlockType::DANGER, pf::BlockType::NONE);
-          }
-          else if (blocks[i]->IsAir())
-          {
-            blockTypes.emplace_back(pf::BlockType::AIR,
-                                    pf::BlockType::FORCE_DOWN);
-          }
-          else if (blocks[i]->IsClimbable())
-          {
-            blockTypes.emplace_back(pf::BlockType::SAFE,
-                                    pf::BlockType::CAN_UP_DOWN);
-          }
-          else if (blocks[i]->IsTransparent())
-          {
-            // we don't stand on a not full block (1x1x1)
-            // except this
-            if (blocks[i]->GetName().find("slab") != std::string::npos ||
-                blocks[i]->GetName().find("stairs") != std::string::npos ||
-                blocks[i]->GetName().find("carpet") != std::string::npos)
-            {
-              blockTypes.emplace_back(pf::BlockType::SAFE, pf::BlockType::NONE);
-            }
-            else if (blocks[i]->IsSolid())
-            {
-              blockTypes.emplace_back(pf::BlockType::DANGER,
-                                      pf::BlockType::NONE);
-            }
-            else
-            {
-              blockTypes.emplace_back(pf::BlockType::AIR, pf::BlockType::NONE);
-            }
-          }
-          else if (blocks[i]->IsSolid())
-          {
-            blockTypes.emplace_back(pf::BlockType::SAFE, pf::BlockType::NONE);
-          }
-          else
-          {
-            blockTypes.emplace_back(pf::BlockType::SAFE, pf::BlockType::NONE);
-          }
+          return {pf::BlockType::DANGER, pf::BlockType::NONE};
+        }
+        else if (block->IsAir())
+        {
+          return {pf::BlockType::AIR, pf::BlockType::FORCE_DOWN};
+        }
+        else if (block->IsClimbable())
+        {
+          return {pf::BlockType::SAFE, pf::BlockType::CAN_UP_DOWN};
+        }
+        else if (block->IsTransparent())
+        {
+          // we don't stand on a not full block (1x1x1)
+          return {pf::BlockType::DANGER, pf::BlockType::NONE};
+        }
+        else if (block->IsSolid())
+        {
+          return {pf::BlockType::SAFE, pf::BlockType::NONE};
         }
         else
         {
-          blockTypes.emplace_back(pf::BlockType::AIR,
-                                  pf::BlockType::FORCE_DOWN);
+          return {pf::BlockType::SAFE, pf::BlockType::NONE};
         }
       }
       else
       {
-        blockTypes.emplace_back(pf::BlockType::UNKNOWN, pf::BlockType::NONE);
+        return {pf::BlockType::AIR, pf::BlockType::FORCE_DOWN};
       }
     }
-    return blockTypes;
+    else
+    {
+      return {pf::BlockType::UNKNOWN, pf::BlockType::NONE};
+    }
   }
 
   virtual inline float getFallDamageImpl(
@@ -188,12 +111,12 @@ public:
       // Basic verification to check we won't try to walk on air.
       // If so, it means some blocks have changed, better to
       // recompute a new path
-      const Botcraft::Blockstate* next_target = world->GetBlock(Botcraft::Position(newPos.x, newPos.y, newPos.z));
-      const Botcraft::Blockstate* above = world->GetBlock(Botcraft::Position(newPos.x, newPos.y + 1, newPos.z));
+      const Botcraft::Blockstate *next_target = world->GetBlock(Botcraft::Position(newPos.x, newPos.y, newPos.z));
+      const Botcraft::Blockstate *above = world->GetBlock(Botcraft::Position(newPos.x, newPos.y + 1, newPos.z));
       if ((above == nullptr || (!above->IsClimbable() && !above->IsFluid())) &&
           (next_target == nullptr || next_target->IsAir()))
       {
-          break;
+        break;
       }
 
       // If something went wrong, break and
@@ -218,18 +141,22 @@ public:
             static_cast<int>(std::floor(player_pos.z))};
   }
 
-  virtual inline int getMinYImpl() const override {
+  virtual inline int getMinYImpl() const override
+  {
     return client->GetWorld()->GetMinY();
   }
 
-  virtual inline int getMaxYImpl() const override {
+  virtual inline int getMaxYImpl() const override
+  {
     return client->GetWorld()->GetHeight();
   }
 
   BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
       : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
-            {false, 9999999}),  // do not use 8-connect
-        client(_client) {}
+            {false, 9999999}), // do not use 8-connect
+        client(_client)
+  {
+  }
 
   BotCraftFinder &operator=(const BotCraftFinder &other)
   {

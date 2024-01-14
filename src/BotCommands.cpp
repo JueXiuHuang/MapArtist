@@ -61,6 +61,15 @@ void cmdBar(Artist *artist) {
   artist->SendChatMessage(bar.str());
 }
 
+void cmdInGameCommand(smatch matches, Artist *artist) {
+  string ingameCmd = matches[3];
+  string name = artist->GetNetworkManager()->GetMyName();
+  string exp_user = matches[2];
+
+  if (exp_user != name && exp_user != "all") return;
+  artist->SendChatCommand(ingameCmd);
+}
+
 void cmdAssignment(smatch matches, Artist *artist) {
   Blackboard& bb = artist->GetBlackboard();
   string name = artist->GetNetworkManager()->GetMyName();

@@ -106,9 +106,10 @@ static regex CsafePattern(R"(bot\s(csafe))");
 
 /*
 match 1: cmd
-match 2: in game command
+match 2: all or <user_name>
+match 3: in game command
 */
-static regex CmdPattern(R"(bot\s(cmd)\s+(.+))");
+static regex CmdPattern(R"(bot\s(cmd)\s(\S+)+(.+))");
 
 static regex NamePattern(R"(bot\s(name))");
 

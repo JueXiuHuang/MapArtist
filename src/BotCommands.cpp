@@ -33,6 +33,16 @@ void cmdStart(smatch matches, Artist *artist) {
   string name = artist->GetNetworkManager()->GetMyName();
   if (string(matches[2]) != "all" && string(matches[2]) != name) return;
 
+  // validate duty
+  Blackboard& bb = artist->GetBlackboard();
+  int workerNum = bb.Get<int>("workerNum");
+  int col = bb.Get<int>("workCol");
+  if (workerNum < 1 || col >= workerNum) {
+    string info = "Invalid duty with workers " + to_string(workerNum) + "and col " + to_string(col);
+    artist->SendChatMessage(info);
+    return;
+  }
+
   cout << GetTime() << "=== BOT START ===" << endl;
   artist->SendChatMessage("=== BOT START ===");
   artist->hasWork = true;

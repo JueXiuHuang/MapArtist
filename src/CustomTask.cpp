@@ -280,7 +280,10 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
       cout << GetTime() << "Go to chest fail..." << endl;
       continue;
     }
-    if (OpenContainer(c, chest) == Status::Failure) continue;
+    if (OpenContainer(c, chest) == Status::Failure) {
+      cout << GetTime() << "Interact with chest fail..." << endl;
+      continue;
+    }
     
     int _need = needed;
     queue<short> canTake, canPut;
@@ -615,7 +618,10 @@ Status CheckCompletion(BehaviourClient& c) {
   Status isComplete = Status::Success;
   for (auto cp : checkpoints) {
     cout << GetTime() << "Check checkpoint..." << endl;
-    FindPathAndMove(c, anchor+cp,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1);
+    Status moveResult = FindPathAndMove(c, anchor+cp,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1);
+    if (moveResult == Status::Failure) {
+      cout << GetTime() << "Move to checkpoint fail..." << endl;
+    }
     if (checkCompletion(c) == Status::Failure) isComplete = Status::Failure;
   }
 

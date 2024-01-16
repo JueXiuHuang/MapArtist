@@ -35,10 +35,17 @@ void cmdStart(smatch matches, Artist *artist) {
 
   // validate duty
   Blackboard& bb = artist->GetBlackboard();
-  int workerNum = bb.Get<int>("workerNum");
-  int col = bb.Get<int>("workCol");
+  int workerNum = 1;
+  int col = 0;
+  if (artist->hasWork) {
+    workerNum = bb.Get<int>("workerNum", 1);
+    col = bb.Get<int>("workCol", 0);
+  } else {
+    workerNum = any_cast<int>(artist->backup["workerNum"]);
+    col = any_cast<int>(artist->backup["workCol"]);
+  }
   if (workerNum < 1 || col >= workerNum) {
-    string info = "Invalid duty with workers " + to_string(workerNum) + "and col " + to_string(col);
+    string info = "Invalid duty with workers " + to_string(workerNum) + " and col " + to_string(col);
     artist->SendChatMessage(info);
     return;
   }

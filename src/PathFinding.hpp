@@ -151,7 +151,7 @@ public:
     return client->GetWorld()->GetHeight();
   }
 
-  BotCraftFinder(std::shared_ptr<Botcraft::BehaviourClient> _client)
+  BotCraftFinder(Botcraft::BehaviourClient *_client)
       : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
             {false, 9999999}), // do not use 8-connect
         client(_client)
@@ -165,7 +165,7 @@ public:
   }
 
 private:
-  std::shared_ptr<Botcraft::BehaviourClient> client;
+  Botcraft::BehaviourClient *client;
 };
 
 using PathFinder = BotCraftFinder<>;

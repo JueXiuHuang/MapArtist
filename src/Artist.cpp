@@ -79,7 +79,7 @@ void msgProcessor(string text, Artist *artist) {
   }
 }
 
-Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer), finder(shared_ptr<BehaviourClient>(this)) {
+Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer), finder(this) {
   configPath = path;
   inWaitingRoom = false;
   waitTpFinish = false;

@@ -275,8 +275,15 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    FindPathAndMove(c, chest,  2, 2, 2, 2, 2, 2,  0, 0, -1, 0, 0, 0);
-    if (OpenContainer(c, chest) == Status::Failure) continue;
+    Status moveResult = FindPathAndMove(c, chest,  2, 2, 2, 2, 2, 2,  0, 0, -1, 0, 0, 0);
+    if (moveResult == Status::Failure) {
+      cout << GetTime() << "Go to chest fail..." << endl;
+      continue;
+    }
+    if (OpenContainer(c, chest) == Status::Failure) {
+      cout << GetTime() << "Interact with chest fail..." << endl;
+      continue;
+    }
     
     int _need = needed;
     queue<short> canTake, canPut;
@@ -439,7 +446,7 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
     int x_tol_pos, int x_tol_neg, int y_tol_pos, int y_tol_neg, int z_tol_pos, int z_tol_neg, 
     int excl_x_pos, int excl_x_neg, int excl_y_pos, int excl_y_neg, int excl_z_pos, int excl_z_neg) {
   pf::Position to{pos.x, pos.y, pos.z};
-  std::unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
+  unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
   if(excl_x_pos >= 0 || excl_x_neg >= 0 || excl_y_pos >= 0 || excl_y_neg >= 0 || excl_z_pos >= 0 || excl_z_neg >= 0){
     using RGoal = pf::goal::RangeGoal<pf::Position>;
     using EGoal = pf::goal::ExclusiveGoal<RGoal>;
@@ -466,7 +473,7 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
   from.y = static_cast<int>(floor(player_pos.y)) - 1;
   from.z = static_cast<int>(floor(player_pos.z));
   
-  std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
+  cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
   bool r = false;
   for(int i = 0; i < 2; ++i){
     r = finder.findPathAndGo(from, goal, 15000);
@@ -479,17 +486,17 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
     cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
     Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
     auto tp_future = static_cast<Artist&>(c).waitTP();
-    string homeName = blackboard.Get<string>("home", "mapart");
-    cout << GetTime() << "Send TP Command" << endl;
-    c.SendChatCommand("homes " + homeName);
-    cout << GetTime() << "Wait for TP..." << endl;
+    string homeCommand = blackboard.Get<string>("home", "tp @p 0 0 0");
+    cout << GetTime() << "Send TP command..." << endl;
+    c.SendChatCommand(homeCommand);
+    cout << GetTime() << "Wait for TP success..." << endl;
     
     // wait for 10 seconds
-    if(tp_future.wait_for(std::chrono::seconds(10)) == std::future_status::timeout){
-      cout << GetTime() << "TP Failed" << endl;
+    if(tp_future.wait_for(chrono::seconds(10)) == future_status::timeout){
+      cout << GetTime() << "TP Failed..." << endl;
       return Status::Failure;
     }
-    cout << GetTime() << "TP Success" << endl;
+    cout << GetTime() << "TP Success!!!" << endl;
 
     cout << GetTime() << "World loading..." << endl;
     WaitServerLoad(c);  // always return true
@@ -611,7 +618,10 @@ Status CheckCompletion(BehaviourClient& c) {
   Status isComplete = Status::Success;
   for (auto cp : checkpoints) {
     cout << GetTime() << "Check checkpoint..." << endl;
-    FindPathAndMove(c, anchor+cp,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1);
+    Status moveResult = FindPathAndMove(c, anchor+cp,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1);
+    if (moveResult == Status::Failure) {
+      cout << GetTime() << "Move to checkpoint fail..." << endl;
+    }
     if (checkCompletion(c) == Status::Failure) isComplete = Status::Failure;
   }
 
@@ -844,7 +854,7 @@ Status LoadConfig(BehaviourClient& c) {
     } else if (key == "prioritize") {
       blackboard.Set("prioritize", value);
     } else if (key == "home") {
-      cout << "Set Home Point: " << value << endl;
+      cout << "TP Home command: " << value << endl;
       blackboard.Set("home", value);
     } else if (key == "retry") {
       blackboard.Set("retry", stoi(value));

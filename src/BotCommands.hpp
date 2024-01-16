@@ -10,6 +10,7 @@ void cmdHungry(Artist *artist);
 void cmdStop(smatch matches, Artist *artist);
 void cmdStart(smatch matches, Artist *artist);
 void cmdBar(Artist *artist);
+void cmdInGameCommand(smatch matches, Artist *artist);
 void cmdAssignment(smatch matches, Artist *artist);
 void cmdWorker(smatch matches, Artist *artist);
 void cmdDefaultSetting(Artist *artist);

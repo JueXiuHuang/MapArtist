@@ -23,9 +23,7 @@ void cmdHandler(string text, Artist *artist) {
   } else if (regex_search(text, matches, CsafePattern)) {
     artist->SendChatCommand(text);
   } else if (regex_search(text, matches, CmdPattern)) {
-    string ingameCmd = matches[2];
-
-    artist->SendChatCommand(ingameCmd);
+    cmdInGameCommand(matches, artist);
   } else if (regex_search(text, matches, NamePattern)) {
     string name = artist->GetNetworkManager()->GetMyName();
 

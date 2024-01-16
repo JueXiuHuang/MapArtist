@@ -33,6 +33,16 @@ void cmdStart(smatch matches, Artist *artist) {
   string name = artist->GetNetworkManager()->GetMyName();
   if (string(matches[2]) != "all" && string(matches[2]) != name) return;
 
+  // validate duty
+  Blackboard& bb = artist->GetBlackboard();
+  int workerNum = bb.Get<int>("workerNum");
+  int col = bb.Get<int>("workCol");
+  if (workerNum < 1 || col >= workerNum) {
+    string info = "Invalid duty with workers " + to_string(workerNum) + "and col " + to_string(col);
+    artist->SendChatMessage(info);
+    return;
+  }
+
   cout << GetTime() << "=== BOT START ===" << endl;
   artist->SendChatMessage("=== BOT START ===");
   artist->hasWork = true;
@@ -59,6 +69,15 @@ void cmdBar(Artist *artist) {
   bar << "[" << string(ratio, '#') << string(20 - ratio, '-') << "]  "
       << fixed << setprecision(1) << percent << "%";
   artist->SendChatMessage(bar.str());
+}
+
+void cmdInGameCommand(smatch matches, Artist *artist) {
+  string ingameCmd = matches[3];
+  string name = artist->GetNetworkManager()->GetMyName();
+  string exp_user = matches[2];
+
+  if (exp_user != name && exp_user != "all") return;
+  artist->SendChatCommand(ingameCmd);
 }
 
 void cmdAssignment(smatch matches, Artist *artist) {

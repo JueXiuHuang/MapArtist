@@ -5,3 +5,4 @@ bin/*
 !bin/_run_login.bat
 build/
 install/*
+.vscode/*

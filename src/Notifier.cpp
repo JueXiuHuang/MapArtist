@@ -1,9 +1,9 @@
 #include "Notifier.hpp"
 
 std::future<void> Notifier::add(){
+  std::lock_guard<std::mutex> guard(lock);
   auto p = std::make_shared<std::promise<void>>();
   auto f = p->get_future();
-  std::lock_guard<std::mutex> guard(lock);
   waitQueue.emplace(p);
   return f;
 }

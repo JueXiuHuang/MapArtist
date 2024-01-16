@@ -53,7 +53,8 @@ endif()
 add_executable(${TARGET_NAME} ${SRC_FILES})
 
 if(MINGW)
-  set(MAPARTIST_CXX_FLAGS "-O3" "-std=c++17")
+  set(MAPARTIST_CXX_FLAGS "-std=c++17")
+  set(MAPARTIST_CXX_FLAGS $<$<CONFIG:Debug>:-g>)
 elseif(MSVC)
   set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
 endif()
@@ -68,6 +69,7 @@ target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
 if(MINGW)
   target_link_libraries(${TARGET_NAME} ws2_32 botcraft protocolCraft)
 elseif(MSVC)
+  target_compile_options(${TARGET_NAME} PUBLIC $<$<CONFIG:Debug>:/fsanitize=address>)
   target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
 endif()
 
@@ -81,16 +83,18 @@ if(MSVC)
   target_link_libraries(${TARGET_NAME} dpp)
 endif()
 
+get_filename_component(COMPILER_FOLDER ${CMAKE_CXX_COMPILER} DIRECTORY)
 if(MINGW)
-  get_filename_component(COMPILER_FOLDER ${CMAKE_CXX_COMPILER} DIRECTORY)
   list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/libstdc++-6.dll)
   list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/libgcc_s_seh-1.dll)
   list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/libwinpthread-1.dll)
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${MAPARTIST_DEPEND_DLL}
-          $<TARGET_FILE_DIR:${TARGET_NAME}>)
+elseif(MSVC)
+  list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/clang_rt.asan_dynamic-x86_64.dll)
 endif()
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${MAPARTIST_DEPEND_DLL}
+        $<TARGET_FILE_DIR:${TARGET_NAME}>)
 
 if(MSVC)
   set_target_properties(${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MAPARTIST_OUTPUT_DIR})

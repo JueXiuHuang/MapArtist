@@ -185,7 +185,10 @@ Status DumpItems(BehaviourClient& c) {
   for (auto chest : chestPositions) {
     if(FindPathAndMove(c, chest,  2, 2, 0, 6, 2, 2,  2, 2, 0, 3, 2, 2) == Status::Failure) continue;
     cout << GetTime() << "dumping items..." << endl;
-    if (OpenContainer(c, chest) == Status::Failure) continue;
+    if (OpenContainer(c, chest) == Status::Failure) {
+      cout << GetTime() << "Open Chest " << chest << " Error" << endl;
+      continue;
+    }
 
     queue<short> slotSrc, slotDst;
     short containerId, firstPlayerIndex;
@@ -215,6 +218,7 @@ Status DumpItems(BehaviourClient& c) {
     }
 
     while (!slotSrc.empty() && !slotDst.empty()) {
+      cout << GetTime() << "Swap " << slotSrc.front() << " and " << slotDst.front() << endl;
       if (SwapItemsInContainer(c, containerId, slotSrc.front(), slotDst.front()) == Status::Failure) {
         CloseContainer(c, containerId);
         cout << GetTime() << "Error when trying to dump items to chest..." << endl;
@@ -227,7 +231,7 @@ Status DumpItems(BehaviourClient& c) {
     CloseContainer(c, containerId);
     if (slotSrc.empty()) break;
   }
-
+  cout << GetTime() << "Finish dumping items" << endl;
   return Status::Success;
 }
 
@@ -272,10 +276,11 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   vector<Position> availableChests = blackboard.Get<vector<Position>>("chest:"+itemName);
 
   bool get_all_material = false;
+  int remain_empty_slot = -1;
   for (auto chest : availableChests) {
     cout << GetTime() << "========== CHEST ==========" << endl;
     SortInventory(c);
-    Status moveResult = FindPathAndMove(c, chest,  2, 2, 2, 2, 2, 2,  0, 0, -1, 0, 0, 0);
+    Status moveResult = FindPathAndMove(c, chest,  2, 2, 2, 4, 2, 2,  0, 0, -1, 0, 0, 0);
     if (moveResult == Status::Failure) {
       cout << GetTime() << "Go to chest fail..." << endl;
       continue;
@@ -341,11 +346,16 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     cout << GetTime() << "========== LIST ==========" << endl;
     {
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
+      remain_empty_slot = 0;
       for (auto p : container->GetSlots()){
-        if (p.first >= playerInvStart && !p.second.IsEmptySlot()){
-          cout << GetTime() << "Slot " << p.first << ": " 
+        if (p.first >= playerInvStart) {
+          if (p.second.IsEmptySlot()) {
+            remain_empty_slot++;
+          } else {
+            cout << GetTime() << "Slot " << p.first << ": " 
               << AssetsManager::getInstance().Items().at(p.second.GetItemID())->GetName()
               << " x " << static_cast<int>(p.second.GetItemCount()) << endl;
+          }
         }
       }
     }
@@ -357,8 +367,13 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   }
 
   if (!get_all_material) {
-    cout << GetTime() << itemName << " might not enough..." << endl;
-    Say(c, itemName+" might not enough...");
+    if (remain_empty_slot == 0) {
+      cout << GetTime() << "Inventory might be full..." << endl;
+      Say(c, "Inventory might be full...");
+    } else {
+      cout << GetTime() << itemName << " might not enough..." << endl;
+      Say(c, itemName+" might not enough...");
+    }
   }
 
   return Status::Success;

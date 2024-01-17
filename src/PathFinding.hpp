@@ -55,9 +55,8 @@ public:
         {
           return {pf::BlockType::SAFE, pf::BlockType::CAN_UP_DOWN};
         }
-        else if (block->IsTransparent())
+        else if (block->IsWallHeight())
         {
-          // we don't stand on a not full block (1x1x1)
           return {pf::BlockType::DANGER, pf::BlockType::NONE};
         }
         else if (block->IsSolid())
@@ -66,7 +65,7 @@ public:
         }
         else
         {
-          return {pf::BlockType::SAFE, pf::BlockType::NONE};
+          return {pf::BlockType::DANGER, pf::BlockType::NONE};
         }
       }
       else
@@ -107,6 +106,18 @@ public:
                 << " Diff: " << diffPos << " (" << i << "/"
                 << (path->size() - 1) << ")" << std::endl
                 << std::flush;
+
+      // Wait until we are on the ground or climbing
+      const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+      while (!local_player->GetOnGround() && !local_player->IsClimbing() && !local_player->IsInFluid())
+      {
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count() >= 2000)
+        {
+          LOG_WARNING("Timeout waiting for the bot to land on the floor between two block move. Staying at " << local_player->GetPosition());
+          return false;
+        }
+        client->Yield();
+      }
 
       // Basic verification to check we won't try to walk on air.
       // If so, it means some blocks have changed, better to

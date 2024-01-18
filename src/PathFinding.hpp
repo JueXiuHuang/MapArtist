@@ -114,7 +114,7 @@ public:
         if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count() >= 2000)
         {
           LOG_WARNING("Timeout waiting for the bot to land on the floor between two block move. Staying at " << local_player->GetPosition());
-          return false;
+          break;
         }
         client->Yield();
       }

@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <stdexcept>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -460,19 +461,24 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
 Status FindPathAndMove(BehaviourClient&c, Position pos, 
     int x_tol_pos, int x_tol_neg, int y_tol_pos, int y_tol_neg, int z_tol_pos, int z_tol_neg, 
     int excl_x_pos, int excl_x_neg, int excl_y_pos, int excl_y_neg, int excl_z_pos, int excl_z_neg) {
-  pf::Position to{pos.x, pos.y, pos.z};
-  unique_ptr<pf::goal::GoalBase<pf::Position>> goal;
-  if(excl_x_pos >= 0 || excl_x_neg >= 0 || excl_y_pos >= 0 || excl_y_neg >= 0 || excl_z_pos >= 0 || excl_z_neg >= 0){
-    using RGoal = pf::goal::RangeGoal<pf::Position>;
-    using EGoal = pf::goal::ExclusiveGoal<RGoal>;
-    using CGoal = pf::goal::CombineGoal<RGoal, EGoal>;
-    CGoal goal(
-      RGoal(to, x_tol_pos, x_tol_neg, y_tol_pos, y_tol_neg, z_tol_pos, z_tol_neg), 
-      EGoal(RGoal(to, excl_x_pos, excl_x_neg, excl_y_pos, excl_y_neg, excl_z_pos, excl_z_neg)));
-    return FindPathAndMoveImpl(c, pos, goal);
-  }else{
-    pf::goal::RangeGoal<pf::Position> goal(to, x_tol_pos, x_tol_neg, y_tol_pos, y_tol_neg, z_tol_pos, z_tol_neg);
-    return FindPathAndMoveImpl(c, pos, goal);
+  try{
+    pf::Position to{pos.x, pos.y, pos.z};
+    if(excl_x_pos >= 0 || excl_x_neg >= 0 || excl_y_pos >= 0 || excl_y_neg >= 0 || excl_z_pos >= 0 || excl_z_neg >= 0){
+      using RGoal = pf::goal::RangeGoal<pf::Position>;
+      using EGoal = pf::goal::ExclusiveGoal<RGoal>;
+      using CGoal = pf::goal::CombineGoal<RGoal, EGoal>;
+      CGoal goal(
+        RGoal(to, x_tol_pos, x_tol_neg, y_tol_pos, y_tol_neg, z_tol_pos, z_tol_neg), 
+        EGoal(RGoal(to, excl_x_pos, excl_x_neg, excl_y_pos, excl_y_neg, excl_z_pos, excl_z_neg)));
+      return FindPathAndMoveImpl(c, pos, goal);
+    }else{
+      pf::goal::RangeGoal<pf::Position> goal(to, x_tol_pos, x_tol_neg, y_tol_pos, y_tol_neg, z_tol_pos, z_tol_neg);
+      return FindPathAndMoveImpl(c, pos, goal);
+    }
+  }catch(const std::exception &e){
+    cerr << "Move Fatal Error" << endl;
+    cerr << e.what() << endl;
+    return Status::Failure;
   }
 }
 
@@ -480,21 +486,28 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
   Blackboard& blackboard = c.GetBlackboard();
   auto finder = blackboard.Get<PathFinder>("pathFinder");
 
-  // get player location
-  pf::Position from, to{pos.x, pos.y, pos.z};
-  shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
-  auto player_pos = local_player->GetPosition();
-  from.x = static_cast<int>(floor(player_pos.x));
-  from.y = static_cast<int>(floor(player_pos.y)) - 1;
-  from.z = static_cast<int>(floor(player_pos.z));
+  auto getFromPosition = [&]() -> pf::Position {
+    pf::Position from;
+    // get player location
+    shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
+    auto player_pos = local_player->GetPosition();
+    from.x = static_cast<int>(floor(player_pos.x));
+    from.y = static_cast<int>(floor(player_pos.y + 0.25)) - 1;
+    from.z = static_cast<int>(floor(player_pos.z));
+    return from;
+  };
   
-  cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
+  pf::Position to{pos.x, pos.y, pos.z};
   bool r = false;
   for(int i = 0; i < 2; ++i){
+    pf::Position from = getFromPosition();
+    cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
+    // find path and go
     r = finder.findPathAndGo(from, goal, 15000);
     if(r) break;
+    from = getFromPosition();  // get the latest position
     cout << GetTime() << "Failed, retry after 5 seconds..." << endl;
-    Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
+    Utilities::SleepFor(chrono::seconds(3));  // delay 3 seconds
   }
 
   if (!r) {
@@ -518,11 +531,8 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
     cout << GetTime() << "Finish world loading" << endl;
 
     // update player's new position
-    auto player_pos = c.GetEntityManager()->GetLocalPlayer()->GetPosition();
-    from.x = static_cast<int>(floor(player_pos.x));
-    from.y = static_cast<int>(floor(player_pos.y)) - 1;
-    from.z = static_cast<int>(floor(player_pos.z));
-    cout << GetTime() << "Find path" << endl;
+    pf::Position from = getFromPosition();
+    cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
     r = finder.findPathAndGo(from, goal, 15000);
   }
   

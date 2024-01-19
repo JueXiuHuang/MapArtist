@@ -1,6 +1,6 @@
 #include "Bot.hpp"
 
-DiscordBot::DiscordBot(std::string token):bot(token){
+DCBot::DCBot(std::string token):bot(token){
   /* Output simple log messages to stdout */
 	bot.on_log(dpp::utility::cout_logger());
 
@@ -20,7 +20,7 @@ DiscordBot::DiscordBot(std::string token):bot(token){
 	});
 }
 
-void DiscordBot::start(){
+void DCBot::start(){
 	/* Start the bot */
 	bot.start(dpp::st_wait);
 }

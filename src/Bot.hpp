@@ -4,11 +4,11 @@
 #include <string>
 #include <dpp/dpp.h>
 
-class DiscordBot {
+class DCBot {
   dpp::cluster bot;
 
 public:
-  DiscordBot(std::string token);
+  DCBot(std::string token);
   
   void start();
   

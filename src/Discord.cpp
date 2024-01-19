@@ -1,7 +1,7 @@
 #include "Discord.hpp"
 #include <iostream>
 
-DiscordBot::DiscordBot(std::string token):bot(token, dpp::i_default_intents | dpp::i_message_content){
+DiscordBot::DiscordBot():bot(token, dpp::i_default_intents | dpp::i_message_content){
   /* Output simple log messages to stdout */
 	bot.on_log(dpp::utility::cout_logger());
 
@@ -32,5 +32,14 @@ DiscordBot::DiscordBot(std::string token):bot(token, dpp::i_default_intents | dp
 
 void DiscordBot::start(){
 	/* Start the bot */
-	bot.start(dpp::st_wait);
+	bot.start();
+}
+
+DiscordBot& DiscordBot::getDiscordBot() {
+	static DiscordBot ref;
+	return ref;
+}
+
+void DiscordBot::init(std::string _token) {
+	token = _token;
 }

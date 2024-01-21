@@ -1,7 +1,6 @@
 #ifndef ARTIST_HPP
 #define ARTIST_HPP
 
-#include <future>
 #include "PathFinding.hpp"
 #include "Notifier.hpp"
 #include "botcraft/AI/SimpleBehaviourClient.hpp"
@@ -21,7 +20,12 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     ~Artist();
     void Backup();
     std::map<std::string, std::any>& Recover();
-    std::future<void> waitTP();
+
+    void waitTP();
+    template <typename Rep, typename Period>
+    bool waitTP(const std::chrono::duration<Rep, Period> &duration){ return tpNotifier.wait_for(duration); }
+    template <typename Clock>
+    bool waitTP(const std::chrono::time_point<Clock> &time_point){ return tpNotifier.wait_until(time_point); }
 
   protected:
     virtual void Handle(ProtocolCraft::ClientboundPlayerChatPacket& msg) override;

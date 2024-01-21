@@ -1,25 +1,27 @@
 #include "Notifier.hpp"
 
-std::future<void> Notifier::add(){
-  std::lock_guard<std::mutex> guard(lock);
-  auto p = std::make_shared<std::promise<void>>();
-  auto f = p->get_future();
-  waitQueue.emplace(p);
-  return f;
+void Notifier::wait()
+{
+  std::unique_lock<std::mutex> lock(mtx);
+  lock.lock();
+  std::size_t cur_id = id;
+  lock.unlock();
+  cv.wait(lock, [&]()
+          { return id > cur_id; });
 }
 
-std::shared_ptr<std::promise<void>> Notifier::pop(){
-  std::lock_guard<std::mutex> guard(lock);
-  if(waitQueue.size() > 0){
-    auto p = waitQueue.front();
-    waitQueue.pop();
-    return p;
-  }else{
-    return nullptr;
-  }
+void Notifier::notify()
+{
+  std::lock_guard<std::mutex> lock(mtx);
+  id++;
+  cv.notify_one();
 }
 
-std::size_t Notifier::size(){
-  std::lock_guard<std::mutex> guard(lock);
-  return waitQueue.size();
+void Notifier::notify_all()
+{
+  std::lock_guard<std::mutex> lock(mtx);
+  id++;
+  cv.notify_all();
 }
+
+Notifier::Notifier() : id(0) {}

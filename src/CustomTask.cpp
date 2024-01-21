@@ -513,14 +513,13 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
   if (!r) {
     cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
     Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
-    auto tp_future = static_cast<Artist&>(c).waitTP();
     string homeCommand = blackboard.Get<string>("home", "tp @p 0 0 0");
     cout << GetTime() << "Send TP command..." << endl;
     c.SendChatCommand(homeCommand);
     cout << GetTime() << "Wait for TP success..." << endl;
     
     // wait for 10 seconds
-    if(tp_future.wait_for(chrono::seconds(10)) == future_status::timeout){
+    if(static_cast<Artist&>(c).waitTP(chrono::seconds(10)) == false){  // false
       cout << GetTime() << "TP Failed..." << endl;
       return Status::Failure;
     }

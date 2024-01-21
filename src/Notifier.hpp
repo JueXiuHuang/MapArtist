@@ -1,26 +1,46 @@
 #ifndef NOTIFIER_HPP
 #define NOTIFIER_HPP
 
-#include <queue>
-#include <future>
 #include <mutex>
-#include <memory>
+#include <chrono>
+#include <condition_variable>
 
-class Notifier{
+class Notifier
+{
 
 private:
-
-  std::queue<std::shared_ptr<std::promise<void>>> waitQueue;
-  std::mutex lock;
+  std::mutex mtx;
+  std::condition_variable cv;
+  std::size_t id;
 
 public:
+  Notifier();
+  void wait();
 
-  std::future<void> add();
-  std::future<void> remove();
-  std::shared_ptr<std::promise<void>> pop();
-  std::size_t size();
+  template <typename Rep, typename Period>
+  bool wait_for(const std::chrono::duration<Rep, Period> &duration)
+  {
+    std::unique_lock<std::mutex> lock(mtx);
+    lock.lock();
+    std::size_t cur_id = id;
+    lock.unlock();
+    return cv.wait_for(lock, duration, [&]()
+                       { return id > cur_id; });
+  }
 
+  template <typename Clock>
+  bool wait_until(const std::chrono::time_point<Clock> &time_point)
+  {
+    std::unique_lock<std::mutex> lock(mtx);
+    lock.lock();
+    std::size_t cur_id = id;
+    lock.unlock();
+    return cv.wait_until(lock, time_point, [&]()
+                         { return id > cur_id; });
+  }
+
+  void notify();
+  void notify_all();
 };
-
 
 #endif

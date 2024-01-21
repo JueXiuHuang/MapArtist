@@ -13,6 +13,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
       .tree(InitTree())
       .leaf("Wait Server Load", WaitServerLoad)
       .leaf("Sort Player's Inventory", SortChestWithDesirePlace)
+      .tree(EatTree())
       .selector()
         .inverter().tree(CheckCompleteTree())
         .tree(NullTree())
@@ -50,6 +51,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
 shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
   return Builder<SimpleBehaviourClient>("Work Tree")
     .sequence()
+      .tree(EatTree())
       .selector()
         .leaf("Prioritized?", CheckBlackboardBoolData, "Task.prioritized")
         .sequence()

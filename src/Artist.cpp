@@ -122,8 +122,8 @@ map<string, any>& Artist::Recover() {
   return backup;
 }
 
-std::future<void> Artist::waitTP(){
-  return tpNotifier.add();
+void Artist::waitTP(){
+  tpNotifier.wait();
 }
 
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
@@ -156,11 +156,7 @@ void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
   ConnectionClient::Handle(msg);
   cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << endl;
   cout << GetTime() << "Notify all listeners" << endl;
-  while(tpNotifier.size() > 0){
-    auto t = tpNotifier.pop();
-    if(!t) break;
-    t->set_value();
-  }
+  tpNotifier.notify_all();
   cout << GetTime() << "Finish notifying all listeners" << endl;
   cout << "=========================" << endl;
 }

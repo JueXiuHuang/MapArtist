@@ -132,7 +132,10 @@ public:
 
       // If something went wrong, break and
       // replan the whole path to the goal
-      if (!Move(*client, local_player, Botcraft::Position(newPos.x, newPos.y + 1, newPos.z), speed_factor, true))
+      auto Step = [&](){
+        return Move(*client, local_player, Botcraft::Position(newPos.x, newPos.y + 1, newPos.z), speed_factor, true);
+      };
+      if (!(Step() || Step() || Step()))  // 3 chances
       {
         return false;
       }

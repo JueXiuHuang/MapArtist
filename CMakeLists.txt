@@ -61,7 +61,7 @@ endif()
 
 target_compile_options(${TARGET_NAME} PUBLIC ${MAPARTIST_CXX_FLAGS})
 
-if(Asan)
+if(NOT Asan)
   set(Asan 0)
 endif()
 message(STATUS "Asan: ${Asan}")

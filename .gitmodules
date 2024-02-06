@@ -4,7 +4,6 @@
 [submodule "dependency/botcraft"]
 	path = dependency/botcraft
 	url = https://github.com/adepierre/Botcraft
-	ignore = all
 [submodule "dependency/openssl"]
 	path = dependency/openssl
 	url = https://github.com/janbar/openssl-cmake

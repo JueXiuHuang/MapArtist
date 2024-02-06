@@ -61,6 +61,11 @@ endif()
 
 target_compile_options(${TARGET_NAME} PUBLIC ${MAPARTIST_CXX_FLAGS})
 
+if(Asan)
+  set(Asan 0)
+endif()
+message(STATUS "Asan: ${Asan}")
+
 # botcraft
 add_dependencies(${TARGET_NAME} Botcraft-install)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
@@ -69,7 +74,6 @@ target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
 if(MINGW)
   target_link_libraries(${TARGET_NAME} ws2_32 botcraft protocolCraft)
 elseif(MSVC)
-  message(STATUS "Asan: ${Asan}")
   target_compile_options(${TARGET_NAME} PUBLIC $<$<AND:$<CONFIG:Debug>,$<BOOL:${Asan}>>:/fsanitize=address>)
   target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
 endif()

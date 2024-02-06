@@ -1,5 +1,5 @@
 buildType:
-  default: debug
+  default: release
   choices:
     debug:
       short: Debug
@@ -14,8 +14,12 @@ asan:
   default: no-asan
   choices:
     no-asan:
-      short: No-Asan
-      Asan: 0
+      short: No Asan
+      long: No address sanitizer
+      settings:
+        Asan: 0
     asan:
       short: Asan
-      Asan: 1
+      long: Add address sanitizer
+      settings:
+        Asan: 1

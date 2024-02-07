@@ -2,7 +2,7 @@
 anchor=-576,60,4415
 
 # the nbt file you want to build
-nbt=kafka_swim_suit_0_1.nbt
+nbt=kafka_swim_suit_0_3.nbt
 
 tempblock=minecraft:cobblestone
 
@@ -63,7 +63,7 @@ minecraft:pink_terracotta=-558,61,4410;-558,62,4410;-558,63,4410
 minecraft:brown_terracotta=-557,61,4410;-557,62,4410;-557,63,4410
 
 minecraft:grass_block=-572,67,4397;-572,68,4397;-572,69,4397
-minecraft:cobblestone=-571,67,4397;-571,68,4397;-571,69,4397;-564,67,4410;-564,68,4410;-564,69,4410
+minecraft:cobblestone=-571,67,4397;-571,68,4397;-571,69,4397;-564,67,4410;-564,68,4410;-564,69,4410;-557,67,4410;-557,68,4410;-557,69,4410
 minecraft:dirt=-570,67,4397;-570,68,4397;-570,69,4397
 minecraft:deepslate=-569,67,4397;-569,68,4397;-569,69,4397
 minecraft:gold_block=-568,67,4397;-568,68,4397;-568,69,4397

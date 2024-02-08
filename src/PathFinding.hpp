@@ -16,6 +16,7 @@
 
 namespace Botcraft
 {
+  Status StopFlying(BehaviourClient& client);
   bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player, const Position &target_pos, const float speed_factor, const bool sprint);
   void AdjustPosSpeed(BehaviourClient &client);
 }
@@ -90,9 +91,13 @@ public:
   virtual inline bool goImpl(
       const std::shared_ptr<pf::Path<pf::Position>> &path) override
   {
-    std::shared_ptr<Botcraft::LocalPlayer> local_player =
-        client->GetEntityManager()->GetLocalPlayer();
+    std::shared_ptr<Botcraft::LocalPlayer> local_player = client->GetLocalPlayer();
     std::shared_ptr<Botcraft::World> world = client->GetWorld();
+
+    if (StopFlying(*client) == Status::Failure)
+    {
+        return false;
+    }
 
     const float speed_factor = 1.0;
 

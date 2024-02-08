@@ -94,7 +94,7 @@ public:
     std::shared_ptr<Botcraft::LocalPlayer> local_player = client->GetLocalPlayer();
     std::shared_ptr<Botcraft::World> world = client->GetWorld();
 
-    if (StopFlying(*client) == Status::Failure)
+    if (StopFlying(*client) == Botcraft::Status::Failure)
     {
         return false;
     }

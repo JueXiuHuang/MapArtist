@@ -40,7 +40,7 @@ string GetWorldBlock(BehaviourClient& c, Position pos) {
   return curBlockName;
 }
 
-string GetTaskType(string worldBlockName, string nbtBlockName) {
+string GetTaskType(const string &worldBlockName, const string &nbtBlockName) {
   string taskType = "None";
   if (nbtBlockName != "minecraft:air" && worldBlockName == "minecraft:air") {
     taskType = "Place";

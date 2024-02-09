@@ -8,7 +8,7 @@
 
 std::string GetTime();
 std::string GetWorldBlock(Botcraft::BehaviourClient& c, Botcraft::Position pos);
-std::string GetTaskType(std::string worldBlockName, std::string nbtBlockName);
+std::string GetTaskType(const std::string &worldBlockName, const std::string &nbtBlockName);
 int GetItemAmount(Botcraft::BehaviourClient& c, std::string itemName);
 
 #endif

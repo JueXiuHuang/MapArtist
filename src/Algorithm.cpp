@@ -180,7 +180,7 @@ void SimpleDFS(BehaviourClient& c){
       if (!block) {
         // it is a air block
         if (!world->IsLoaded(currentPos+anchor)) {
-          GoTo(c, currentPos+anchor, 16, 5, 5, 10);
+          GoTo(c, currentPos+anchor, 16, 5, 5);
 
           block = world->GetBlock(currentPos+anchor);
           if (block) curBlockName = block->GetName();
@@ -216,7 +216,7 @@ void SimpleDFS(BehaviourClient& c){
         }
       }
       sort(neighbors.begin(), neighbors.end(), distanceCMP);
-      for (int j = neighbors.size()-1; j >= 0; --j){
+      for (std::size_t j = neighbors.size()-1; j >= 0; --j){
         searchStack.push(neighbors[j]);
       }
     }
@@ -252,8 +252,8 @@ void SliceDFS(BehaviourClient& c) {
   queue<string> qTaskType, qTaskName;
   stack<Position> pending;
 
-  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
-                                            Position(0, 0, 1), Position(0, 0, -1)});
+  const vector<Position> neighbor_offsets({ Position(0, 0, 1), Position(0, 0, -1), 
+                                            Position(0, 1, 0), Position(0, -1, 0)});
 
   for (int x = 0; x < size.x; x++) {
     if (x%workerNum != workCol) continue;

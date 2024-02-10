@@ -1,7 +1,13 @@
 #include "Discord.hpp"
 #include <iostream>
+#include <thread>
+#include "Utils.hpp"
 
-DiscordBot::DiscordBot():bot(token, dpp::i_default_intents | dpp::i_message_content){
+std::string DiscordBot::token;
+std::string DiscordBot::channel;
+Artist* DiscordBot::artistPtr;
+
+DiscordBot::DiscordBot():bot(token, dpp::i_default_intents | dpp::i_message_content) {
   /* Output simple log messages to stdout */
 	bot.on_log(dpp::utility::cout_logger());
 
@@ -23,16 +29,24 @@ DiscordBot::DiscordBot():bot(token, dpp::i_default_intents | dpp::i_message_cont
 	});
 
   bot.on_message_create([](const dpp::message_create_t &event) {
+	if (event.msg.channel_id.str() != channel) return;
+	
     std::cout << event.msg.content << std::endl;
     std::cout << event.msg.author.format_username() << std::endl;
     std::cout << event.msg.author.global_name << std::endl;
-    std::cout << event.msg.channel_id << std::endl;
+
+	CmdHandler(event.msg.content, artistPtr);
   });
 }
 
 void DiscordBot::start(){
 	/* Start the bot */
-	bot.start();
+	dcThread = std::thread(&dpp::cluster::start, std::ref(bot), dpp::st_wait);
+}
+
+void DiscordBot::sendDCMessage(std::string text) {
+  dpp::message m(channel, text);
+  bot.message_create(m);
 }
 
 DiscordBot& DiscordBot::getDiscordBot() {
@@ -40,6 +54,8 @@ DiscordBot& DiscordBot::getDiscordBot() {
 	return ref;
 }
 
-void DiscordBot::init(std::string _token) {
+void DiscordBot::init(std::string _token, std::string _ch, Artist* _ptr) {
 	token = _token;
+	channel = _ch;
+	artistPtr = _ptr;
 }

@@ -38,10 +38,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
     .selector()
       .leaf("Config loaded?", CheckBlackboardBoolData, "Config.loaded")
       .selector()
-        .sequence()
-          .leaf("Load config", LoadConfig)
-          .leaf("Load NBT", LoadNBT)
-        .end()
+        .leaf("Load NBT", LoadNBT)
         // If init failed, stop the behaviour
         .tree(DisconnectTree())
       .end()

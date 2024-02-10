@@ -12,14 +12,12 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     bool inWaitingRoom;
     bool waitTpFinish;
     bool hasWork;
-    std::map<std::string, std::any> backup;
+    Botcraft::Blackboard board;
 
     Notifier tpNotifier;
     
     Artist(const bool use_renderer, std::string path);
     ~Artist();
-    void Backup();
-    std::map<std::string, std::any>& Recover();
 
     void waitTP();
     template <typename Rep, typename Period>

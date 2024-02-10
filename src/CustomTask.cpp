@@ -31,24 +31,6 @@ using namespace Botcraft;
 using namespace ProtocolCraft;
 using namespace std;
 
-Position parsePostionString(string posStr) {
-  vector<int> integers;
-  istringstream iss(posStr);
-  string token;
-
-  while (getline(iss, token, ',')) {
-    try {
-      int num = stoi(token);
-      integers.push_back(num);
-    } catch (const exception& e) {
-      cerr << GetTime() << "Invalid position: " << token << endl;
-    }
-  }
-  Position pos(integers);
-
-  return pos;
-}
-
 Status WaitServerLoad(BehaviourClient& c) {
   shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
   Utilities::WaitForCondition([&]() {
@@ -179,9 +161,9 @@ Status SortChestWithDesirePlace(BehaviourClient& c) {
 // Player is src, recycle chest is dst.
 Status DumpItems(BehaviourClient& c) {
   cout << GetTime() << "Trying to dump items to recycle chest..." << endl;
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
-  vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
+  vector<Position> chestPositions = artist.board.Get<vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
     if(FindPathAndMove(c, chest,  2, 2, 0, 6, 2, 2,  2, 2, 0, 3, 2, 2) == Status::Failure) continue;
@@ -237,9 +219,9 @@ Status DumpItems(BehaviourClient& c) {
 }
 
 Status TaskPrioritize(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
-  string algo = blackboard.Get<string>("prioritize");
-  blackboard.Set("Task.prioritized", true);
+  Artist& artist = static_cast<Artist&>(c);
+  string algo = artist.board.Get<string>("prioritize");
+  artist.board.Set("Task.prioritized", true);
 
   if (algo == "bfs") {
     SimpleBFS(c);
@@ -259,9 +241,8 @@ Status TaskPrioritize(BehaviourClient& c) {
 
 Status CollectAllMaterial(BehaviourClient& c) {
   cout << GetTime() << "Trying to collect material..." << endl;
-  Blackboard& blackboard = c.GetBlackboard();
-  // map<string, int, MaterialCompareOld> itemCounter = blackboard.Get<map<string, int, MaterialCompareOld>>("itemCounter");
-  map<string, int, MaterialCompare> itemCounter = blackboard.Get<map<string, int, MaterialCompare>>("itemCounter");
+  Artist& artist = static_cast<Artist&>(c);
+  map<string, int, MaterialCompare> itemCounter = artist.board.Get<map<string, int, MaterialCompare>>("itemCounter");
 
   for (auto item : itemCounter) {
     CollectSingleMaterial(c, item.first, item.second);
@@ -272,9 +253,9 @@ Status CollectAllMaterial(BehaviourClient& c) {
 Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
   cout << GetTime() << "Collecting " << itemName << " for " << needed << endl;
   
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
-  vector<Position> availableChests = blackboard.Get<vector<Position>>("chest:"+itemName);
+  vector<Position> availableChests = artist.board.Get<vector<Position>>("chest:"+itemName);
 
   bool get_all_material = false;
   int remain_empty_slot = -1;
@@ -382,11 +363,11 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
 
 Status TaskExecutor(BehaviourClient& c) {
   cout << GetTime() << "Execute task in queue..." << endl;
-  Blackboard& blackboard = c.GetBlackboard();
-  queue<Position> qTaskPosition = blackboard.Get<queue<Position>>("qTaskPosition");
-  queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
-  queue<string> qTaskName = blackboard.Get<queue<string>>("qTaskName");
-  int retry_times = blackboard.Get<int>("retry");
+  Artist& artist = static_cast<Artist&>(c);
+  queue<Position> qTaskPosition = artist.board.Get<queue<Position>>("qTaskPosition");
+  queue<string> qTaskType = artist.board.Get<queue<string>>("qTaskType");
+  queue<string> qTaskName = artist.board.Get<queue<string>>("qTaskName");
+  int retry_times = artist.board.Get<int>("retry");
   vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1),
                             Position(2, 0, 0), Position(-2, 0, 0), Position(0, 0, 2), Position(0, 0, -2)};
 
@@ -417,14 +398,14 @@ Status TaskExecutor(BehaviourClient& c) {
       }
     }
     
-    blackboard.Set("qTaskPosition", qTaskPosition);
-    blackboard.Set("qTaskType", qTaskType);
-    blackboard.Set("qTaskName", qTaskName);
+    artist.board.Set("qTaskPosition", qTaskPosition);
+    artist.board.Set("qTaskType", qTaskType);
+    artist.board.Set("qTaskName", qTaskName);
 
     // Still has task in queue, return fail.
     return Status::Failure;
   } else {
-    blackboard.Set("Task.prioritized", false);
+    artist.board.Set("Task.prioritized", false);
 
     // All tasks resolved, return success.
     return Status::Success;
@@ -436,8 +417,6 @@ Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string 
                       ", Block Name:" << setw(32) << blockName <<
                       ", Position:" << blockPos << endl;
   
-  Blackboard& board = c.GetBlackboard();
-
   if(FindPathAndMove(c, blockPos,  3, 3, 3, 3, 3, 3,  0, 0, 0, 2, 0, 0) == Status::Failure){
     cout << GetTime() << "Move Error" << endl;
     return Status::Failure;
@@ -483,8 +462,8 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
 }
 
 Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<pf::Position> &goal) {
-  Blackboard& blackboard = c.GetBlackboard();
-  auto finder = blackboard.Get<PathFinder>("pathFinder");
+  Artist& artist = static_cast<Artist&>(c);
+  auto finder = artist.finder;
 
   auto getFromPosition = [&]() -> pf::Position {
     pf::Position from;
@@ -513,7 +492,7 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
   if (!r) {
     cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
     Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
-    string homeCommand = blackboard.Get<string>("home", "tp @p 0 0 0");
+    string homeCommand = artist.board.Get<string>("home", "tp @p 0 0 0");
     cout << GetTime() << "Send TP command..." << endl;
     c.SendChatCommand(homeCommand);
     cout << GetTime() << "Wait for TP success..." << endl;
@@ -542,26 +521,26 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
 If everything is correct, return Success, otherwise return Failure.
 */
 Status checkCompletion(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<World> world = c.GetWorld();
-  Position anchor = blackboard.Get<Position>("anchor");
+  Position anchor = artist.board.Get<Position>("anchor");
 
   Position target_pos, world_pos;
 
-  vector<vector<vector<bool>>> mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
+  vector<vector<vector<bool>>> mapMemory = artist.board.Get<vector<vector<vector<bool>>>>("map_memory");
 
   int additional_blocks = 0;
   int wrong_blocks = 0;
   int missing_blocks = 0;
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
 
   Status isComplete = Status::Success;
-  int workers = blackboard.Get<int>("workerNum", 1);
-  int col = blackboard.Get<int>("workCol", 0);
+  int workers = artist.board.Get<int>("workerNum", 1);
+  int col = artist.board.Get<int>("workCol", 0);
 
   for (int x = start.x; x <= end.x; x++) {
     if ((x-start.x)%workers != col) continue;
@@ -606,14 +585,14 @@ Status checkCompletion(BehaviourClient& c) {
     }
   }
 
-  blackboard.Set("map_memory", mapMemory);
+  artist.board.Set("map_memory", mapMemory);
   return isComplete;
 }
 
 Status CheckCompletion(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<World> world = c.GetWorld();
-  Position anchor = blackboard.Get<Position>("anchor");
+  Position anchor = artist.board.Get<Position>("anchor");
 
   Position target_pos, world_pos;
 
@@ -621,11 +600,11 @@ Status CheckCompletion(BehaviourClient& c) {
   int wrong_blocks = 0;
   int missing_blocks = 0;
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
   const Position size = end - start + Position(1, 1, 1);
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
 
   vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
@@ -633,7 +612,7 @@ Status CheckCompletion(BehaviourClient& c) {
   // initialize map recorder
   // default value will set to true, if the block is incorrect will set to false
   vector<vector<vector<bool>>> mapMemory(size.x, vector(size.y, vector(size.z, true)));
-  blackboard.Set("map_memory", mapMemory);
+  artist.board.Set("map_memory", mapMemory);
 
   const bool log_details = false;
   const bool log_errors = true;
@@ -650,7 +629,7 @@ Status CheckCompletion(BehaviourClient& c) {
   }
 
   // update xCheck
-  mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
+  mapMemory = artist.board.Get<vector<vector<vector<bool>>>>("map_memory");
   vector<bool> xCheck = vector(size.x, false);
 
   for (int x = 0; x < size.x; x++) {
@@ -664,7 +643,7 @@ Status CheckCompletion(BehaviourClient& c) {
     xCheck[x] = isAllDone;
   }
 
-  blackboard.Set("SliceDFS.xCheck", xCheck);
+  artist.board.Set("SliceDFS.xCheck", xCheck);
 
   return isComplete;
 }
@@ -676,10 +655,10 @@ Status WarnConsole(BehaviourClient& c, const string& msg) {
 
 Status LoadNBT(BehaviourClient& c) {
   NBT::Value loaded_file;
-  Blackboard& blackboard = c.GetBlackboard();
-  Position offset = blackboard.Get<Position>("anchor");
-  string temp_block = blackboard.Get<string>("tempblock");
-  string nbt_path = blackboard.Get<string>("nbt");
+  Artist& artist = static_cast<Artist&>(c);
+  Position offset = artist.board.Get<Position>("anchor");
+  string temp_block = artist.board.Get<string>("tempblock");
+  string nbt_path = artist.board.Get<string>("nbt");
 
   try {
     ifstream infile(nbt_path, ios::binary);
@@ -841,15 +820,16 @@ Status LoadNBT(BehaviourClient& c) {
   }
   cout << GetTime() << flyings.rdbuf() << endl;
 
-  blackboard.Set("Structure.start", start);
-  blackboard.Set("Structure.end", end);
-  blackboard.Set("Structure.target", target);
-  blackboard.Set("Structure.palette", palette);
-  blackboard.Set("Structure.loaded", true);
+  artist.board.Set("Structure.start", start);
+  artist.board.Set("Structure.end", end);
+  artist.board.Set("Structure.target", target);
+  artist.board.Set("Structure.palette", palette);
+  artist.board.Set("Structure.loaded", true);
 
   return Status::Success;
 }
 
+// Deprecated, config will load in Artist constructor
 Status LoadConfig(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
   const string &configPath = blackboard.Get<string>("configPath");
@@ -869,7 +849,7 @@ Status LoadConfig(BehaviourClient& c) {
     string key, value;
     getline(iss, key, '=') && getline(iss, value);
     if (key == "anchor") {
-      Position anchor = parsePostionString(value);
+      Position anchor = ParsePositionString(value);
       blackboard.Set("anchor", anchor);
     } else if (key == "nbt") {
       blackboard.Set("nbt", value);
@@ -889,7 +869,7 @@ Status LoadConfig(BehaviourClient& c) {
       istringstream _iss(value);
       string posGroup;
       while (getline(_iss, posGroup, ';')) {
-        Position chestPos = parsePostionString(posGroup);
+        Position chestPos = ParsePositionString(posGroup);
         posVec.push_back(chestPos);
       }
       blackboard.Set("chest:" + key, posVec);

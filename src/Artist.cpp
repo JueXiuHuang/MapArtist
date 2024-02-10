@@ -3,6 +3,7 @@
 #include "Regex.hpp"
 #include "Utils.hpp"
 #include <iostream>
+#include <fstream>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -10,7 +11,6 @@ using namespace std;
 
 void cmdHandler(string text, Artist *artist) {
   smatch matches;
-  Blackboard& bb = artist->GetBlackboard();
 
   if (regex_search(text, matches, HungryPattern)) {
     cmdHungry(artist);
@@ -33,20 +33,20 @@ void cmdHandler(string text, Artist *artist) {
   } else if (regex_search(text, matches, WorkerPattern)) {
     cmdWorker(matches, artist);
   } else if (regex_search(text, matches, DutyPattern)) {
-    int workCol = (artist->hasWork) ? bb.Get<int>("workCol", 0) : any_cast<int>(artist->backup["workCol"]);
-    int workerNum = (artist->hasWork) ? bb.Get<int>("workerNum", 1) : any_cast<int>(artist->backup["workerNum"]);
+    int workCol = artist->board.Get<int>("workCol", 0);
+    int workerNum = artist->board.Get<int>("workerNum", 1);
     string info = "Max worker: " + to_string(workerNum) + ", work col: " + to_string(workCol);
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, DefaultSettingPattern)) {
     cmdDefaultSetting(artist);
   } else if (regex_search(text, matches, IngotPattern)) {
-    string rate = bb.Get<string>("ExchangeRate", "NOT_FOUND");
+    string rate = artist->board.Get<string>("ExchangeRate", "NOT_FOUND");
     string info = "1 Villager Ingot = " + rate + " emerald.";
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, ChannelPattern)) {
-    string info = "Current channel: " + bb.Get<string>("ChannelNumber", "NOT_FOUND");
+    string info = "Current channel: " + artist->board.Get<string>("ChannelNumber", "NOT_FOUND");
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, MovePattern)) {
@@ -84,11 +84,57 @@ Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use
   inWaitingRoom = false;
   waitTpFinish = false;
   hasWork = false;
-  vector<string> key{"configPath", "pathFinder", "workerNum", "workCol"};
-  vector<any> initVal{path, finder, 1, 0};
-  for (int i = 0; i < key.size(); i++) {
-    backup[key[i]] = initVal[i];
+
+  ifstream file(configPath, ios::in);
+
+  if (!file.is_open()) {
+    cerr << GetTime() << "Unable to open file: " + configPath << endl;
   }
+
+  string line;
+  while (getline(file, line)) {
+    // if line start with '#' or is empty, skip
+    if (line.empty() || line[0] == '#') continue;
+
+    istringstream iss(line);
+    string key, value;
+    getline(iss, key, '=') && getline(iss, value);
+    if (key == "anchor") {
+      Position anchor = ParsePositionString(value);
+      board.Set("anchor", anchor);
+    } else if (key == "dctoken" && value != "") {
+      cout << "hello" << endl;
+      board.Set("dctoken", value);
+      board.Set("use.dpp", true);
+    } else if (key == "channelid") {
+      board.Set("dcchannel", value);
+    } else if (key == "nbt") {
+      board.Set("nbt", value);
+    } else if (key == "tempblock") {
+      board.Set("tempblock", value);
+    } else if (key == "prioritize") {
+      board.Set("prioritize", value);
+    } else if (key == "home") {
+      cout << "TP Home command: " << value << endl;
+      board.Set("home", value);
+    } else if (key == "retry") {
+      board.Set("retry", stoi(value));
+    } else if (key == "neighbor") {
+      board.Set("neighbor", value == "true");
+    } else {
+      vector<Position> posVec;
+      istringstream _iss(value);
+      string posGroup;
+      while (getline(_iss, posGroup, ';')) {
+        Position chestPos = ParsePositionString(posGroup);
+        posVec.push_back(chestPos);
+      }
+      board.Set("chest:" + key, posVec);
+    }
+  }
+
+  file.close();
+  board.Set("Config.loaded", true);
 }
 
 Artist::~Artist() {}
@@ -99,27 +145,6 @@ void Artist::Handle(ClientboundPlayerChatPacket &msg) {
   string text = msg.GetBody().GetContent();
 
   cmdHandler(text, this);
-}
-
-void Artist::Backup() {
-  if (!hasWork) return;
-  Blackboard& bb = GetBlackboard();
-  vector<string> keys{"workerNum", "workCol", "configPath", "pathFinder"};
-  vector<string> types{"int", "int", "string", "PathFinder"};
-
-  for (int i = 0; i < keys.size(); i++) {
-    if (types[i] == "int") {
-      backup[keys[i]] = bb.Get<int>(keys[i]);
-    } else if (types[i] == "string") {
-      backup[keys[i]] = bb.Get<string>(keys[i]);
-    } else if (types[i] == "PathFinder") {
-      backup[keys[i]] = bb.Get<PathFinder>(keys[i]);
-    }
-  }
-}
-
-map<string, any>& Artist::Recover() {
-  return backup;
 }
 
 void Artist::waitTP(){

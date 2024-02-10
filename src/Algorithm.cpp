@@ -1,4 +1,5 @@
 #include "Algorithm.hpp"
+#include "Artist.hpp"
 #include "CustomTask.hpp"
 #include "Utils.hpp"
 #include "botcraft/AI/Tasks/AllTasks.hpp"
@@ -27,20 +28,20 @@ vector<Position> getScanOffsets(int radius) {
 
 // TODO: need to check extra block and dig it.
 void SimpleBFS(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const Position& anchor = blackboard.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const Position& anchor = artist.board.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
 
   const Position size = end - start + Position(1, 1, 1);
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
+  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
   queue<Position> pending, qTaskPosition;
   queue<string> qTaskType, qTaskName;
@@ -107,25 +108,25 @@ void SimpleBFS(BehaviourClient& c) {
     }
   }
 
-  blackboard.Set("qTaskPosition", qTaskPosition);
-  blackboard.Set("qTaskType", qTaskType);
-  blackboard.Set("qTaskName", qTaskName);
-  blackboard.Set("itemCounter", itemCounter);
+  artist.board.Set("qTaskPosition", qTaskPosition);
+  artist.board.Set("qTaskType", qTaskType);
+  artist.board.Set("qTaskName", qTaskName);
+  artist.board.Set("itemCounter", itemCounter);
 }
 
 void SimpleDFS(BehaviourClient& c){
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const Position& anchor = blackboard.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const Position& anchor = artist.board.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
 
   const Position size = end - start + Position(1, 1, 1);
 
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
+  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
   queue<Position> pending, qTaskPosition;
   queue<string> qTaskType, qTaskName;
 
@@ -222,31 +223,31 @@ void SimpleDFS(BehaviourClient& c){
     }
   }
 
-  blackboard.Set("qTaskPosition", qTaskPosition);
-  blackboard.Set("qTaskType", qTaskType);
-  blackboard.Set("qTaskName", qTaskName);
-  blackboard.Set("itemCounter", itemCounter);
+  artist.board.Set("qTaskPosition", qTaskPosition);
+  artist.board.Set("qTaskType", qTaskType);
+  artist.board.Set("qTaskName", qTaskName);
+  artist.board.Set("itemCounter", itemCounter);
 }
 
 void SliceDFS(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const Position& anchor = blackboard.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const Position& anchor = artist.board.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
   const Position size = end - start + Position(1, 1, 1);
-  vector<bool> xCheck = blackboard.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
+  vector<bool> xCheck = artist.board.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
 
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
-  const int workerNum = blackboard.Get<int>("workerNum", 1);
-  const int workCol = blackboard.Get<int>("workCol", 0);
+  const int workerNum = artist.board.Get<int>("workerNum", 1);
+  const int workCol = artist.board.Get<int>("workCol", 0);
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
+  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
   queue<Position> qTaskPosition;
   queue<string> qTaskType, qTaskName;
@@ -323,29 +324,29 @@ void SliceDFS(BehaviourClient& c) {
     if (slotCounter == 27) break;
   }
 
-  blackboard.Set("SliceDFS.xCheck", xCheck);
-  blackboard.Set("qTaskPosition", qTaskPosition);
-  blackboard.Set("qTaskType", qTaskType);
-  blackboard.Set("qTaskName", qTaskName);
-  blackboard.Set("itemCounter", itemCounter);
+  artist.board.Set("SliceDFS.xCheck", xCheck);
+  artist.board.Set("qTaskPosition", qTaskPosition);
+  artist.board.Set("qTaskType", qTaskType);
+  artist.board.Set("qTaskName", qTaskName);
+  artist.board.Set("itemCounter", itemCounter);
 }
 
 void SliceDFSNeighbor(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const Position& anchor = blackboard.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
-  int xCheckStart = blackboard.Get<int>("SliceDFS.xCheckStart", 0);
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const Position& anchor = artist.board.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
+  int xCheckStart = artist.board.Get<int>("SliceDFS.xCheckStart", 0);
 
   const Position size = end - start + Position(1, 1, 1);
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
   vector<vector<vector<bool>>> scheduled(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
+  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
   queue<Position> qTaskPosition;
   queue<string> qTaskType, qTaskName;
@@ -436,32 +437,32 @@ void SliceDFSNeighbor(BehaviourClient& c) {
     if (slotCounter == 27) break;
   }
 
-  blackboard.Set("SliceDFS.xCheckStart", xCheckStart);
-  blackboard.Set("qTaskPosition", qTaskPosition);
-  blackboard.Set("qTaskType", qTaskType);
-  blackboard.Set("qTaskName", qTaskName);
-  blackboard.Set("itemCounter", itemCounter);
+  artist.board.Set("SliceDFS.xCheckStart", xCheckStart);
+  artist.board.Set("qTaskPosition", qTaskPosition);
+  artist.board.Set("qTaskType", qTaskType);
+  artist.board.Set("qTaskName", qTaskName);
+  artist.board.Set("itemCounter", itemCounter);
 }
 
 void SliceDFSSnake(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
+  Artist& artist = static_cast<Artist&>(c);
   shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const Position& anchor = blackboard.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const Position& anchor = artist.board.Get<Position>("anchor");
+  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
+  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
   const Position size = end - start + Position(1, 1, 1);
-  vector<bool> xCheck = blackboard.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
+  vector<bool> xCheck = artist.board.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
 
   vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
 
-  const int workerNum = blackboard.Get<int>("workerNum", 1);
-  const int workCol = blackboard.Get<int>("workCol", 0);
+  const int workerNum = artist.board.Get<int>("workerNum", 1);
+  const int workCol = artist.board.Get<int>("workCol", 0);
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(blackboard)};
+  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
   queue<Position> qTaskPosition;
   queue<string> qTaskType, qTaskName;
@@ -560,9 +561,9 @@ void SliceDFSSnake(BehaviourClient& c) {
     if (slotCounter == 27) break;
   }
 
-  blackboard.Set("SliceDFS.xCheck", xCheck);
-  blackboard.Set("qTaskPosition", qTaskPosition);
-  blackboard.Set("qTaskType", qTaskType);
-  blackboard.Set("qTaskName", qTaskName);
-  blackboard.Set("itemCounter", itemCounter);
+  artist.board.Set("SliceDFS.xCheck", xCheck);
+  artist.board.Set("qTaskPosition", qTaskPosition);
+  artist.board.Set("qTaskType", qTaskType);
+  artist.board.Set("qTaskName", qTaskName);
+  artist.board.Set("itemCounter", itemCounter);
 }

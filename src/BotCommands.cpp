@@ -23,8 +23,6 @@ void cmdStop(smatch matches, Artist *artist) {
   if (string(matches[2]) != "all" && string(matches[2]) != name) return;
   
   artist->SendChatMessage("=== BOT STOP ===");
-  // backup first, then set hasWork to false
-  artist->Backup();
   artist->hasWork = false;
   artist->SetBehaviourTree(nullptr);
 }
@@ -34,16 +32,9 @@ void cmdStart(smatch matches, Artist *artist) {
   if (string(matches[2]) != "all" && string(matches[2]) != name) return;
 
   // validate duty
-  Blackboard& bb = artist->GetBlackboard();
-  int workerNum = 1;
-  int col = 0;
-  if (artist->hasWork) {
-    workerNum = bb.Get<int>("workerNum", 1);
-    col = bb.Get<int>("workCol", 0);
-  } else {
-    workerNum = any_cast<int>(artist->backup["workerNum"]);
-    col = any_cast<int>(artist->backup["workCol"]);
-  }
+  int workerNum = artist->board.Get<int>("workerNum", 1);
+  int col = artist->board.Get<int>("workCol", 0);
+  
   if (workerNum < 1 || col >= workerNum) {
     string info = "Invalid duty with workers " + to_string(workerNum) + " and col " + to_string(col);
     artist->SendChatMessage(info);
@@ -53,14 +44,13 @@ void cmdStart(smatch matches, Artist *artist) {
   cout << GetTime() << "=== BOT START ===" << endl;
   artist->SendChatMessage("=== BOT START ===");
   artist->hasWork = true;
-  map<string, any> &initVal = artist->Recover();
-  artist->SetBehaviourTree(FullTree(), initVal);
+  artist->SetBehaviourTree(FullTree());
 }
 
 void cmdBar(Artist *artist) {
-  vector<bool> xCheck = artist->GetBlackboard().Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
-  int workers = artist->GetBlackboard().Get<int>("workerNum", 1);
-  int col = artist->GetBlackboard().Get<int>("workCol", 0);
+  vector<bool> xCheck = artist->board.Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
+  int workers = artist->board.Get<int>("workerNum", 1);
+  int col = artist->board.Get<int>("workCol", 0);
   int finish = 0;
   int duty = 0;
 
@@ -88,7 +78,6 @@ void cmdInGameCommand(smatch matches, Artist *artist) {
 }
 
 void cmdAssignment(smatch matches, Artist *artist) {
-  Blackboard& bb = artist->GetBlackboard();
   string name = artist->GetNetworkManager()->GetMyName();
   string exp_user = matches[2];
   int col = stoi(matches[3]);
@@ -98,19 +87,16 @@ void cmdAssignment(smatch matches, Artist *artist) {
 
   cout << GetTime() << info << endl;
   artist->SendChatMessage(info);
-  if (artist->hasWork) bb.Set("workCol", col);
-  else artist->backup["workCol"] = col;
+  artist->board.Set("workCol", col);
 }
 
 void cmdWorker(smatch matches, Artist *artist) {
-  Blackboard& bb = artist->GetBlackboard();
   int worker_num = stoi(matches[2]);
   string info = "Setup total worker " + string(matches[2]);
 
   cout << GetTime() << info << endl;
   artist->SendChatMessage(info);
-  if (artist->hasWork) bb.Set("workerNum", worker_num);
-  else artist->backup["workerNum"] = worker_num;
+  artist->board.Set("workerNum", worker_num);
 }
 
 void cmdDefaultSetting(Artist *artist) {
@@ -118,8 +104,7 @@ void cmdDefaultSetting(Artist *artist) {
   string info = "Reset workCol & workerNum value";
 
   artist->SendChatMessage(info);
-  if (artist->hasWork) bb.Set("workCol", 0);
-  else artist->backup["workCol"] = 0;
+  artist->board.Set("workCol", 0);
 }
 
 void cmdMove(smatch matches, Artist *artist) {
@@ -128,14 +113,12 @@ void cmdMove(smatch matches, Artist *artist) {
   if (matches[1] == "bmove") {
     artist->SetBehaviourTree(BMoveTree(Position(x, y, z)));
   } else {
-    map<string, any> &initVal = artist->Recover();
-    artist->SetBehaviourTree(MoveTree(Position(x, y, z)), initVal);
+    artist->SetBehaviourTree(MoveTree(Position(x, y, z)));
   }
 }
 
 void cmdWaitingRoom(smatch matches, Artist *artist) {
   if (matches[1] == "wait") {
-    artist->Backup();
     artist->inWaitingRoom = true;
     artist->SetBehaviourTree(nullptr);
     cout << GetTime() << "Transfered to waiting room, stop working..." << endl;
@@ -157,18 +140,16 @@ void cmdTpSuccess(Artist *artist) {
     // artist->SendChatMessage("Back to work...");
     if (artist->hasWork) {
       artist->hasWork = true;
-      map<string, any> &initVal = artist->Recover();
-      artist->SetBehaviourTree(FullTree(), initVal);
+      artist->SetBehaviourTree(FullTree());
     }
   }
 }
 
 void cmdTpHome(smatch matches, Artist *artist) {
-  Blackboard& bb = artist->GetBlackboard();
-  string homeName = bb.Get<string>("home", "mapart");
+  string homeName = artist->board.Get<string>("home", "mapart");
 
   if (string(matches[1]) == homeName) {
-    bb.Set("GetHome", true);
+    artist->board.Set("GetHome", true);
     cout << GetTime() << "Bot teleport to home." << endl;
   }
 }

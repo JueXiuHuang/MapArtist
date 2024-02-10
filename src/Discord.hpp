@@ -2,8 +2,8 @@
 #define DISCORD_HPP
 
 #include <string>
-#include <dpp/dpp.h>
-#include "Artist.hpp"
+#include "Artist.hpp"  
+#include <dpp/dpp.h>  // must be last included header
 
 class DiscordBot {
   static std::string token;

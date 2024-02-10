@@ -1,6 +1,6 @@
-#include "Discord.hpp"
 #include <iostream>
 #include <thread>
+#include "Discord.hpp"
 #include "Utils.hpp"
 
 std::string DiscordBot::token;
@@ -35,7 +35,7 @@ DiscordBot::DiscordBot():bot(token, dpp::i_default_intents | dpp::i_message_cont
     std::cout << event.msg.author.format_username() << std::endl;
     std::cout << event.msg.author.global_name << std::endl;
 
-	CmdHandler(event.msg.content, artistPtr);
+	// CmdHandler(event.msg.content, artistPtr);
   });
 }
 

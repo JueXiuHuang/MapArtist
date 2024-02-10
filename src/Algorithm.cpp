@@ -1,22 +1,21 @@
-#include "Algorithm.hpp"
-#include "Artist.hpp"
-#include "CustomTask.hpp"
-#include "Utils.hpp"
-#include "botcraft/AI/Tasks/AllTasks.hpp"
-#include "botcraft/Game/Vector3.hpp"
-#include "botcraft/Game/World/World.hpp"
 #include <algorithm>
 #include <iostream>
 #include <queue>
 #include <vector>
 #include <stack>
 #include <utility>
+#include <botcraft/AI/Tasks/AllTasks.hpp>
+#include <botcraft/Game/World/World.hpp>
+#include <botcraft/Game/Vector3.hpp>
+#include "Algorithm.hpp"
+#include "CustomTask.hpp"
+#include "Artist.hpp"
+#include "Utils.hpp"
 
 using namespace Botcraft;
-using namespace std;
 
-vector<Position> getScanOffsets(int radius) {
-  vector<Position> offsets;
+std::vector<Position> getScanOffsets(int radius) {
+  std::vector<Position> offsets;
   for (int x = -radius; x <= radius; x++) {
     for (int y = -radius; y <= radius; y++) {
       offsets.push_back(Position(x, y, 0));
@@ -29,26 +28,26 @@ vector<Position> getScanOffsets(int radius) {
 // TODO: need to check extra block and dig it.
 void SimpleBFS(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
-  shared_ptr<World> world = c.GetWorld();
+  std::shared_ptr<World> world = c.GetWorld();
 
   const Position& start = artist.board.Get<Position>("Structure.start");
   const Position& end = artist.board.Get<Position>("Structure.end");
   const Position& anchor = artist.board.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
 
   const Position size = end - start + Position(1, 1, 1);
-  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+  std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
+  std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
-  queue<Position> pending, qTaskPosition;
-  queue<string> qTaskType, qTaskName;
+  std::queue<Position> pending, qTaskPosition;
+  std::queue<std::string> qTaskType, qTaskName;
   pending.push(Position(0, 0, 0));
   visited[0][0][0] = true;
 
-  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
+  const std::vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
                                             Position(0, 0, 1), Position(0, 0, -1),
                                             Position(1, 0, 0), Position(-1, 0, 0) });
 
@@ -57,7 +56,7 @@ void SimpleBFS(BehaviourClient& c) {
     pending.pop();
     
     const short current_target = target[currentPos.x][currentPos.y][currentPos.z];
-    const string targetName = palette.at(current_target);
+    const std::string targetName = palette.at(current_target);
 
     // for blocks in pending queue, we need to check below condition:
     // 1. if this block is empty and not air, then place it. (push "Place" to qTaskType)
@@ -67,12 +66,12 @@ void SimpleBFS(BehaviourClient& c) {
     // 3. check its neighbors.
     // 3-1 if this neighbor already visited, skip
     // 3-2 if not visited, push to pending and mark it as visited
-    string block_name = "minecraft:air";
+    std::string block_name = "minecraft:air";
     const Blockstate* block = world->GetBlock(currentPos+anchor);
     if (!block) {
       // it is a air block
       if (!world->IsLoaded(currentPos+anchor)) {
-        GoTo(c, currentPos+anchor, 16, 5, 5, 10);
+        GoTo(c, currentPos+anchor, 16, 5, 5);
 
         block = world->GetBlock(currentPos+anchor);
         if (block) block_name = block->GetName();
@@ -116,25 +115,25 @@ void SimpleBFS(BehaviourClient& c) {
 
 void SimpleDFS(BehaviourClient& c){
   Artist& artist = static_cast<Artist&>(c);
-  shared_ptr<World> world = c.GetWorld();
+  std::shared_ptr<World> world = c.GetWorld();
 
   const Position& start = artist.board.Get<Position>("Structure.start");
   const Position& end = artist.board.Get<Position>("Structure.end");
   const Position& anchor = artist.board.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
 
   const Position size = end - start + Position(1, 1, 1);
 
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
-  queue<Position> pending, qTaskPosition;
-  queue<string> qTaskType, qTaskName;
+  std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
+  std::queue<Position> pending, qTaskPosition;
+  std::queue<std::string> qTaskType, qTaskName;
 
   int slotCounter = 0;
 
-  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+  std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
-  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
+  const std::vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
                                             Position(0, 0, 1), Position(0, 0, -1),
                                             Position(1, 0, 0), Position(-1, 0, 0) });
 
@@ -145,9 +144,9 @@ void SimpleDFS(BehaviourClient& c){
     return a.SqrDist(Position(0, 0, 0)) < b.SqrDist(Position(0, 0, 0)); 
   };
 
-  using pri_queue = priority_queue<Position, vector<Position>, decltype(distanceCMP)>;
+  using pri_queue = std::priority_queue<Position, std::vector<Position>, decltype(distanceCMP)>;
   pri_queue candidateQueue(distanceCMP);
-  string airBlockName = "minecraft:air";
+  std::string airBlockName = "minecraft:air";
 
   const int xSize = target.size();
   const int ySize = (xSize > 0 ? target.front().size() : 0);
@@ -155,14 +154,14 @@ void SimpleDFS(BehaviourClient& c){
   for (int i = 0; i < xSize; ++i){
     for(int k = 0; k < zSize; ++k){
       const short current_target = target[i][0][k];
-      const string targetName = palette.at(current_target);
+      const std::string targetName = palette.at(current_target);
       if(targetName == airBlockName) continue;
       candidateQueue.push(Position(i, 0, k));
     }
   }
   
   while(!candidateQueue.empty() && slotCounter < 27){
-    stack<Position> searchStack;
+    std::stack<Position> searchStack;
     Position now = candidateQueue.top();
     searchStack.push(now); candidateQueue.pop();
 
@@ -173,10 +172,10 @@ void SimpleDFS(BehaviourClient& c){
 
       // get the block name in nbt
       const short current_target = target[currentPos.x][currentPos.y][currentPos.z];
-      const string targetName = palette.at(current_target);
+      const std::string targetName = palette.at(current_target);
 
       // get the current block name
-      string curBlockName = airBlockName;
+      std::string curBlockName = airBlockName;
       const Blockstate* block = world->GetBlock(currentPos+anchor);
       if (!block) {
         // it is a air block
@@ -192,7 +191,7 @@ void SimpleDFS(BehaviourClient& c){
       
       if (targetName != airBlockName && curBlockName == airBlockName) {
         qTaskPosition.push(currentPos+anchor);
-        cout << (currentPos+anchor) << targetName << endl;
+        std::cout << (currentPos+anchor) << targetName << std::endl;
         qTaskType.push("Place");
         qTaskName.push(targetName);
 
@@ -206,7 +205,7 @@ void SimpleDFS(BehaviourClient& c){
       }
 
       // add neighbours with special order according to the distance to anchor
-      vector<Position> neighbors;
+      std::vector<Position> neighbors;
       for (int i = 0; i < neighbor_offsets.size(); i++) {
         Position newPos = currentPos + neighbor_offsets[i];
         bool xCheck = (newPos+anchor).x >= start.x && (newPos+anchor).x <= end.x;
@@ -231,29 +230,29 @@ void SimpleDFS(BehaviourClient& c){
 
 void SliceDFS(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
-  shared_ptr<World> world = c.GetWorld();
+  std::shared_ptr<World> world = c.GetWorld();
 
   const Position& start = artist.board.Get<Position>("Structure.start");
   const Position& end = artist.board.Get<Position>("Structure.end");
   const Position& anchor = artist.board.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
   const Position size = end - start + Position(1, 1, 1);
-  vector<bool> xCheck = artist.board.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
+  std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>("SliceDFS.xCheck", std::vector(size.x, false));
 
-  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+  std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
   const int workerNum = artist.board.Get<int>("workerNum", 1);
   const int workCol = artist.board.Get<int>("workCol", 0);
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
+  std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
-  queue<Position> qTaskPosition;
-  queue<string> qTaskType, qTaskName;
-  stack<Position> pending;
+  std::queue<Position> qTaskPosition;
+  std::queue<std::string> qTaskType, qTaskName;
+  std::stack<Position> pending;
 
-  const vector<Position> neighbor_offsets({ Position(0, 0, 1), Position(0, 0, -1), 
+  const std::vector<Position> neighbor_offsets({ Position(0, 0, 1), Position(0, 0, -1), 
                                             Position(0, 1, 0), Position(0, -1, 0)});
 
   for (int x = 0; x < size.x; x++) {
@@ -263,11 +262,11 @@ void SliceDFS(BehaviourClient& c) {
     // Put every y=0 blocks into pending stack.
     for (int z = 0; z < size.z; z++) {
       const short nbtBlockId = target[x][0][z];
-      const string nbtBlockName = palette.at(nbtBlockId);
+      const std::string nbtBlockName = palette.at(nbtBlockId);
       if (nbtBlockName != "minecraft:air") {
         if (z+1 < size.z) {
           const short nextNbtBlockId = target[x][0][z+1];
-          const string nextNbtBlockName = palette.at(nextNbtBlockId);
+          const std::string nextNbtBlockName = palette.at(nextNbtBlockId);
           if (nextNbtBlockName == "minecraft:air") {
             pending.push(Position(x, 0, z));
             visited[x][0][z] = true;
@@ -285,10 +284,10 @@ void SliceDFS(BehaviourClient& c) {
       pending.pop();
 
       const short nbtBlockId = target[cp.x][cp.y][cp.z];
-      const string nbtBlockName = palette.at(nbtBlockId);
+      const std::string nbtBlockName = palette.at(nbtBlockId);
       
-      string worldBlockName = GetWorldBlock(c, cp+anchor);
-      string taskType = GetTaskType(worldBlockName, nbtBlockName);
+      std::string worldBlockName = GetWorldBlock(c, cp+anchor);
+      std::string taskType = GetTaskType(worldBlockName, nbtBlockName);
 
       if (taskType != "None") {
         isAllDone = false;
@@ -311,8 +310,8 @@ void SliceDFS(BehaviourClient& c) {
 
         if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
           short _target_id = target[newPos.x][newPos.y][newPos.z];
-          string _target_name = palette.at(_target_id);
-          string _worldBlockName = GetWorldBlock(c, newPos+anchor);
+          std::string _target_name = palette.at(_target_id);
+          std::string _worldBlockName = GetWorldBlock(c, newPos+anchor);
           if (_target_name == "minecraft:air" && _worldBlockName == "minecraft:air") continue;
           visited[newPos.x][newPos.y][newPos.z] = true;
           pending.push(newPos);
@@ -337,24 +336,24 @@ void SliceDFSNeighbor(BehaviourClient& c) {
   const Position& start = artist.board.Get<Position>("Structure.start");
   const Position& end = artist.board.Get<Position>("Structure.end");
   const Position& anchor = artist.board.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
   int xCheckStart = artist.board.Get<int>("SliceDFS.xCheckStart", 0);
 
   const Position size = end - start + Position(1, 1, 1);
-  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
-  vector<vector<vector<bool>>> scheduled(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+  std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
+  std::vector<std::vector<std::vector<bool>>> scheduled(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
+  std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
-  queue<Position> qTaskPosition;
-  queue<string> qTaskType, qTaskName;
-  stack<Position> pending;
+  std::queue<Position> qTaskPosition;
+  std::queue<std::string> qTaskType, qTaskName;
+  std::stack<Position> pending;
 
-  const vector<Position> dfs_offsets({Position(0, 1, 0), Position(0, -1, 0), 
+  const std::vector<Position> dfs_offsets({Position(0, 1, 0), Position(0, -1, 0), 
                                       Position(0, 0, 1), Position(0, 0, -1)});
-  const vector<Position> neighbor_offsets = getScanOffsets(2);
+  const std::vector<Position> neighbor_offsets = getScanOffsets(2);
 
   for (int x = xCheckStart; x < size.x; x++) {
     // Put every y=0 blocks to pending stack
@@ -369,10 +368,10 @@ void SliceDFSNeighbor(BehaviourClient& c) {
       pending.pop();
       
       const short nbtBlockId = target[cp.x][cp.y][cp.z];
-      const string nbtBlockName = palette.at(nbtBlockId);
+      const std::string nbtBlockName = palette.at(nbtBlockId);
       
-      string worldBlockName = GetWorldBlock(c, cp+anchor);
-      string taskType = GetTaskType(worldBlockName, nbtBlockName);
+      std::string worldBlockName = GetWorldBlock(c, cp+anchor);
+      std::string taskType = GetTaskType(worldBlockName, nbtBlockName);
 
       if (taskType != "None" && !scheduled[cp.x][cp.y][cp.z]) {
         scheduled[cp.x][cp.y][cp.z] = true;
@@ -395,10 +394,10 @@ void SliceDFSNeighbor(BehaviourClient& c) {
         bool zCheck = (newPos+anchor).z >= start.z && (newPos+anchor).z <= end.z;
 
         if (xCheck && yCheck && zCheck && !scheduled[newPos.x][newPos.y][newPos.z]) {
-          string wbn = GetWorldBlock(c, newPos+anchor);
+          std::string wbn = GetWorldBlock(c, newPos+anchor);
           short tid = target[newPos.x][newPos.y][newPos.z];
-          string tn = palette.at(tid);
-          string tt = GetTaskType(wbn, tn);
+          std::string tn = palette.at(tid);
+          std::string tt = GetTaskType(wbn, tn);
 
           if (tt != "None") {
             scheduled[newPos.x][newPos.y][newPos.z] = true;
@@ -425,7 +424,7 @@ void SliceDFSNeighbor(BehaviourClient& c) {
 
         if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
           short _target_id = target[newPos.x][newPos.y][newPos.z];
-          string _target_name = palette.at(_target_id);
+          std::string _target_name = palette.at(_target_id);
           if (_target_name == "minecraft:air") continue;
           visited[newPos.x][newPos.y][newPos.z] = true;
           pending.push(newPos);
@@ -446,29 +445,29 @@ void SliceDFSNeighbor(BehaviourClient& c) {
 
 void SliceDFSSnake(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
-  shared_ptr<World> world = c.GetWorld();
+  std::shared_ptr<World> world = c.GetWorld();
 
   const Position& start = artist.board.Get<Position>("Structure.start");
   const Position& end = artist.board.Get<Position>("Structure.end");
   const Position& anchor = artist.board.Get<Position>("anchor");
-  const vector<vector<vector<short>>>& target = artist.board.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = artist.board.Get<map<short, string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
   const Position size = end - start + Position(1, 1, 1);
-  vector<bool> xCheck = artist.board.Get<vector<bool>>("SliceDFS.xCheck", vector(size.x, false));
+  std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>("SliceDFS.xCheck", std::vector(size.x, false));
 
-  vector<vector<vector<bool>>> visited(size.x, vector<vector<bool>>(size.y, vector<bool>(size.z, false)));
+  std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
   const int workerNum = artist.board.Get<int>("workerNum", 1);
   const int workCol = artist.board.Get<int>("workCol", 0);
 
   int slotCounter = 0;
-  map<string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
+  std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
 
-  queue<Position> qTaskPosition;
-  queue<string> qTaskType, qTaskName;
-  stack<Position> pending;
+  std::queue<Position> qTaskPosition;
+  std::queue<std::string> qTaskType, qTaskName;
+  std::stack<Position> pending;
 
-  const vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
+  const std::vector<Position> neighbor_offsets({ Position(0, 1, 0), Position(0, -1, 0), 
                                             Position(0, 0, 1), Position(0, 0, -1)});
 
   bool inverse = false;
@@ -481,11 +480,11 @@ void SliceDFSSnake(BehaviourClient& c) {
     if (inverse) {
       for (int z = size.z-1; z > -1; z--) {
         const short nbtBlockId = target[x][0][z];
-        const string nbtBlockName = palette.at(nbtBlockId);
+        const std::string nbtBlockName = palette.at(nbtBlockId);
         if (nbtBlockName != "minecraft:air") {
           if (z-1 > -1) {
             const short nextNbtBlockId = target[x][0][z-1];
-            const string nextNbtBlockName = palette.at(nextNbtBlockId);
+            const std::string nextNbtBlockName = palette.at(nextNbtBlockId);
             if (nextNbtBlockName == "minecraft:air") {
               pending.push(Position(x, 0, z));
               visited[x][0][z] = true;
@@ -499,11 +498,11 @@ void SliceDFSSnake(BehaviourClient& c) {
     } else {
       for (int z = 0; z < size.z; z++) {
         const short nbtBlockId = target[x][0][z];
-        const string nbtBlockName = palette.at(nbtBlockId);
+        const std::string nbtBlockName = palette.at(nbtBlockId);
         if (nbtBlockName != "minecraft:air") {
           if (z+1 < size.z) {
             const short nextNbtBlockId = target[x][0][z+1];
-            const string nextNbtBlockName = palette.at(nextNbtBlockId);
+            const std::string nextNbtBlockName = palette.at(nextNbtBlockId);
             if (nextNbtBlockName == "minecraft:air") {
               pending.push(Position(x, 0, z));
               visited[x][0][z] = true;
@@ -522,10 +521,10 @@ void SliceDFSSnake(BehaviourClient& c) {
       pending.pop();
 
       const short nbtBlockId = target[cp.x][cp.y][cp.z];
-      const string nbtBlockName = palette.at(nbtBlockId);
+      const std::string nbtBlockName = palette.at(nbtBlockId);
       
-      string worldBlockName = GetWorldBlock(c, cp+anchor);
-      string taskType = GetTaskType(worldBlockName, nbtBlockName);
+      std::string worldBlockName = GetWorldBlock(c, cp+anchor);
+      std::string taskType = GetTaskType(worldBlockName, nbtBlockName);
 
       if (taskType != "None") {
         isAllDone = false;
@@ -548,8 +547,8 @@ void SliceDFSSnake(BehaviourClient& c) {
 
         if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
           short _target_id = target[newPos.x][newPos.y][newPos.z];
-          string _target_name = palette.at(_target_id);
-          string _worldBlockName = GetWorldBlock(c, newPos+anchor);
+          std::string _target_name = palette.at(_target_id);
+          std::string _worldBlockName = GetWorldBlock(c, newPos+anchor);
           if (_target_name == "minecraft:air" && _worldBlockName == "minecraft:air") continue;
           visited[newPos.x][newPos.y][newPos.z] = true;
           pending.push(newPos);

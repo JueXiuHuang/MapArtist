@@ -1,9 +1,9 @@
 #ifndef CUSTOMTASK_HPP_
 #define CUSTOMTASK_HPP_
 
-#include "botcraft/AI/BehaviourClient.hpp"
-#include "botcraft/AI/Status.hpp"
-#include "botcraft/Game/Vector3.hpp"
+#include <botcraft/AI/BehaviourClient.hpp>
+#include <botcraft/AI/Status.hpp>
+#include <botcraft/Game/Vector3.hpp>
 
 /// @brief Try to get a stack (64) of food from specified location.
 /// @param c The client performing the action

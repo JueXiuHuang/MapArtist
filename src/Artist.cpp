@@ -1,16 +1,15 @@
+#include <iostream>
+#include <fstream>
 #include "Artist.hpp"
 #include "BotCommands.hpp"
 #include "Regex.hpp"
 #include "Utils.hpp"
-#include <iostream>
-#include <fstream>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
-using namespace std;
 
-void cmdHandler(string text, Artist *artist) {
-  smatch matches;
+void cmdHandler(std::string text, Artist *artist) {
+  std::smatch matches;
 
   if (regex_search(text, matches, HungryPattern)) {
     cmdHungry(artist);
@@ -25,7 +24,7 @@ void cmdHandler(string text, Artist *artist) {
   } else if (regex_search(text, matches, CmdPattern)) {
     cmdInGameCommand(matches, artist);
   } else if (regex_search(text, matches, NamePattern)) {
-    string name = artist->GetNetworkManager()->GetMyName();
+    std::string name = artist->GetNetworkManager()->GetMyName();
 
     artist->SendChatMessage(name);
   } else if (regex_search(text, matches, AssignmentPattern)) {
@@ -35,18 +34,18 @@ void cmdHandler(string text, Artist *artist) {
   } else if (regex_search(text, matches, DutyPattern)) {
     int workCol = artist->board.Get<int>("workCol", 0);
     int workerNum = artist->board.Get<int>("workerNum", 1);
-    string info = "Max worker: " + to_string(workerNum) + ", work col: " + to_string(workCol);
+    std::string info = "Max worker: " + std::to_string(workerNum) + ", work col: " + std::to_string(workCol);
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, DefaultSettingPattern)) {
     cmdDefaultSetting(artist);
   } else if (regex_search(text, matches, IngotPattern)) {
-    string rate = artist->board.Get<string>("ExchangeRate", "NOT_FOUND");
-    string info = "1 Villager Ingot = " + rate + " emerald.";
+    std::string rate = artist->board.Get<std::string>("ExchangeRate", "NOT_FOUND");
+    std::string info = "1 Villager Ingot = " + rate + " emerald.";
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, ChannelPattern)) {
-    string info = "Current channel: " + artist->board.Get<string>("ChannelNumber", "NOT_FOUND");
+    std::string info = "Current channel: " + artist->board.Get<std::string>("ChannelNumber", "NOT_FOUND");
 
     artist->SendChatMessage(info);
   } else if (regex_search(text, matches, MovePattern)) {
@@ -60,50 +59,50 @@ void cmdHandler(string text, Artist *artist) {
   }
 }
 
-void msgProcessor(string text, Artist *artist) {
-  smatch match;
+void msgProcessor(std::string text, Artist *artist) {
+  std::smatch match;
   if (regex_search(text, match, DiscordPattern)) {
-    cout << "==Discord==" << text << endl;
+    std::cout << "==Discord==" << text << std::endl;
     cmdHandler(text, artist);
   } else if (regex_search(text, match, SystemInfoPattern)) {
-    cout << "==System Info==" << text << endl;
+    std::cout << "==System Info==" << text << std::endl;
     cmdHandler(text, artist);
   } else if (regex_search(text, match, WaitingRoomPattern)) {
-    cout << "==Wait Room==" << text << endl;
+    std::cout << "==Wait Room==" << text << std::endl;
     cmdHandler(text, artist);
   } else if (regex_search(text, match, TpHomePattern)) {
-    cout << "==TP Home==" << text << endl;
+    std::cout << "==TP Home==" << text << std::endl;
     cmdHandler(text, artist);
   } else {
-    // cout << "==Other==" << text << endl;
+    // std::cout << "==Other==" << text << std::endl;
   }
 }
 
-Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use_renderer), finder(this) {
+Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClient(use_renderer), finder(this) {
   configPath = path;
   inWaitingRoom = false;
   waitTpFinish = false;
   hasWork = false;
 
-  ifstream file(configPath, ios::in);
+  std::ifstream file(configPath, std::ios::in);
 
   if (!file.is_open()) {
-    cerr << GetTime() << "Unable to open file: " + configPath << endl;
+    std::cerr << GetTime() << "Unable to open file: " + configPath << std::endl;
   }
 
-  string line;
+  std::string line;
   while (getline(file, line)) {
     // if line start with '#' or is empty, skip
     if (line.empty() || line[0] == '#') continue;
 
-    istringstream iss(line);
-    string key, value;
+    std::istringstream iss(line);
+    std::string key, value;
     getline(iss, key, '=') && getline(iss, value);
     if (key == "anchor") {
       Position anchor = ParsePositionString(value);
       board.Set("anchor", anchor);
     } else if (key == "dctoken" && value != "") {
-      cout << "hello" << endl;
+      std::cout << "hello" << std::endl;
       board.Set("dctoken", value);
       board.Set("use.dpp", true);
     } else if (key == "channelid") {
@@ -115,16 +114,16 @@ Artist::Artist(const bool use_renderer, string path) : SimpleBehaviourClient(use
     } else if (key == "prioritize") {
       board.Set("prioritize", value);
     } else if (key == "home") {
-      cout << "TP Home command: " << value << endl;
+      std::cout << "TP Home command: " << value << std::endl;
       board.Set("home", value);
     } else if (key == "retry") {
       board.Set("retry", stoi(value));
     } else if (key == "neighbor") {
       board.Set("neighbor", value == "true");
     } else {
-      vector<Position> posVec;
-      istringstream _iss(value);
-      string posGroup;
+      std::vector<Position> posVec;
+      std::istringstream _iss(value);
+      std::string posGroup;
       while (getline(_iss, posGroup, ';')) {
         Position chestPos = ParsePositionString(posGroup);
         posVec.push_back(chestPos);
@@ -142,7 +141,7 @@ Artist::~Artist() {}
 // Local server chat
 void Artist::Handle(ClientboundPlayerChatPacket &msg) {
   ManagersClient::Handle(msg);
-  string text = msg.GetBody().GetContent();
+  std::string text = msg.GetBody().GetContent();
 
   cmdHandler(text, this);
 }
@@ -153,7 +152,7 @@ void Artist::waitTP(){
 
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
   ManagersClient::Handle(msg);
-  string text = msg.GetContent().GetText();
+  std::string text = msg.GetContent().GetText();
 
   msgProcessor(text, this);
 }
@@ -161,9 +160,9 @@ void Artist::Handle(ClientboundSystemChatPacket &msg) {
 void Artist::Handle(ClientboundTabListPacket &msg) {
   ManagersClient::Handle(msg);
 
-  string header = msg.GetHeader().GetText();
-  string footer = msg.GetFooter().GetText();
-  smatch match;
+  std::string header = msg.GetHeader().GetText();
+  std::string footer = msg.GetFooter().GetText();
+  std::smatch match;
   header.erase(remove(header.begin(), header.end(), ','), header.end());
 
   // cout << "================" << endl;
@@ -179,9 +178,9 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
 
 void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
   ConnectionClient::Handle(msg);
-  cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << endl;
-  cout << GetTime() << "Notify all listeners" << endl;
+  std::cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << std::endl;
+  std::cout << GetTime() << "Notify all listeners" << std::endl;
   tpNotifier.notify_all();
-  cout << GetTime() << "Finish notifying all listeners" << endl;
-  cout << "=========================" << endl;
+  std::cout << GetTime() << "Finish notifying all listeners" << std::endl;
+  std::cout << "=========================" << std::endl;
 }

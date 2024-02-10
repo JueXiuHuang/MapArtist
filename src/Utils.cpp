@@ -1,32 +1,31 @@
+#include <iomanip>
+#include <string>
+#include <sstream>
+#include <botcraft/Game/AssetsManager.hpp>
+#include <botcraft/Game/Inventory/InventoryManager.hpp>
+#include <botcraft/Game/Inventory/Window.hpp>
+#include <botcraft/AI/Tasks/AllTasks.hpp>
 #include "Utils.hpp"
 #include "CustomTask.hpp"
 #include "Regex.hpp"
 #include "BotCommands.hpp"
 #include "Discord.hpp"
-#include "botcraft/Game/AssetsManager.hpp"
-#include "botcraft/Game/Inventory/InventoryManager.hpp"
-#include "botcraft/Game/Inventory/Window.hpp"
-// #include "botcraft/AI/Tasks/AllTasks.hpp"
-#include <iomanip>
-#include <string>
-#include <sstream>
 
-using namespace std;
 using namespace Botcraft;
 using namespace ProtocolCraft;
 
-string GetTime() {
+std::string GetTime() {
   auto t = time(nullptr);
   auto tm = *localtime(&t);
-  ostringstream oss;
-  oss << "[" << put_time(&tm, "%Y-%m-%d %H:%M:%S") << "] ";
+  std::ostringstream oss;
+  oss << "[" << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << "] ";
   return oss.str();
 }
 
-string GetWorldBlock(BehaviourClient& c, Position pos) {
-  shared_ptr<World> world = c.GetWorld();
+std::string GetWorldBlock(BehaviourClient& c, Position pos) {
+  std::shared_ptr<World> world = c.GetWorld();
 
-  string curBlockName = "minecraft:air";
+  std::string curBlockName = "minecraft:air";
   const Blockstate* block = world->GetBlock(pos);
 
   if (!block) {
@@ -44,8 +43,8 @@ string GetWorldBlock(BehaviourClient& c, Position pos) {
   return curBlockName;
 }
 
-string GetTaskType(const string &worldBlockName, const string &nbtBlockName) {
-  string taskType = "None";
+std::string GetTaskType(const std::string &worldBlockName, const std::string &nbtBlockName) {
+  std::string taskType = "None";
   if (nbtBlockName != "minecraft:air" && worldBlockName == "minecraft:air") {
     taskType = "Place";
   } else if (worldBlockName != "minecraft:air" && nbtBlockName != worldBlockName) {
@@ -55,9 +54,9 @@ string GetTaskType(const string &worldBlockName, const string &nbtBlockName) {
   return taskType;
 }
 
-int GetItemAmount(BehaviourClient& c, string itemName) {
-  shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
-  shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
+int GetItemAmount(BehaviourClient& c, std::string itemName) {
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  std::shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
 
   int amount = 0;
 
@@ -65,24 +64,24 @@ int GetItemAmount(BehaviourClient& c, string itemName) {
     const Slot& slot = playerInv->GetSlot(i);
     if (slot.IsEmptySlot()) continue;
 
-    string name = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
+    std::string name = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
     if (name == itemName) amount += AssetsManager::getInstance().Items().at(slot.GetItemID())->GetStackSize();
   }
 
   return amount;
 }
 
-Position ParsePositionString(string posStr) {
-  vector<int> integers;
-  istringstream iss(posStr);
-  string token;
+Position ParsePositionString(std::string posStr) {
+  std::vector<int> integers;
+  std::istringstream iss(posStr);
+  std::string token;
 
-  while (getline(iss, token, ',')) {
+  while (std::getline(iss, token, ',')) {
     try {
-      int num = stoi(token);
+      int num = std::stoi(token);
       integers.push_back(num);
-    } catch (const exception& e) {
-      cerr << GetTime() << "Invalid position: " << token << endl;
+    } catch (const std::exception& e) {
+      std::cerr << GetTime() << "Invalid position: " << token << std::endl;
     }
   }
   Position pos(integers);
@@ -141,10 +140,10 @@ Position ParsePositionString(string posStr) {
 //   }
 // }
 
-void MessageOutput(string text, Artist* artist) {
+void MessageOutput(std::string text, Artist* artist) {
   if (artist->board.Get<bool>("use.dpp")) {
-    DiscordBot& b = DiscordBot::getDiscordBot();
-    b.sendDCMessage(text);
+    // DiscordBot& b = DiscordBot::getDiscordBot();
+    // b.sendDCMessage(text);
   } else {
     // Say(*artist, text);
   }

@@ -1,9 +1,9 @@
 #ifndef ALGORITHM_HPP_
 #define ALGORITHM_HPP_
 
-#include "botcraft/AI/BehaviourClient.hpp"
-#include "botcraft/Game/Vector3.hpp"
 #include <string>
+#include <botcraft/AI/BehaviourClient.hpp>
+#include <botcraft/Game/Vector3.hpp>
 
 void SimpleBFS(Botcraft::BehaviourClient& c);
 void SimpleDFS(Botcraft::BehaviourClient& c);

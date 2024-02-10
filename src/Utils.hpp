@@ -1,10 +1,10 @@
 #ifndef UTILS_HPP_
 #define UTILS_HPP_
-#include "botcraft/AI/BehaviourClient.hpp"
-#include "botcraft/Game/Vector3.hpp"
-#include "botcraft/Game/World/World.hpp"
 #include <string>
 #include <regex>
+#include <botcraft/AI/BehaviourClient.hpp>
+#include <botcraft/Game/Vector3.hpp>
+#include <botcraft/Game/World/World.hpp>
 #include "Artist.hpp"
 
 std::string GetTime();

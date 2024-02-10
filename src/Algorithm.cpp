@@ -252,6 +252,7 @@ void SliceDFS(BehaviourClient& c) {
   queue<string> qTaskType, qTaskName;
   stack<Position> pending;
 
+  // horizontal first, then vertical
   const vector<Position> neighbor_offsets({ Position(0, 0, 1), Position(0, 0, -1), 
                                             Position(0, 1, 0), Position(0, -1, 0)});
 
@@ -264,14 +265,10 @@ void SliceDFS(BehaviourClient& c) {
       const short nbtBlockId = target[x][0][z];
       const string nbtBlockName = palette.at(nbtBlockId);
       if (nbtBlockName != "minecraft:air") {
-        if (z+1 < size.z) {
-          const short nextNbtBlockId = target[x][0][z+1];
-          const string nextNbtBlockName = palette.at(nextNbtBlockId);
-          if (nextNbtBlockName == "minecraft:air") {
-            pending.push(Position(x, 0, z));
-            visited[x][0][z] = true;
-          }
-        } else {
+        // Only add the block where top block is air
+        const short topNbtBlockId = target[x][1][z];
+        const string topNbtBlockName = palette.at(topNbtBlockId);
+        if (topNbtBlockName == "minecraft:air") {
           pending.push(Position(x, 0, z));
           visited[x][0][z] = true;
         }

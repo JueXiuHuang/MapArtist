@@ -264,14 +264,10 @@ void SliceDFS(BehaviourClient& c) {
       const short nbtBlockId = target[x][0][z];
       const std::string nbtBlockName = palette.at(nbtBlockId);
       if (nbtBlockName != "minecraft:air") {
-        if (z+1 < size.z) {
-          const short nextNbtBlockId = target[x][0][z+1];
-          const std::string nextNbtBlockName = palette.at(nextNbtBlockId);
-          if (nextNbtBlockName == "minecraft:air") {
-            pending.push(Position(x, 0, z));
-            visited[x][0][z] = true;
-          }
-        } else {
+        // Only add the block where top block is air
+        const short topNbtBlockId = target[x][1][z];
+        const std::string topNbtBlockName = palette.at(topNbtBlockId);
+        if (topNbtBlockName == "minecraft:air") {
           pending.push(Position(x, 0, z));
           visited[x][0][z] = true;
         }

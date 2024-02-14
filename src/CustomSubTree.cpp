@@ -55,6 +55,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
           .leaf("Dump Items", DumpItems)
           .leaf("Collect Material", CollectAllMaterial)
         .end()
+        .tree(NullTree())
       .end()
       .leaf("Task Execute scheduler", TaskExecutor)
     .end();

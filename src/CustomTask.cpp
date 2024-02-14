@@ -39,6 +39,34 @@ Status WaitServerLoad(BehaviourClient& c) {
   return Status::Success;
 }
 
+Status checkInventoryAllClear(BehaviourClient& c) {
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  std::shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
+  for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_HOTBAR_START+5; i++) {
+    const Slot& slot = playerInv->GetSlot(i);
+    if (slot.IsEmptySlot()) continue;
+    std::string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
+    if (itemName.find("_pickaxe") != std::string::npos) {
+      continue;
+    }
+    if (itemName.find("_axe") != std::string::npos) {
+      continue;
+    }
+    if (itemName.find("_shovel") != std::string::npos) {
+      continue;
+    }
+    if (itemName.find("shears") != std::string::npos) {
+      continue;
+    }
+    
+    // Something else in player's inventory
+    return Status::Failure;
+  }
+
+  // Player's inventory all clear
+  return Status::Success;
+}
+
 Status GetFood(BehaviourClient& c, const std::string& food_name) {
   std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
 
@@ -213,7 +241,15 @@ Status DumpItems(BehaviourClient& c) {
     CloseContainer(c, containerId);
     if (slotSrc.empty()) break;
   }
-  std::cout << GetTime() << "Finish dumping items" << std::endl;
+  std::cout << GetTime() << "Finish dumping items..." << std::endl;
+
+  Status s = checkInventoryAllClear(c);
+  if (s == Status::Failure) {
+    std::cout << GetTime() << "Early stop due to recycle chest full..." << std::endl;
+    MessageOutput("Early stop due to recycle chest full...", &artist);
+    return Status::Failure;
+  }
+
   return Status::Success;
 }
 
@@ -244,7 +280,12 @@ Status CollectAllMaterial(BehaviourClient& c) {
   std::map<std::string, int, MaterialCompare> itemCounter = artist.board.Get<std::map<std::string, int, MaterialCompare>>("itemCounter");
 
   for (auto item : itemCounter) {
-    CollectSingleMaterial(c, item.first, item.second);
+    Status s = CollectSingleMaterial(c, item.first, item.second);
+    if (s == Status::Failure) {
+      std::cout << "Early stop due to collect material fail..." << std::endl;
+      MessageOutput("Early stop due to collect material fail...", &artist);
+      return Status::Failure;
+    }
   }
   return Status::Success;
 }
@@ -332,6 +373,7 @@ Status CollectSingleMaterial(BehaviourClient& c, std::string itemName, int neede
         if (p.first >= playerInvStart) {
           if (p.second.IsEmptySlot()) {
             remain_empty_slot++;
+            std::cout << GetTime() << "Slot" << p.first << ": " << std::endl;
           } else {
             std::cout << GetTime() << "Slot " << p.first << ": " 
               << AssetsManager::getInstance().Items().at(p.second.GetItemID())->GetName()
@@ -355,6 +397,7 @@ Status CollectSingleMaterial(BehaviourClient& c, std::string itemName, int neede
       std::cout << GetTime() << itemName << " might not enough..." << std::endl;
       MessageOutput(itemName+" might not enough...", &artist);
     }
+    return Status::Failure;
   }
 
   return Status::Success;

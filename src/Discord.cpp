@@ -30,12 +30,8 @@ DiscordBot::DiscordBot():bot(token, dpp::i_default_intents | dpp::i_message_cont
 
   bot.on_message_create([](const dpp::message_create_t &event) {
 	if (event.msg.channel_id.str() != channel) return;
-	
-    std::cout << event.msg.content << std::endl;
-    std::cout << event.msg.author.format_username() << std::endl;
-    std::cout << event.msg.author.global_name << std::endl;
 
-	// CmdHandler(event.msg.content, artistPtr);
+	CmdHandler(event.msg.content, artistPtr);
   });
 }
 

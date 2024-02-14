@@ -350,10 +350,10 @@ Status CollectSingleMaterial(BehaviourClient& c, std::string itemName, int neede
   if (!get_all_material) {
     if (remain_empty_slot == 0) {
       std::cout << GetTime() << "Inventory might be full..." << std::endl;
-      Say(c, "Inventory might be full...");
+      MessageOutput("Inventory might be full...", &artist);
     } else {
       std::cout << GetTime() << itemName << " might not enough..." << std::endl;
-      Say(c, itemName+" might not enough...");
+      MessageOutput(itemName+" might not enough...", &artist);
     }
   }
 

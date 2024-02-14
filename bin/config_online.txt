@@ -8,7 +8,7 @@ dctoken=
 channelid=1196649716692308070
 
 # the nbt file you want to build
-nbt=kafka_swim_suit_0_3.nbt
+nbt=kafka_swim_suit_0_5.nbt
 
 tempblock=minecraft:cobblestone
 

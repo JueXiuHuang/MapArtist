@@ -132,6 +132,8 @@ static std::regex IngotPattern(R"(bot\s(ingot))");
 
 static std::regex ChannelPattern(R"(bot\s(channel))");
 
+static std::regex DetailPattern(R"(bot\s(detail))");
+
 /*
 match 1: move or bmove
 match 2: x position

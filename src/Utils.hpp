@@ -13,5 +13,6 @@ std::string GetTaskType(const std::string &worldBlockName, const std::string &nb
 int GetItemAmount(Botcraft::BehaviourClient& c, std::string itemName);
 Botcraft::Position ParsePositionString(std::string posStr);
 void CmdHandler(std::string text, Artist *artist);
+void MessageOutput(std::string text, Artist* artist);
 
 #endif

@@ -94,9 +94,9 @@ int main(int argc, char* argv[]) {
     if (client.board.Get<bool>("use.dpp")) {
       std::string token = client.board.Get<std::string>("dctoken");
       std::string chan = client.board.Get<std::string>("dcchannel");
-      // DiscordBot::init(token, chan, &client);
-      // DiscordBot& b = DiscordBot::getDiscordBot();
-      // b.start();
+      DiscordBot::init(token, chan, &client);
+      DiscordBot& b = DiscordBot::getDiscordBot();
+      b.start();
     }
 
     std::cout << GetTime() << "Starting connection process" << std::endl;

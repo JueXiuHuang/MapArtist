@@ -16,5 +16,6 @@ void cmdMove(std::smatch matches, Artist *artist);
 void cmdWaitingRoom(std::smatch matches, Artist *artist);
 void cmdTpSuccess(Artist *artist);
 void cmdTpHome(std::smatch matches, Artist *artist);
+void cmdDetail(std::smatch matches, Artist *artist);
 
 #endif

@@ -1,66 +1,55 @@
+#include <iomanip>
+#include <botcraft/AI/Tasks/AllTasks.hpp>
 #include "BotCommands.hpp"
 #include "CustomSubTree.hpp"
 #include "Utils.hpp"
-#include "botcraft/AI/Tasks/AllTasks.hpp"
-#include <iomanip>
 
-using namespace std;
 using namespace Botcraft;
 
 void cmdHungry(Artist *artist) {
   Status s = IsHungry(*artist, 15);
 
-  cout << GetTime() << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood() << endl;
+  std::cout << GetTime() << "Current food: " << artist->GetEntityManager()->GetLocalPlayer()->GetFood() << std::endl;
   if (s == Status::Success) {
-    artist->SendChatMessage("I'm hungry.");
+    MessageOutput("I'm hungry.", artist);
   } else {
-    artist->SendChatMessage("I'm not hungry.");
+    MessageOutput("I'm not hungry.", artist);
   }
 }
 
-void cmdStop(smatch matches, Artist *artist) {
-  string name = artist->GetNetworkManager()->GetMyName();
-  if (string(matches[2]) != "all" && string(matches[2]) != name) return;
+void cmdStop(std::smatch matches, Artist *artist) {
+  std::string name = artist->GetNetworkManager()->GetMyName();
+  if (std::string(matches[2]) != "all" && std::string(matches[2]) != name) return;
   
-  artist->SendChatMessage("=== BOT STOP ===");
-  // backup first, then set hasWork to false
-  artist->Backup();
+  MessageOutput("=== BOT STOP ===", artist);
   artist->hasWork = false;
   artist->SetBehaviourTree(nullptr);
 }
 
-void cmdStart(smatch matches, Artist *artist) {
-  string name = artist->GetNetworkManager()->GetMyName();
-  if (string(matches[2]) != "all" && string(matches[2]) != name) return;
+void cmdStart(std::smatch matches, Artist *artist) {
+  std::string name = artist->GetNetworkManager()->GetMyName();
+  if (std::string(matches[2]) != "all" && std::string(matches[2]) != name) return;
 
   // validate duty
-  Blackboard& bb = artist->GetBlackboard();
-  int workerNum = 1;
-  int col = 0;
-  if (artist->hasWork) {
-    workerNum = bb.Get<int>("workerNum", 1);
-    col = bb.Get<int>("workCol", 0);
-  } else {
-    workerNum = any_cast<int>(artist->backup["workerNum"]);
-    col = any_cast<int>(artist->backup["workCol"]);
-  }
+  int workerNum = artist->board.Get<int>("workerNum", 1);
+  int col = artist->board.Get<int>("workCol", 0);
+  
   if (workerNum < 1 || col >= workerNum) {
-    string info = "Invalid duty with workers " + to_string(workerNum) + " and col " + to_string(col);
-    artist->SendChatMessage(info);
+    std::string info = "Invalid duty with workers " + std::to_string(workerNum) + " and col " + std::to_string(col);
+    MessageOutput(info, artist);
     return;
   }
 
-  cout << GetTime() << "=== BOT START ===" << endl;
-  artist->SendChatMessage("=== BOT START ===");
+  std::cout << GetTime() << "=== BOT START ===" << std::endl;
+  MessageOutput("=== BOT START ===", artist);
   artist->hasWork = true;
-  map<string, any> &initVal = artist->Recover();
-  artist->SetBehaviourTree(FullTree(), initVal);
+  artist->SetBehaviourTree(FullTree());
 }
 
 void cmdBar(Artist *artist) {
-  vector<bool> xCheck = artist->GetBlackboard().Get<vector<bool>>("SliceDFS.xCheck", vector(128, false));
-  int workers = artist->GetBlackboard().Get<int>("workerNum", 1);
-  int col = artist->GetBlackboard().Get<int>("workCol", 0);
+  std::vector<bool> xCheck = artist->board.Get<std::vector<bool>>("SliceDFS.xCheck", std::vector(128, false));
+  int workers = artist->board.Get<int>("workerNum", 1);
+  int col = artist->board.Get<int>("workCol", 0);
   int finish = 0;
   int duty = 0;
 
@@ -72,78 +61,71 @@ void cmdBar(Artist *artist) {
   int ratio = finish * 20 / duty;
   double percent = static_cast<double>(finish) * 100 / duty;
 
-  ostringstream bar;
-  bar << "[" << string(ratio, '#') << string(20 - ratio, '-') << "]  "
-      << fixed << setprecision(1) << percent << "%";
-  artist->SendChatMessage(bar.str());
+  std::ostringstream bar;
+  bar << "[" << std::string(ratio, '#') << std::string(20 - ratio, '-') << "]  "
+      << std::fixed << std::setprecision(1) << percent << "%";
+  MessageOutput(bar.str(), artist);
 }
 
-void cmdInGameCommand(smatch matches, Artist *artist) {
-  string ingameCmd = matches[3];
-  string name = artist->GetNetworkManager()->GetMyName();
-  string exp_user = matches[2];
+void cmdInGameCommand(std::smatch matches, Artist *artist) {
+  std::string ingameCmd = matches[3];
+  std::string name = artist->GetNetworkManager()->GetMyName();
+  std::string exp_user = matches[2];
 
   if (exp_user != name && exp_user != "all") return;
-  artist->SendChatCommand(ingameCmd);
+  MessageOutput(ingameCmd, artist);
 }
 
-void cmdAssignment(smatch matches, Artist *artist) {
-  Blackboard& bb = artist->GetBlackboard();
-  string name = artist->GetNetworkManager()->GetMyName();
-  string exp_user = matches[2];
+void cmdAssignment(std::smatch matches, Artist *artist) {
+  std::string name = artist->GetNetworkManager()->GetMyName();
+  std::string exp_user = matches[2];
   int col = stoi(matches[3]);
 
   if (exp_user != name) return;
-  string info = "Assign user " + exp_user + " for column " + string(matches[3]);
+  std::string info = "Assign user " + exp_user + " for column " + std::string(matches[3]);
 
-  cout << GetTime() << info << endl;
-  artist->SendChatMessage(info);
-  if (artist->hasWork) bb.Set("workCol", col);
-  else artist->backup["workCol"] = col;
+  std::cout << GetTime() << info << std::endl;
+  MessageOutput(info, artist);
+  artist->board.Set("workCol", col);
 }
 
-void cmdWorker(smatch matches, Artist *artist) {
-  Blackboard& bb = artist->GetBlackboard();
-  int worker_num = stoi(matches[2]);
-  string info = "Setup total worker " + string(matches[2]);
+void cmdWorker(std::smatch matches, Artist *artist) {
+  int worker_num = std::stoi(matches[2]);
+  std::string info = "Setup total worker " + std::string(matches[2]);
 
-  cout << GetTime() << info << endl;
-  artist->SendChatMessage(info);
-  if (artist->hasWork) bb.Set("workerNum", worker_num);
-  else artist->backup["workerNum"] = worker_num;
+  std::cout << GetTime() << info << std::endl;
+  MessageOutput(info, artist);
+  artist->board.Set("workerNum", worker_num);
 }
 
 void cmdDefaultSetting(Artist *artist) {
   Blackboard& bb = artist->GetBlackboard();
-  string info = "Reset workCol & workerNum value";
+  std::string info = "Reset workCol & workerNum value";
 
-  artist->SendChatMessage(info);
-  if (artist->hasWork) bb.Set("workCol", 0);
-  else artist->backup["workCol"] = 0;
+  MessageOutput(info, artist);
+  artist->board.Set("workCol", 0);
 }
 
-void cmdMove(smatch matches, Artist *artist) {
-  int x = stoi(matches[2]), y = stoi(matches[3]), z = stoi(matches[4]);
+void cmdMove(std::smatch matches, Artist *artist) {
+  int x = std::stoi(matches[2]), y = std::stoi(matches[3]), z = std::stoi(matches[4]);
 
   if (matches[1] == "bmove") {
     artist->SetBehaviourTree(BMoveTree(Position(x, y, z)));
   } else {
-    map<string, any> &initVal = artist->Recover();
-    artist->SetBehaviourTree(MoveTree(Position(x, y, z)), initVal);
+    artist->SetBehaviourTree(MoveTree(Position(x, y, z)));
   }
 }
 
-void cmdWaitingRoom(smatch matches, Artist *artist) {
+void cmdWaitingRoom(std::smatch matches, Artist *artist) {
   if (matches[1] == "wait") {
-    artist->Backup();
     artist->inWaitingRoom = true;
     artist->SetBehaviourTree(nullptr);
-    cout << GetTime() << "Transfered to waiting room, stop working..." << endl;
+    std::cout << GetTime() << "Transfered to waiting room, stop working..." << std::endl;
     // artist->SendChatMessage("Transfered to waiting room, stop working...");
   } else {
     if (artist->inWaitingRoom) artist->waitTpFinish = true;
 
-    // string info = "Transfered to channel " + string(matches[1]);
+    // std::string info = "Transfered to channel " + std::string(matches[1]);
 
     // artist->SendChatMessage(info);
   }
@@ -153,22 +135,35 @@ void cmdTpSuccess(Artist *artist) {
   if (artist->waitTpFinish) {
     artist->inWaitingRoom = false;
     artist->waitTpFinish = false;
-    cout << GetTime() << "Back to work..." << endl;
+    std::cout << GetTime() << "Back to work..." << std::endl;
     // artist->SendChatMessage("Back to work...");
     if (artist->hasWork) {
       artist->hasWork = true;
-      map<string, any> &initVal = artist->Recover();
-      artist->SetBehaviourTree(FullTree(), initVal);
+      artist->SetBehaviourTree(FullTree());
     }
   }
 }
 
-void cmdTpHome(smatch matches, Artist *artist) {
-  Blackboard& bb = artist->GetBlackboard();
-  string homeName = bb.Get<string>("home", "mapart");
+void cmdTpHome(std::smatch matches, Artist *artist) {
+  std::string homeName = artist->board.Get<std::string>("home", "mapart");
 
-  if (string(matches[1]) == homeName) {
-    bb.Set("GetHome", true);
-    cout << GetTime() << "Bot teleport to home." << endl;
+  if (std::string(matches[1]) == homeName) {
+    artist->board.Set("GetHome", true);
+    std::cout << GetTime() << "Bot teleport to home." << std::endl;
   }
+}
+
+void cmdDetail(std::smatch matches, Artist *artist) {
+  int workCol = artist->board.Get<int>("workCol", 0);
+  int workerNum = artist->board.Get<int>("workerNum", 1);
+  std::string fileName = artist->board.Get<std::string>("nbt", "");
+  std::string userName = artist->GetNetworkManager()->GetMyName();
+  
+  std::ostringstream oss;
+  oss << "User Name: " << userName << std::endl;
+  oss << "Map Name: " << fileName << std::endl;
+  oss << "Total Worker: " << workerNum << std::endl;
+  oss << "Work Column: " << workCol << std::endl;
+  
+  MessageOutput(oss.str(), artist);
 }

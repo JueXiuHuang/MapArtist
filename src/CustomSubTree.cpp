@@ -1,13 +1,12 @@
+#include <botcraft/AI/Tasks/AllTasks.hpp>
 #include "CustomSubTree.hpp"
 #include "CustomBehaviorTree.hpp"
 #include "CustomTask.hpp"
-#include <botcraft/AI/Tasks/AllTasks.hpp>
 
 using namespace Botcraft;
-using namespace std;
 
 // 順序: init, serverload, sortchest, complete, eat & work
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
   return Builder<SimpleBehaviourClient>("Full Tree")
     .sequence()
       .tree(InitTree())
@@ -25,7 +24,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
     .end();
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> NullTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> NullTree() {
   return Builder<SimpleBehaviourClient>("Null Tree")
     .leaf("Set null tree", [](SimpleBehaviourClient &c) {
         c.SetBehaviourTree(nullptr);
@@ -33,22 +32,19 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> NullTree() {
     });
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
   return Builder<SimpleBehaviourClient>("Init Tree")
     .selector()
       .leaf("Config loaded?", CheckBlackboardBoolData, "Config.loaded")
       .selector()
-        .sequence()
-          .leaf("Load config", LoadConfig)
-          .leaf("Load NBT", LoadNBT)
-        .end()
+        .leaf("Load NBT", LoadNBT)
         // If init failed, stop the behaviour
         .tree(DisconnectTree())
       .end()
     .end();
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
   return Builder<SimpleBehaviourClient>("Work Tree")
     .sequence()
       .tree(EatTree())
@@ -64,7 +60,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
     .end();
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
   return Builder<SimpleBehaviourClient>("Eat Tree")
     .selector()
       // If hungry
@@ -91,7 +87,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
 }
 
 // TODO: review code and optimize
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> CheckCompleteTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> CheckCompleteTree() {
   return Builder<SimpleBehaviourClient>("Complete check")
     .sequence()
       .leaf("check completion", CheckCompletion)
@@ -101,7 +97,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> CheckCompleteTree() {
     .end();
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> DisconnectTree() {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> DisconnectTree() {
   return Builder<SimpleBehaviourClient>("Disconnect")
     .sequence()
       .leaf("disconnect", Disconnect)
@@ -109,7 +105,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> DisconnectTree() {
     .end();
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> BMoveTree(Position dest) {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> BMoveTree(Position dest) {
   return Builder<SimpleBehaviourClient>("Move tree")
     .sequence()
       .leaf("move", GoTo, dest, 2, 0, 0, true, true, (4.3F))
@@ -118,7 +114,7 @@ shared_ptr<BehaviourTree<SimpleBehaviourClient>> BMoveTree(Position dest) {
     .end();
 }
 
-shared_ptr<BehaviourTree<SimpleBehaviourClient>> MoveTree(Position dest) {
+std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> MoveTree(Position dest) {
   return Builder<SimpleBehaviourClient>("Move tree")
     .sequence()
       .leaf("move", FindPathAndMove, dest,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1)

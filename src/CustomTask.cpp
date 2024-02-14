@@ -1,19 +1,14 @@
-#include "CustomTask.hpp"
-#include "Algorithm.hpp"
-#include "PathFinding.hpp"
-#include "Utils.hpp"
-#include "Artist.hpp"
-#include "botcraft/AI/Tasks/AllTasks.hpp"
-#include "botcraft/Game/AssetsManager.hpp"
-#include "botcraft/Game/Entities/EntityManager.hpp"
-#include "botcraft/Game/Entities/LocalPlayer.hpp"
-#include "botcraft/Game/Inventory/InventoryManager.hpp"
-#include "botcraft/Game/Inventory/Window.hpp"
-#include "botcraft/Game/Vector3.hpp"
-#include "botcraft/Game/World/World.hpp"
-#include "botcraft/Network/NetworkManager.hpp"
-#include "botcraft/Utilities/MiscUtilities.hpp"
-#include "botcraft/Utilities/SleepUtilities.hpp"
+#include <botcraft/AI/Tasks/AllTasks.hpp>
+#include <botcraft/Game/AssetsManager.hpp>
+#include <botcraft/Game/Entities/EntityManager.hpp>
+#include <botcraft/Game/Entities/LocalPlayer.hpp>
+#include <botcraft/Game/Inventory/InventoryManager.hpp>
+#include <botcraft/Game/Inventory/Window.hpp>
+#include <botcraft/Game/Vector3.hpp>
+#include <botcraft/Game/World/World.hpp>
+#include <botcraft/Network/NetworkManager.hpp>
+#include <botcraft/Utilities/MiscUtilities.hpp>
+#include <botcraft/Utilities/SleepUtilities.hpp>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -26,31 +21,17 @@
 #include <unordered_set>
 #include <vector>
 #include <stdexcept>
+#include "CustomTask.hpp"
+#include "Algorithm.hpp"
+#include "PathFinding.hpp"
+#include "Utils.hpp"
+#include "Artist.hpp"
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
-using namespace std;
-
-Position parsePostionString(string posStr) {
-  vector<int> integers;
-  istringstream iss(posStr);
-  string token;
-
-  while (getline(iss, token, ',')) {
-    try {
-      int num = stoi(token);
-      integers.push_back(num);
-    } catch (const exception& e) {
-      cerr << GetTime() << "Invalid position: " << token << endl;
-    }
-  }
-  Position pos(integers);
-
-  return pos;
-}
 
 Status WaitServerLoad(BehaviourClient& c) {
-  shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
+  std::shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
   Utilities::WaitForCondition([&]() {
     return local_player->GetPosition().y < 1000;
   }, 10000);
@@ -58,8 +39,8 @@ Status WaitServerLoad(BehaviourClient& c) {
   return Status::Success;
 }
 
-Status GetFood(BehaviourClient& c, const string& food_name) {
-  shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+Status GetFood(BehaviourClient& c, const std::string& food_name) {
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
 
   // Sort the chest and make sure the first slot in hotbar is empty
   // Food will place in this slot
@@ -67,34 +48,34 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
                           Window::INVENTORY_HOTBAR_START, 
                           Window::INVENTORY_OFFHAND_INDEX);
 
-  const vector<Position>& chests = c.GetBlackboard().Get<vector<Position>>("chest:" + food_name);
+  const std::vector<Position>& chests = c.GetBlackboard().Get<std::vector<Position>>("chest:" + food_name);
 
-  vector<size_t> chests_indices(chests.size());
-  for (size_t i = 0; i < chests.size(); ++i) {
+  std::vector<std::size_t> chests_indices(chests.size());
+  for (std::size_t i = 0; i < chests.size(); ++i) {
     chests_indices[i] = i;
   }
 
   short container_id;
   bool item_taken = false;
 
-  for (size_t index = 0; index < chests.size(); ++index) {
-    const size_t i = chests_indices[index];
+  for (std::size_t index = 0; index < chests.size(); ++index) {
+    const std::size_t i = chests_indices[index];
     // If we can't open this chest for a reason
     FindPathAndMove(c, chests[i],  1, 1, 1, 1, 1, 1,  0, 0, 0, 0, 0, 0);
     if (OpenContainer(c, chests[i]) == Status::Failure) continue;
 
     short player_dst = -1;
     while (true) {
-      vector<short> slots_src;
+      std::vector<short> slots_src;
       container_id = inventory_manager->GetFirstOpenedWindowId();
       if (container_id == -1) continue;
 
-      const shared_ptr<Window> container = inventory_manager->GetWindow(container_id);
+      const std::shared_ptr<Window> container = inventory_manager->GetWindow(container_id);
 
       const short playerFirstSlot = container->GetFirstPlayerInventorySlot();
       player_dst = playerFirstSlot + 9 * 3;
 
-      const map<short, Slot>& slots = container->GetSlots();
+      const std::map<short, Slot>& slots = container->GetSlots();
 
       slots_src.reserve(slots.size());
 
@@ -106,11 +87,11 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
       }
 
       if (slots_src.size() > 0) {
-        cout << GetTime() << "Found food in chest." << endl;
+        std::cout << GetTime() << "Found food in chest." << std::endl;
         const int src_index = 0;
         // Try to swap the items
         if (SwapItemsInContainer(c, container_id, slots_src[src_index], player_dst) == Status::Success) {
-          cout << GetTime() << "Get food success." << endl;
+          std::cout << GetTime() << "Get food success." << std::endl;
           item_taken = true;
           break;
         }
@@ -131,34 +112,34 @@ Status GetFood(BehaviourClient& c, const string& food_name) {
 }
 
 Status SortChestWithDesirePlace(BehaviourClient& c) {
-  shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
-  shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  std::shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
   Status state = SortInventory(c);
-  queue<short> taskSrc, taskDst;
+  std::queue<short> taskSrc, taskDst;
   
   for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_HOTBAR_START+5; i++) {
     const Slot& slot = playerInv->GetSlot(i);
     if (slot.IsEmptySlot()) continue;
-    string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
-    if (itemName.find("_pickaxe") != string::npos) {
+    std::string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
+    if (itemName.find("_pickaxe") != std::string::npos) {
       // put pickaxe at slot 44
       taskSrc.push(i);
       taskDst.push(44);
       continue;
     }
-    if (itemName.find("_axe") != string::npos) {
+    if (itemName.find("_axe") != std::string::npos) {
       // put axe at slot 43
       taskSrc.push(i);
       taskDst.push(43);
       continue;
     }
-    if (itemName.find("_shovel") != string::npos) {
+    if (itemName.find("_shovel") != std::string::npos) {
       // put shovel at slot 42
       taskSrc.push(i);
       taskDst.push(42);
       continue;
     }
-    if (itemName.find("shears") != string::npos) {
+    if (itemName.find("shears") != std::string::npos) {
       // put shears at slot 41
       taskSrc.push(i);
       taskDst.push(41);
@@ -178,51 +159,51 @@ Status SortChestWithDesirePlace(BehaviourClient& c) {
 // Dump everything to recycle chest.
 // Player is src, recycle chest is dst.
 Status DumpItems(BehaviourClient& c) {
-  cout << GetTime() << "Trying to dump items to recycle chest..." << endl;
-  Blackboard& blackboard = c.GetBlackboard();
-  shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
-  vector<Position> chestPositions = blackboard.Get<vector<Position>>("chest:recycle");
+  std::cout << GetTime() << "Trying to dump items to recycle chest..." << std::endl;
+  Artist& artist = static_cast<Artist&>(c);
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  std::vector<Position> chestPositions = artist.board.Get<std::vector<Position>>("chest:recycle");
 
   for (auto chest : chestPositions) {
     if(FindPathAndMove(c, chest,  2, 2, 0, 6, 2, 2,  2, 2, 0, 3, 2, 2) == Status::Failure) continue;
-    cout << GetTime() << "dumping items..." << endl;
+    std::cout << GetTime() << "dumping items..." << std::endl;
     if (OpenContainer(c, chest) == Status::Failure) {
-      cout << GetTime() << "Open Chest " << chest << " Error" << endl;
+      std::cout << GetTime() << "Open Chest " << chest << " Error" << std::endl;
       continue;
     }
 
-    queue<short> slotSrc, slotDst;
+    std::queue<short> slotSrc, slotDst;
     short containerId, firstPlayerIndex;
 
     // Find possible swaps
     containerId = inventory_manager->GetFirstOpenedWindowId();
     if (containerId == -1) continue;
 
-    shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
+    std::shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
     firstPlayerIndex = container->GetFirstPlayerInventorySlot();
 
-    const map<short, Slot>& slots = container->GetSlots();
+    const std::map<short, Slot>& slots = container->GetSlots();
 
     for (auto it = slots.begin(); it != slots.end(); ++it) {
       if (it->first >= 0 && it->first < firstPlayerIndex && it->second.IsEmptySlot()) {
         slotDst.push(it->first);
       } else if (it->first >= firstPlayerIndex && !it->second.IsEmptySlot()) {
-        string itemName = AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName();
+        std::string itemName = AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName();
         if (itemName == "minecraft:cooked_beef") continue;
-        if (itemName.find("_pickaxe") != string::npos) continue;
-        if (itemName.find("_axe") != string::npos) continue;
-        if (itemName.find("_shovel") != string::npos) continue;
-        if (itemName.find("shears") != string::npos) continue;
+        if (itemName.find("_pickaxe") != std::string::npos) continue;
+        if (itemName.find("_axe") != std::string::npos) continue;
+        if (itemName.find("_shovel") != std::string::npos) continue;
+        if (itemName.find("shears") != std::string::npos) continue;
 
         slotSrc.push(it->first);
       }
     }
 
     while (!slotSrc.empty() && !slotDst.empty()) {
-      cout << GetTime() << "Swap " << slotSrc.front() << " and " << slotDst.front() << endl;
+      std::cout << GetTime() << "Swap " << slotSrc.front() << " and " << slotDst.front() << std::endl;
       if (SwapItemsInContainer(c, containerId, slotSrc.front(), slotDst.front()) == Status::Failure) {
         CloseContainer(c, containerId);
-        cout << GetTime() << "Error when trying to dump items to chest..." << endl;
+        std::cout << GetTime() << "Error when trying to dump items to chest..." << std::endl;
       }
       slotSrc.pop();
       slotDst.pop();
@@ -232,14 +213,14 @@ Status DumpItems(BehaviourClient& c) {
     CloseContainer(c, containerId);
     if (slotSrc.empty()) break;
   }
-  cout << GetTime() << "Finish dumping items" << endl;
+  std::cout << GetTime() << "Finish dumping items" << std::endl;
   return Status::Success;
 }
 
 Status TaskPrioritize(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
-  string algo = blackboard.Get<string>("prioritize");
-  blackboard.Set("Task.prioritized", true);
+  Artist& artist = static_cast<Artist&>(c);
+  std::string algo = artist.board.Get<std::string>("prioritize");
+  artist.board.Set("Task.prioritized", true);
 
   if (algo == "bfs") {
     SimpleBFS(c);
@@ -250,7 +231,7 @@ Status TaskPrioritize(BehaviourClient& c) {
   } else if (algo == "slice_dfs_neighbor") {
     SliceDFSNeighbor(c);
   } else {
-    cout << GetTime() << "Get unrecognized prioritize method: " << algo << endl;
+    std::cout << GetTime() << "Get unrecognized prioritize method: " << algo << std::endl;
     return Status::Failure;
   }
 
@@ -258,10 +239,9 @@ Status TaskPrioritize(BehaviourClient& c) {
 }
 
 Status CollectAllMaterial(BehaviourClient& c) {
-  cout << GetTime() << "Trying to collect material..." << endl;
-  Blackboard& blackboard = c.GetBlackboard();
-  // map<string, int, MaterialCompareOld> itemCounter = blackboard.Get<map<string, int, MaterialCompareOld>>("itemCounter");
-  map<string, int, MaterialCompare> itemCounter = blackboard.Get<map<string, int, MaterialCompare>>("itemCounter");
+  std::cout << GetTime() << "Trying to collect material..." << std::endl;
+  Artist& artist = static_cast<Artist&>(c);
+  std::map<std::string, int, MaterialCompare> itemCounter = artist.board.Get<std::map<std::string, int, MaterialCompare>>("itemCounter");
 
   for (auto item : itemCounter) {
     CollectSingleMaterial(c, item.first, item.second);
@@ -269,42 +249,42 @@ Status CollectAllMaterial(BehaviourClient& c) {
   return Status::Success;
 }
 
-Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
-  cout << GetTime() << "Collecting " << itemName << " for " << needed << endl;
+Status CollectSingleMaterial(BehaviourClient& c, std::string itemName, int needed) {
+  std::cout << GetTime() << "Collecting " << itemName << " for " << needed << std::endl;
   
-  Blackboard& blackboard = c.GetBlackboard();
-  shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
-  vector<Position> availableChests = blackboard.Get<vector<Position>>("chest:"+itemName);
+  Artist& artist = static_cast<Artist&>(c);
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  std::vector<Position> availableChests = artist.board.Get<std::vector<Position>>("chest:"+itemName);
 
   bool get_all_material = false;
   int remain_empty_slot = -1;
   for (auto chest : availableChests) {
-    cout << GetTime() << "========== CHEST ==========" << endl;
+    std::cout << GetTime() << "========== CHEST ==========" << std::endl;
     SortInventory(c);
     Status moveResult = FindPathAndMove(c, chest,  2, 2, 2, 4, 2, 2,  0, 0, -1, 0, 0, 0);
     if (moveResult == Status::Failure) {
-      cout << GetTime() << "Go to chest fail..." << endl;
+      std::cout << GetTime() << "Go to chest fail..." << std::endl;
       continue;
     }
     if (OpenContainer(c, chest) == Status::Failure) {
-      cout << GetTime() << "Interact with chest fail..." << endl;
+      std::cout << GetTime() << "Interact with chest fail..." << std::endl;
       continue;
     }
     
     int _need = needed;
-    queue<short> canTake, canPut;
+    std::queue<short> canTake, canPut;
     const short containerId = inventory_manager->GetFirstOpenedWindowId();
-    shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
+    std::shared_ptr<Window> container = inventory_manager->GetWindow(containerId);
 
     {
-      vector<pair<short, Slot>> _canPut, _canTake;
+      std::vector<std::pair<short, Slot>> _canPut, _canTake;
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
 
       for (auto slot : container->GetSlots()) {
         if (slot.first < playerInvStart && !slot.second.IsEmptySlot()) {
           _canTake.push_back(slot);
         } else if (slot.first >= playerInvStart && !slot.second.IsEmptySlot()) {
-          string _name = AssetsManager::getInstance().GetItem(slot.second.GetItemID())->GetName();
+          std::string _name = AssetsManager::getInstance().GetItem(slot.second.GetItemID())->GetName();
           if (_name == itemName && slot.second.GetItemCount() < 64) _canPut.push_back(slot);
           if (_name == itemName && slot.second.GetItemCount() == 64) _need -= 64;
         } else if (slot.first >= playerInvStart && slot.second.IsEmptySlot()) {
@@ -312,14 +292,14 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
         }
       }
 
-      sort(_canPut.begin(), _canPut.end(), [](const pair<const short, Slot>& a, const pair<const short, Slot>& b) {
+      sort(_canPut.begin(), _canPut.end(), [](const std::pair<const short, Slot>& a, const std::pair<const short, Slot>& b) {
         return a.second.GetItemCount() > b.second.GetItemCount();
       });
       for (auto slot : _canPut) {
         canPut.push(slot.first);
       }
 
-      sort(_canTake.begin(), _canTake.end(), [](const pair<const short, Slot>& a, const pair<const short, Slot>& b) {
+      sort(_canTake.begin(), _canTake.end(), [](const std::pair<const short, Slot>& a, const std::pair<const short, Slot>& b) {
         return a.second.GetItemCount() > b.second.GetItemCount();
       });
       for (auto slot : _canTake) {
@@ -328,15 +308,15 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
     }
 
     while (!canTake.empty() && !canPut.empty() && !get_all_material) {
-      cout << GetTime() << "Swap from ID " << canTake.front() << " to ID " << canPut.front() << endl;
+      std::cout << GetTime() << "Swap from ID " << canTake.front() << " to ID " << canPut.front() << std::endl;
       Status swapResult = SwapItemsInContainer(c, containerId, canTake.front(), canPut.front());
       if (swapResult == Status::Failure){  // if failed, wait for a while and retry
-        Utilities::SleepFor(chrono::milliseconds(500));
-        cout << GetTime() << "Take " << itemName << " Failed" << endl;
+        Utilities::SleepFor(std::chrono::milliseconds(500));
+        std::cout << GetTime() << "Take " << itemName << " Failed" << std::endl;
         continue;
       }
       int took_amount = container->GetSlot(canPut.front()).GetItemCount();
-      cout << GetTime() << "Take " << itemName << " for " << took_amount << endl;
+      std::cout << GetTime() << "Take " << itemName << " for " << took_amount << std::endl;
       _need -= took_amount;
       canPut.pop();
       canTake.pop();
@@ -344,7 +324,7 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
       if (_need < 1) get_all_material = true;
     }
 
-    cout << GetTime() << "========== LIST ==========" << endl;
+    std::cout << GetTime() << "========== LIST ==========" << std::endl;
     {
       const short playerInvStart = container->GetFirstPlayerInventorySlot();
       remain_empty_slot = 0;
@@ -353,27 +333,27 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
           if (p.second.IsEmptySlot()) {
             remain_empty_slot++;
           } else {
-            cout << GetTime() << "Slot " << p.first << ": " 
+            std::cout << GetTime() << "Slot " << p.first << ": " 
               << AssetsManager::getInstance().Items().at(p.second.GetItemID())->GetName()
-              << " x " << static_cast<int>(p.second.GetItemCount()) << endl;
+              << " x " << static_cast<int>(p.second.GetItemCount()) << std::endl;
           }
         }
       }
     }
-    cout << GetTime() << "======= LIST CLOSE =======" << endl;
+    std::cout << GetTime() << "======= LIST CLOSE =======" << std::endl;
 
     CloseContainer(c, containerId);
-    cout << GetTime() << "======= CHEST CLOSE =======" << endl;
+    std::cout << GetTime() << "======= CHEST CLOSE =======" << std::endl;
     if (get_all_material) break;
   }
 
   if (!get_all_material) {
     if (remain_empty_slot == 0) {
-      cout << GetTime() << "Inventory might be full..." << endl;
-      Say(c, "Inventory might be full...");
+      std::cout << GetTime() << "Inventory might be full..." << std::endl;
+      MessageOutput("Inventory might be full...", &artist);
     } else {
-      cout << GetTime() << itemName << " might not enough..." << endl;
-      Say(c, itemName+" might not enough...");
+      std::cout << GetTime() << itemName << " might not enough..." << std::endl;
+      MessageOutput(itemName+" might not enough...", &artist);
     }
   }
 
@@ -381,28 +361,28 @@ Status CollectSingleMaterial(BehaviourClient& c, string itemName, int needed) {
 }
 
 Status TaskExecutor(BehaviourClient& c) {
-  cout << GetTime() << "Execute task in queue..." << endl;
-  Blackboard& blackboard = c.GetBlackboard();
-  queue<Position> qTaskPosition = blackboard.Get<queue<Position>>("qTaskPosition");
-  queue<string> qTaskType = blackboard.Get<queue<string>>("qTaskType");
-  queue<string> qTaskName = blackboard.Get<queue<string>>("qTaskName");
-  int retry_times = blackboard.Get<int>("retry");
-  vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1),
+  std::cout << GetTime() << "Execute task in queue..." << std::endl;
+  Artist& artist = static_cast<Artist&>(c);
+  std::queue<Position> qTaskPosition = artist.board.Get<std::queue<Position>>("qTaskPosition");
+  std::queue<std::string> qTaskType = artist.board.Get<std::queue<std::string>>("qTaskType");
+  std::queue<std::string> qTaskName = artist.board.Get<std::queue<std::string>>("qTaskName");
+  int retry_times = artist.board.Get<int>("retry");
+  std::vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1),
                             Position(2, 0, 0), Position(-2, 0, 0), Position(0, 0, 2), Position(0, 0, -2)};
 
   if (!qTaskPosition.empty() && !qTaskType.empty() && !qTaskName.empty()) {
-    cout << GetTime() << "Remain " << qTaskPosition.size() << " tasks..." << endl;
+    std::cout << GetTime() << "Remain " << qTaskPosition.size() << " tasks..." << std::endl;
     Position taskPos = qTaskPosition.front(); qTaskPosition.pop();
-    string taskType = qTaskType.front(); qTaskType.pop();
-    string blockName = qTaskName.front(); qTaskName.pop();
+    std::string taskType = qTaskType.front(); qTaskType.pop();
+    std::string blockName = qTaskName.front(); qTaskName.pop();
     for (int i = 0; i < retry_times; i++) {
       if (GetItemAmount(c, blockName) == 0 && taskType == "Place") {
         // Item not enough
         // Directly clear all tasks
-        cout << GetTime() << "Item " << blockName << " not enough, return." << endl;
-        qTaskPosition = queue<Position>();
-        qTaskType = queue<string>();
-        qTaskName = queue<string>();
+        std::cout << GetTime() << "Item " << blockName << " not enough, return." << std::endl;
+        qTaskPosition = std::queue<Position>();
+        qTaskType = std::queue<std::string>();
+        qTaskName = std::queue<std::string>();
         break;
       }
       Status exec_result = ExecuteTask(c, taskType, taskPos, blockName);
@@ -411,50 +391,48 @@ Status TaskExecutor(BehaviourClient& c) {
         auto nextPos = taskPos+offsets[i%offsets.size()];
         const Botcraft::Blockstate* block = c.GetWorld()->GetBlock(nextPos);
         if(block != nullptr && !block->IsAir()){  // simple detect
-          cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << endl;
+          std::cout << GetTime() << "Task fail, move to another position and try again (" << i << ")..." << std::endl;
           FindPathAndMove(c, nextPos,  0, 0, 3, 3, 0, 0,  -1, -1, -1, -1, -1, -1);
         }
       }
     }
     
-    blackboard.Set("qTaskPosition", qTaskPosition);
-    blackboard.Set("qTaskType", qTaskType);
-    blackboard.Set("qTaskName", qTaskName);
+    artist.board.Set("qTaskPosition", qTaskPosition);
+    artist.board.Set("qTaskType", qTaskType);
+    artist.board.Set("qTaskName", qTaskName);
 
     // Still has task in queue, return fail.
     return Status::Failure;
   } else {
-    blackboard.Set("Task.prioritized", false);
+    artist.board.Set("Task.prioritized", false);
 
     // All tasks resolved, return success.
     return Status::Success;
   }
 }
 
-Status ExecuteTask(BehaviourClient& c, string action, Position blockPos, string blockName) {
-  cout << GetTime() << "Task:" << setw(5) << action <<
-                      ", Block Name:" << setw(32) << blockName <<
-                      ", Position:" << blockPos << endl;
+Status ExecuteTask(BehaviourClient& c, std::string action, Position blockPos, std::string blockName) {
+  std::cout << GetTime() << "Task:" << std::setw(5) << action <<
+                      ", Block Name:" << std::setw(32) << blockName <<
+                      ", Position:" << blockPos << std::endl;
   
-  Blackboard& board = c.GetBlackboard();
-
   if(FindPathAndMove(c, blockPos,  3, 3, 3, 3, 3, 3,  0, 0, 0, 2, 0, 0) == Status::Failure){
-    cout << GetTime() << "Move Error" << endl;
+    std::cout << GetTime() << "Move Error" << std::endl;
     return Status::Failure;
   }
-  string bn = GetWorldBlock(c, blockPos);
+  std::string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
     if (bn == "minecraft:air") return Status::Success;
     else return Dig(c, blockPos, true);
   } else if (action == "Place") {
-    if (bn == "minecraft:air") return PlaceBlock(c, blockName, blockPos, nullopt, true, true);
+    if (bn == "minecraft:air") return PlaceBlock(c, blockName, blockPos, std::nullopt, true, true);
     else if (bn != blockName) {
       Dig(c, blockPos, true);
       return Status::Failure;
     } else return Status::Success;
   }
 
-  cout << GetTime() << "Unknown task in ExecuteNextTask..." << endl;
+  std::cout << GetTime() << "Unknown task in ExecuteNextTask..." << std::endl;
   return Status::Failure;
 }
 
@@ -476,20 +454,20 @@ Status FindPathAndMove(BehaviourClient&c, Position pos,
       return FindPathAndMoveImpl(c, pos, goal);
     }
   }catch(const std::exception &e){
-    cerr << "Move Fatal Error" << endl;
-    cerr << e.what() << endl;
+    std::cerr << "Move Fatal Error" << std::endl;
+    std::cerr << e.what() << std::endl;
     return Status::Failure;
   }
 }
 
 Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<pf::Position> &goal) {
-  Blackboard& blackboard = c.GetBlackboard();
-  auto finder = blackboard.Get<PathFinder>("pathFinder");
+  Artist& artist = static_cast<Artist&>(c);
+  auto finder = artist.finder;
 
   auto getFromPosition = [&]() -> pf::Position {
     pf::Position from;
     // get player location
-    shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
+    std::shared_ptr<LocalPlayer> local_player = c.GetEntityManager()->GetLocalPlayer();
     auto player_pos = local_player->GetPosition();
     from.x = static_cast<int>(floor(player_pos.x));
     from.y = static_cast<int>(floor(player_pos.y + 0.25)) - 1;
@@ -501,37 +479,37 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
   bool r = false;
   for(int i = 0; i < 2; ++i){
     pf::Position from = getFromPosition();
-    cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
+    std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
     // find path and go
     r = finder.findPathAndGo(from, goal, 15000);
     if(r) break;
     from = getFromPosition();  // get the latest position
-    cout << GetTime() << "Failed, retry after 5 seconds..." << endl;
-    Utilities::SleepFor(chrono::seconds(3));  // delay 3 seconds
+    std::cout << GetTime() << "Failed, retry after 5 seconds..." << std::endl;
+    Utilities::SleepFor(std::chrono::seconds(3));  // delay 3 seconds
   }
 
   if (!r) {
-    cout << GetTime() << "Bot get stuck, try to teleport..." << endl;
-    Utilities::SleepFor(chrono::seconds(5));  // delay 5 seconds
-    string homeCommand = blackboard.Get<string>("home", "tp @p 0 0 0");
-    cout << GetTime() << "Send TP command..." << endl;
+    std::cout << GetTime() << "Bot get stuck, try to teleport..." << std::endl;
+    Utilities::SleepFor(std::chrono::seconds(5));  // delay 5 seconds
+    std::string homeCommand = artist.board.Get<std::string>("home", "tp @p 0 0 0");
+    std::cout << GetTime() << "Send TP command..." << std::endl;
     c.SendChatCommand(homeCommand);
-    cout << GetTime() << "Wait for TP success..." << endl;
+    std::cout << GetTime() << "Wait for TP success..." << std::endl;
     
     // wait for 10 seconds
-    if(static_cast<Artist&>(c).waitTP(chrono::seconds(10)) == false){  // false
-      cout << GetTime() << "TP Failed..." << endl;
+    if(static_cast<Artist&>(c).waitTP(std::chrono::seconds(10)) == false){  // false
+      std::cout << GetTime() << "TP Failed..." << std::endl;
       return Status::Failure;
     }
-    cout << GetTime() << "TP Success!!!" << endl;
+    std::cout << GetTime() << "TP Success!!!" << std::endl;
 
-    cout << GetTime() << "World loading..." << endl;
+    std::cout << GetTime() << "World loading..." << std::endl;
     WaitServerLoad(c);  // always return true
-    cout << GetTime() << "Finish world loading" << endl;
+    std::cout << GetTime() << "Finish world loading" << std::endl;
 
     // update player's new position
     pf::Position from = getFromPosition();
-    cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
+    std::cout << GetTime() << "Find a path from " << from << " to " << to << "\n";
     r = finder.findPathAndGo(from, goal, 15000);
   }
   
@@ -542,26 +520,26 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
 If everything is correct, return Success, otherwise return Failure.
 */
 Status checkCompletion(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
-  shared_ptr<World> world = c.GetWorld();
-  Position anchor = blackboard.Get<Position>("anchor");
+  Artist& artist = static_cast<Artist&>(c);
+  std::shared_ptr<World> world = c.GetWorld();
+  Position anchor = artist.board.Get<Position>("anchor");
 
   Position target_pos, world_pos;
 
-  vector<vector<vector<bool>>> mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
+  std::vector<std::vector<std::vector<bool>>> mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>("map_memory");
 
   int additional_blocks = 0;
   int wrong_blocks = 0;
   int missing_blocks = 0;
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
 
   Status isComplete = Status::Success;
-  int workers = blackboard.Get<int>("workerNum", 1);
-  int col = blackboard.Get<int>("workCol", 0);
+  int workers = artist.board.Get<int>("workerNum", 1);
+  int col = artist.board.Get<int>("workCol", 0);
 
   for (int x = start.x; x <= end.x; x++) {
     if ((x-start.x)%workers != col) continue;
@@ -576,9 +554,9 @@ Status checkCompletion(BehaviourClient& c) {
         target_pos.z = z - start.z;
 
         const short target_id = target[target_pos.x][target_pos.y][target_pos.z];
-        string target_name = palette.at(target_id);
+        std::string target_name = palette.at(target_id);
         
-        string block_name = "minecraft:air";
+        std::string block_name = "minecraft:air";
         const Blockstate* block = world->GetBlock(world_pos);
         if (!world->IsLoaded(world_pos)) {
           continue;
@@ -606,14 +584,14 @@ Status checkCompletion(BehaviourClient& c) {
     }
   }
 
-  blackboard.Set("map_memory", mapMemory);
+  artist.board.Set("map_memory", mapMemory);
   return isComplete;
 }
 
 Status CheckCompletion(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
-  shared_ptr<World> world = c.GetWorld();
-  Position anchor = blackboard.Get<Position>("anchor");
+  Artist& artist = static_cast<Artist&>(c);
+  std::shared_ptr<World> world = c.GetWorld();
+  Position anchor = artist.board.Get<Position>("anchor");
 
   Position target_pos, world_pos;
 
@@ -621,19 +599,19 @@ Status CheckCompletion(BehaviourClient& c) {
   int wrong_blocks = 0;
   int missing_blocks = 0;
 
-  const Position& start = blackboard.Get<Position>("Structure.start");
-  const Position& end = blackboard.Get<Position>("Structure.end");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
   const Position size = end - start + Position(1, 1, 1);
-  const vector<vector<vector<short>>>& target = blackboard.Get<vector<vector<vector<short>>>>("Structure.target");
-  const map<short, string>& palette = blackboard.Get<map<short, string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
 
-  vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
+  std::vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
 
   // initialize map recorder
   // default value will set to true, if the block is incorrect will set to false
-  vector<vector<vector<bool>>> mapMemory(size.x, vector(size.y, vector(size.z, true)));
-  blackboard.Set("map_memory", mapMemory);
+  std::vector<std::vector<std::vector<bool>>> mapMemory(size.x, std::vector(size.y, std::vector(size.z, true)));
+  artist.board.Set("map_memory", mapMemory);
 
   const bool log_details = false;
   const bool log_errors = true;
@@ -641,17 +619,17 @@ Status CheckCompletion(BehaviourClient& c) {
 
   Status isComplete = Status::Success;
   for (auto cp : checkpoints) {
-    cout << GetTime() << "Check checkpoint..." << endl;
+    std::cout << GetTime() << "Check checkpoint..." << std::endl;
     Status moveResult = FindPathAndMove(c, anchor+cp,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1);
     if (moveResult == Status::Failure) {
-      cout << GetTime() << "Move to checkpoint fail..." << endl;
+      std::cout << GetTime() << "Move to checkpoint fail..." << std::endl;
     }
     if (checkCompletion(c) == Status::Failure) isComplete = Status::Failure;
   }
 
   // update xCheck
-  mapMemory = blackboard.Get<vector<vector<vector<bool>>>>("map_memory");
-  vector<bool> xCheck = vector(size.x, false);
+  mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>("map_memory");
+  std::vector<bool> xCheck = std::vector(size.x, false);
 
   for (int x = 0; x < size.x; x++) {
     bool isAllDone = true;
@@ -664,62 +642,62 @@ Status CheckCompletion(BehaviourClient& c) {
     xCheck[x] = isAllDone;
   }
 
-  blackboard.Set("SliceDFS.xCheck", xCheck);
+  artist.board.Set("SliceDFS.xCheck", xCheck);
 
   return isComplete;
 }
 
-Status WarnConsole(BehaviourClient& c, const string& msg) {
-  cout << GetTime() << "[" << c.GetNetworkManager()->GetMyName() << "]: " << msg << endl;
+Status WarnConsole(BehaviourClient& c, const std::string& msg) {
+  std::cout << GetTime() << "[" << c.GetNetworkManager()->GetMyName() << "]: " << msg << std::endl;
   return Status::Success;
 }
 
 Status LoadNBT(BehaviourClient& c) {
   NBT::Value loaded_file;
-  Blackboard& blackboard = c.GetBlackboard();
-  Position offset = blackboard.Get<Position>("anchor");
-  string temp_block = blackboard.Get<string>("tempblock");
-  string nbt_path = blackboard.Get<string>("nbt");
+  Artist& artist = static_cast<Artist&>(c);
+  Position offset = artist.board.Get<Position>("anchor");
+  std::string temp_block = artist.board.Get<std::string>("tempblock");
+  std::string nbt_path = artist.board.Get<std::string>("nbt");
 
   try {
-    ifstream infile(nbt_path, ios::binary);
-    infile.unsetf(ios::skipws);
+    std::ifstream infile(nbt_path, std::ios::binary);
+    infile.unsetf(std::ios::skipws);
     infile >> loaded_file;
     infile.close();
-  } catch (const exception& e) {
-    cout << GetTime() << "Error loading NBT file " << e.what() << endl;
+  } catch (const std::exception& e) {
+    std::cout << GetTime() << "Error loading NBT file " << e.what() << std::endl;
     return Status::Failure;
   }
 
-  map<short, string> palette;
+  std::map<short, std::string> palette;
   palette[-1] = "minecraft:air";
   short id_temp_block = -1;
-  map<short, int> num_blocks_used;
+  std::map<short, int> num_blocks_used;
 
   if (!loaded_file.contains("palette") || !loaded_file["palette"].is_list_of<NBT::TagCompound>()) {
-    cout << GetTime() << "Error loading NBT file, no palette TagCompound found" << endl;
+    std::cout << GetTime() << "Error loading NBT file, no palette TagCompound found" << std::endl;
     return Status::Failure;
   }
 
-  const vector<NBT::TagCompound>& palette_list = loaded_file["palette"].as_list_of<NBT::TagCompound>();
+  const std::vector<NBT::TagCompound>& palette_list = loaded_file["palette"].as_list_of<NBT::TagCompound>();
   for (int i = 0; i < palette_list.size(); ++i) {
-    const string& block_name = palette_list[i]["Name"].get<string>();
+    const std::string& block_name = palette_list[i]["Name"].get<std::string>();
     palette[i] = block_name;
     num_blocks_used[i] = 0;
     if (block_name == temp_block) id_temp_block = i;
   }
 
-  Position min(numeric_limits<int>().max(), numeric_limits<int>().max(), numeric_limits<int>().max());
-  Position max(numeric_limits<int>().min(), numeric_limits<int>().min(), numeric_limits<int>().min());
+  Position min(std::numeric_limits<int>().max(), std::numeric_limits<int>().max(), std::numeric_limits<int>().max());
+  Position max(std::numeric_limits<int>().min(), std::numeric_limits<int>().min(), std::numeric_limits<int>().min());
 
   if (!loaded_file.contains("blocks") || !loaded_file["blocks"].is_list_of<NBT::TagCompound>()) {
-    cout << GetTime() << "Error loading NBT file, no blocks TagCompound found" << endl;
+    std::cout << GetTime() << "Error loading NBT file, no blocks TagCompound found" << std::endl;
     return Status::Failure;
   }
 
-  const vector<NBT::TagCompound>& block_tag = loaded_file["blocks"].as_list_of<NBT::TagCompound>();
+  const std::vector<NBT::TagCompound>& block_tag = loaded_file["blocks"].as_list_of<NBT::TagCompound>();
   for (const auto& c : block_tag) {
-    const vector<int>& pos_list = c["pos"].as_list_of<int>();
+    const std::vector<int>& pos_list = c["pos"].as_list_of<int>();
     const int x = pos_list[0];
     const int y = pos_list[1];
     const int z = pos_list[2];
@@ -736,15 +714,15 @@ Status LoadNBT(BehaviourClient& c) {
   Position start = offset;
   Position end = offset + size - Position(1, 1, 1);
 
-  cout << GetTime() << "Start: " << start << " | " << "End: " << end << endl;
+  std::cout << GetTime() << "Start: " << start << " | " << "End: " << end << std::endl;
 
   // Fill the target area with air (-1)
-  vector<vector<vector<short>>> target(size.x, vector<vector<short>>(size.y, vector<short>(size.z, -1)));
+  std::vector<std::vector<std::vector<short>>> target(size.x, std::vector<std::vector<short>>(size.y, std::vector<short>(size.z, -1)));
 
   // Read all block to place
   for (const auto& c : block_tag) {
     const int state = c["state"].get<int>();
-    const vector<int>& pos_list = c["pos"].as_list_of<int>();
+    const std::vector<int>& pos_list = c["pos"].as_list_of<int>();
     const int x = pos_list[0];
     const int y = pos_list[1];
     const int z = pos_list[2];
@@ -754,7 +732,7 @@ Status LoadNBT(BehaviourClient& c) {
   }
 
   if (id_temp_block == -1) {
-    cout << GetTime() << "Can't find the given temp block " << temp_block << " in the palette" << endl;
+    std::cout << GetTime() << "Can't find the given temp block " << temp_block << " in the palette" << std::endl;
   } else {
     int removed_layers = 0;
     // Check the bottom Y layers, if only
@@ -785,24 +763,24 @@ Status LoadNBT(BehaviourClient& c) {
       end.y -= 1;
     }
 
-    cout << GetTime() << "Removed the bottom " << removed_layers << " layer" << (removed_layers > 1 ? "s" : "") << endl;
+    std::cout << GetTime() << "Removed the bottom " << removed_layers << " layer" << (removed_layers > 1 ? "s" : "") << std::endl;
   }
 
-  cout << GetTime() << "Total size: " << size << endl;
+  std::cout << GetTime() << "Total size: " << size << std::endl;
 
-  stringstream needed;
+  std::stringstream needed;
   needed << "Block needed:\n";
   for (auto it = num_blocks_used.begin(); it != num_blocks_used.end(); ++it) {
-    needed << setw(35) << palette[it->first] << "----" << it->second << "\n";
+    needed << std::setw(35) << palette[it->first] << "----" << it->second << "\n";
   }
-  cout << GetTime() << needed.rdbuf() << endl;
+  std::cout << GetTime() << needed.rdbuf() << std::endl;
 
   // Check if some block can't be placed (flying blocks)
-  stringstream flyings;
+  std::stringstream flyings;
   flyings << "Flying blocks, you might have to place them yourself:\n";
   Position target_pos;
 
-  const vector<Position> neighbour_offsets(
+  const std::vector<Position> neighbour_offsets(
       {Position(0, 1, 0), Position(0, -1, 0), Position(0, 0, 1),
        Position(0, 0, -1), Position(1, 0, 0), Position(-1, 0, 0)});
 
@@ -839,37 +817,38 @@ Status LoadNBT(BehaviourClient& c) {
       }
     }
   }
-  cout << GetTime() << flyings.rdbuf() << endl;
+  std::cout << GetTime() << flyings.rdbuf() << std::endl;
 
-  blackboard.Set("Structure.start", start);
-  blackboard.Set("Structure.end", end);
-  blackboard.Set("Structure.target", target);
-  blackboard.Set("Structure.palette", palette);
-  blackboard.Set("Structure.loaded", true);
+  artist.board.Set("Structure.start", start);
+  artist.board.Set("Structure.end", end);
+  artist.board.Set("Structure.target", target);
+  artist.board.Set("Structure.palette", palette);
+  artist.board.Set("Structure.loaded", true);
 
   return Status::Success;
 }
 
+// Deprecated, config will load in Artist constructor
 Status LoadConfig(BehaviourClient& c) {
   Blackboard& blackboard = c.GetBlackboard();
-  const string &configPath = blackboard.Get<string>("configPath");
-  ifstream file(configPath, ios::in);
+  const std::string &configPath = blackboard.Get<std::string>("configPath");
+  std::ifstream file(configPath, std::ios::in);
 
   if (!file.is_open()) {
-    cerr << GetTime() << "Unable to open file: " + configPath << endl;
+    std::cerr << GetTime() << "Unable to open file: " + configPath << std::endl;
     return Status::Failure;
   }
 
-  string line;
-  while (getline(file, line)) {
+  std::string line;
+  while (std::getline(file, line)) {
     // if line start with '#' or is empty, skip
     if (line.empty() || line[0] == '#') continue;
 
-    istringstream iss(line);
-    string key, value;
-    getline(iss, key, '=') && getline(iss, value);
+    std::istringstream iss(line);
+    std::string key, value;
+    std::getline(iss, key, '=') && std::getline(iss, value);
     if (key == "anchor") {
-      Position anchor = parsePostionString(value);
+      Position anchor = ParsePositionString(value);
       blackboard.Set("anchor", anchor);
     } else if (key == "nbt") {
       blackboard.Set("nbt", value);
@@ -878,18 +857,18 @@ Status LoadConfig(BehaviourClient& c) {
     } else if (key == "prioritize") {
       blackboard.Set("prioritize", value);
     } else if (key == "home") {
-      cout << "TP Home command: " << value << endl;
+      std::cout << "TP Home command: " << value << std::endl;
       blackboard.Set("home", value);
     } else if (key == "retry") {
       blackboard.Set("retry", stoi(value));
     } else if (key == "neighbor") {
       blackboard.Set("neighbor", value == "true");
     } else {
-      vector<Position> posVec;
-      istringstream _iss(value);
-      string posGroup;
-      while (getline(_iss, posGroup, ';')) {
-        Position chestPos = parsePostionString(posGroup);
+      std::vector<Position> posVec;
+      std::istringstream _iss(value);
+      std::string posGroup;
+      while (std::getline(_iss, posGroup, ';')) {
+        Position chestPos = ParsePositionString(posGroup);
         posVec.push_back(chestPos);
       }
       blackboard.Set("chest:" + key, posVec);
@@ -901,7 +880,7 @@ Status LoadConfig(BehaviourClient& c) {
   return Status::Success;
 }
 
-Status EatUntilFull(BehaviourClient& c, string food) {
+Status EatUntilFull(BehaviourClient& c, std::string food) {
   while (IsHungry(c, 20) == Status::Success) {
     Status r = Eat(c, food, true);
     if (r == Status::Failure) return Status::Failure;

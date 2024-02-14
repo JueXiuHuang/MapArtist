@@ -2,7 +2,7 @@
 #define CUSTOMSUBTREE_HPP_
 
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
-#include "botcraft/Game/Vector3.hpp"
+#include <botcraft/Game/Vector3.hpp>
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> FullTree();
 

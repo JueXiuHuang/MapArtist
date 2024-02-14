@@ -1,9 +1,9 @@
 #ifndef CUSTOMTASK_HPP_
 #define CUSTOMTASK_HPP_
 
-#include "botcraft/AI/BehaviourClient.hpp"
-#include "botcraft/AI/Status.hpp"
-#include "botcraft/Game/Vector3.hpp"
+#include <botcraft/AI/BehaviourClient.hpp>
+#include <botcraft/AI/Status.hpp>
+#include <botcraft/Game/Vector3.hpp>
 
 /// @brief Try to get a stack (64) of food from specified location.
 /// @param c The client performing the action
@@ -16,8 +16,8 @@ Botcraft::Status GetFood(Botcraft::BehaviourClient& c, const std::string& food_n
 /// @return always Success
 Botcraft::Status SortChestWithDesirePlace(Botcraft::BehaviourClient& c);
 
-/// @brief Use bsf to generate task priority queue
-/// @param c The client performing the action
+/// @brief Use dfs to generate task priority queue
+/// @param c The client who performs the action
 /// @return Always return success
 Botcraft::Status TaskPrioritize(Botcraft::BehaviourClient& c);
 
@@ -60,6 +60,7 @@ Botcraft::Status WarnConsole(Botcraft::BehaviourClient& c, const std::string& ms
 /// @return Success if the file was correctly loaded, failure otherwise
 Botcraft::Status LoadNBT(Botcraft::BehaviourClient& c);
 
+// Deprecated, config will load in Artist constructor
 Botcraft::Status LoadConfig(Botcraft::BehaviourClient& c);
 
 Botcraft::Status EatUntilFull(Botcraft::BehaviourClient& c, const std::string food);

@@ -6,13 +6,13 @@
 #include <Goal/Goal.hpp>
 #include <Weighted/Weighted.hpp>
 
-#include "botcraft/AI/SimpleBehaviourClient.hpp"
-#include "botcraft/AI/Tasks/PathfindingTask.hpp"
-#include "botcraft/Game/Entities/EntityManager.hpp"
-#include "botcraft/Game/Entities/LocalPlayer.hpp"
-#include "botcraft/Game/World/World.hpp"
-#include "botcraft/Utilities/Logger.hpp"
-#include "botcraft/Utilities/MiscUtilities.hpp"
+#include <botcraft/AI/SimpleBehaviourClient.hpp>
+#include <botcraft/AI/Tasks/PathfindingTask.hpp>
+#include <botcraft/Game/Entities/EntityManager.hpp>
+#include <botcraft/Game/Entities/LocalPlayer.hpp>
+#include <botcraft/Game/World/World.hpp>
+#include <botcraft/Utilities/Logger.hpp>
+#include <botcraft/Utilities/MiscUtilities.hpp>
 
 namespace Botcraft
 {

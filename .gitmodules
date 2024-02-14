@@ -13,3 +13,9 @@
 [submodule "dependency/dpp"]
 	path = dependency/dpp
 	url = https://github.com/brainboxdotcc/DPP
+[submodule "dependency/glfw"]
+	path = dependency/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "dependency/tomlplusplus"]
+	path = dependency/tomlplusplus
+	url = https://github.com/marzer/tomlplusplus.git

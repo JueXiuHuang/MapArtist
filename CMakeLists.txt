@@ -38,6 +38,7 @@ include("cmake/openssl.cmake")
 include("cmake/zlib.cmake")
 include("cmake/botcraft.cmake")
 include("cmake/dpp.cmake")
+include("cmake/tomlplusplus.cmake")
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.h"
@@ -71,6 +72,10 @@ target_precompile_headers(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER})
 # dpp
 add_dependencies(${TARGET_NAME} Dpp-install)
 target_link_libraries(${TARGET_NAME} dpp)
+
+# tomlplusplus
+target_include_directories(${TARGET_NAME} PUBLIC ${TOMLPLUSPLUS_HEADER_PATH})
+target_precompile_headers(${TARGET_NAME} PUBLIC ${TOMLPLUSPLUS_HEADER})
 
 # copy necessary dll when using ASAN
 get_filename_component(COMPILER_FOLDER ${CMAKE_CXX_COMPILER} DIRECTORY)

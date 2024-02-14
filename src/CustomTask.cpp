@@ -247,6 +247,7 @@ Status DumpItems(BehaviourClient& c) {
   if (s == Status::Failure) {
     std::cout << GetTime() << "Early stop due to recycle chest full..." << std::endl;
     MessageOutput("Early stop due to recycle chest full...", &artist);
+    ListPlayerInventory(&artist);
     return Status::Failure;
   }
 
@@ -284,6 +285,7 @@ Status CollectAllMaterial(BehaviourClient& c) {
     if (s == Status::Failure) {
       std::cout << "Early stop due to collect material fail..." << std::endl;
       MessageOutput("Early stop due to collect material fail...", &artist);
+      ListPlayerInventory(&artist);
       return Status::Failure;
     }
   }

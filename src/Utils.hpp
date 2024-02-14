@@ -14,5 +14,6 @@ int GetItemAmount(Botcraft::BehaviourClient& c, std::string itemName);
 Botcraft::Position ParsePositionString(std::string posStr);
 void CmdHandler(std::string text, Artist *artist);
 void MessageOutput(std::string text, Artist* artist);
+void ListPlayerInventory(Artist* artist);
 
 #endif

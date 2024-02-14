@@ -150,3 +150,21 @@ void MessageOutput(std::string text, Artist* artist) {
     artist->SendChatMessage(text);
   }
 }
+
+void ListPlayerInventory(Artist* artist) {
+  std::shared_ptr<InventoryManager> inventory_manager = artist->GetInventoryManager();
+  std::shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
+  
+  std::cout << GetTime() << "========== LIST START ==========" << std::endl;
+  for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_OFFHAND_INDEX+1; i++) {
+    const Slot& slot = playerInv->GetSlot(i);
+    if (slot.IsEmptySlot()) {
+      std::cout << GetTime() << "Slot " << i << ": " << std::endl;
+    } else {
+      std::cout << GetTime() << "Slot " << i << ": " 
+        << AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName()
+        << " x " << static_cast<int>(slot.GetItemCount()) << std::endl;
+    }
+  }
+  std::cout << GetTime() << "======= LIST END =======" << std::endl;
+} 

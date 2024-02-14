@@ -16,19 +16,19 @@
 
 namespace Botcraft
 {
-  Status StopFlying(BehaviourClient& client);
+  Status StopFlying(BehaviourClient &client);
   bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player, const Position &target_pos, const float speed_factor, const bool sprint);
   void AdjustPosSpeed(BehaviourClient &client);
 }
 
 namespace pf = pathfinding;
 
-template <template <class, class, class, class> class TFinder = pf::AstarFinder,
-          class TWeight = pf::weight::ConstWeighted<1, 1>,
+template <template <class, class, class, class, class> class TFinder = pf::AstarFinder,
+          class TEdge = pf::eval::Manhattan,
           class TEstimate = pf::eval::Manhattan,
-          class TEdge = pf::eval::Manhattan>
+          class TWeight = pf::weight::ConstWeighted<1, 1>>
 class BotCraftFinder final
-    : public TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>
+    : public TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position, TEdge, TEstimate, TWeight>
 {
 public:
   virtual pf::BlockType getBlockTypeImpl(
@@ -96,7 +96,7 @@ public:
 
     if (StopFlying(*client) == Botcraft::Status::Failure)
     {
-        return false;
+      return false;
     }
 
     const float speed_factor = 1.0;
@@ -137,10 +137,11 @@ public:
 
       // If something went wrong, break and
       // replan the whole path to the goal
-      auto Step = [&](){
+      auto Step = [&]()
+      {
         return Move(*client, local_player, Botcraft::Position(newPos.x, newPos.y + 1, newPos.z), speed_factor, true);
       };
-      if (!(Step() || Step() || Step()))  // 3 chances
+      if (!(Step() || Step() || Step())) // 3 chances
       {
         return false;
       }
@@ -171,7 +172,7 @@ public:
   }
 
   BotCraftFinder(Botcraft::BehaviourClient *_client)
-      : TFinder<BotCraftFinder<TFinder, TWeight, TEstimate, TEdge>, TWeight, TEstimate, TEdge>(
+      : TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position, TEdge, TEstimate, TWeight>(
             {false, 9999999}), // do not use 8-connect
         client(_client)
   {

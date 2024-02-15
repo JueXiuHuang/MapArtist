@@ -10,8 +10,8 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
   return Builder<SimpleBehaviourClient>("Full Tree")
     .sequence()
       .tree(InitTree())
-      .leaf("Wait Server Load", WaitServerLoad)
-      .leaf("Sort Player's Inventory", SortChestWithDesirePlace)
+      .leaf("wait server load", WaitServerLoad)
+      .leaf("sort player's inventory", SortChestWithDesirePlace)
       .tree(EatTree())
       .selector()
         .inverter().tree(CheckCompleteTree())
@@ -26,7 +26,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> FullTree() {
 
 std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> NullTree() {
   return Builder<SimpleBehaviourClient>("Null Tree")
-    .leaf("Set null tree", [](SimpleBehaviourClient &c) {
+    .leaf("set null tree", [](SimpleBehaviourClient &c) {
         c.SetBehaviourTree(nullptr);
         return Status::Success;
     });
@@ -35,11 +35,11 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> NullTree() {
 std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
   return Builder<SimpleBehaviourClient>("Init Tree")
     .selector()
-      .leaf("Config loaded?", CheckBlackboardBoolData, "Config.loaded")
+      .inverter().leaf("config loaded?", CheckArtistBlackboardBoolData, "Config.loaded")
       .selector()
-        .leaf("Load NBT", LoadNBT)
+        .leaf("load NBT", LoadNBT)
         // If init failed, stop the behaviour
-        .tree(DisconnectTree())
+        .tree(NullTree())
       .end()
     .end();
 }
@@ -49,15 +49,15 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
     .sequence()
       .tree(EatTree())
       .selector()
-        .leaf("Prioritized?", CheckBlackboardBoolData, "Task.prioritized")
+        .leaf("prioritized?", CheckArtistBlackboardBoolData, "Task.prioritized")
         .sequence()
-          .leaf("Task Priortize", TaskPrioritize)
-          .leaf("Dump Items", DumpItems)
-          .leaf("Collect Material", CollectAllMaterial)
+          .leaf("task priortize", TaskPrioritize)
+          .leaf("dump Items", DumpItems)
+          .leaf("collect Material", CollectAllMaterial)
         .end()
         .tree(NullTree())
       .end()
-      .leaf("Task Execute scheduler", TaskExecutor)
+      .leaf("task execute scheduler", TaskExecutor)
     .end();
 }
 
@@ -72,17 +72,11 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
           .leaf("put in left hand", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
           .sequence()
             .leaf("get food", GetFood, "minecraft:cooked_beef")
-            .leaf("put in left hand", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
+            .leaf("put in left hand again", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
           .end()
-          .leaf("Notify", WarnConsole, "Can't find food anywhere!")
+          .leaf("notify", WarnConsole, "Can't find food anywhere!")
         .end()
-        .leaf("Eat until full", EatUntilFull, "minecraft:cooked_beef")
-        // .selector()
-        //   .leaf("Eat until full", EatUntilFull, "minecraft:cooked_beef")
-        //   .inverter().leaf("Notify", WarnConsole, "Can't eat!")
-        //   // If we are here, hungry and can't eat --> Disconnect
-        //   .tree(NullTree())
-        // .end()
+        .leaf("eat until full", EatUntilFull, "minecraft:cooked_beef")
       .end()
     .end();
 }
@@ -92,8 +86,8 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> CheckCompleteTree() {
   return Builder<SimpleBehaviourClient>("Complete check")
     .sequence()
       .leaf("check completion", CheckCompletion)
-      .leaf("Notify", Say, "It's done.")
-      .leaf("Notify", WarnConsole, "Task fully completed!")
+      .leaf("notify", Say, "It's done.")
+      .leaf("notify", WarnConsole, "Task fully completed!")
       .repeater(0).leaf(Yield)
     .end();
 }
@@ -110,7 +104,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> BMoveTree(Position dest) {
   return Builder<SimpleBehaviourClient>("Move tree")
     .sequence()
       .leaf("move", GoTo, dest, 2, 0, 0, true, true, (4.3F))
-      .leaf("Notify", Say, "Arrived")
+      .leaf("notify", Say, "Arrived")
       .leaf("set null tree", [](SimpleBehaviourClient& c) { c.SetBehaviourTree(nullptr); return Status::Success; })
     .end();
 }
@@ -119,7 +113,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> MoveTree(Position dest) {
   return Builder<SimpleBehaviourClient>("Move tree")
     .sequence()
       .leaf("move", FindPathAndMove, dest,  0, 0, 5, 5, 0, 0,  -1, -1, -1, -1, -1, -1)
-      .leaf("Notify", Say, "Arrived")
+      .leaf("notify", Say, "Arrived")
       .leaf("set null tree", [](SimpleBehaviourClient& c) { c.SetBehaviourTree(nullptr); return Status::Success; })
     .end();
 }

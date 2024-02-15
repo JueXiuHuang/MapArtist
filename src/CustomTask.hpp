@@ -11,6 +11,12 @@
 /// @return Success if the given food is in inventory, Failure otherwise
 Botcraft::Status GetFood(Botcraft::BehaviourClient& c, const std::string& food_name);
 
+/// @brief Try to find the bool value in artist's blackboard.
+/// @param c The client performing the action
+/// @param key The key in blackboard
+/// @return Success if the given key in blackboard is true, Failure otherwise
+Botcraft::Status CheckArtistBlackboardBoolData(Botcraft::BehaviourClient& c, const std::string &key);
+
 /// @brief Just like normal SortInventory, but this will place tool at specified position.
 /// @param c The client performing the action
 /// @return always Success

@@ -67,6 +67,15 @@ Status checkInventoryAllClear(BehaviourClient& c) {
   return Status::Success;
 }
 
+Status CheckArtistBlackboardBoolData(BehaviourClient& c, const std::string &key) {
+  Artist& artist = static_cast<Artist&>(c);
+
+  bool result = artist.board.Get<bool>(key, false);
+  std::cout << GetTime() << "Check blackboard bool: " << key << ", result: " << result << std::endl;
+
+  return result ? Status::Success : Status::Failure;
+}
+
 Status GetFood(BehaviourClient& c, const std::string& food_name) {
   std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
 
@@ -637,6 +646,7 @@ Status CheckCompletion(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
   Position anchor = artist.board.Get<Position>("anchor");
+  std::cout << "1" << std::endl;
 
   Position target_pos, world_pos;
 
@@ -645,10 +655,14 @@ Status CheckCompletion(BehaviourClient& c) {
   int missing_blocks = 0;
 
   const Position& start = artist.board.Get<Position>("Structure.start");
+  std::cout << "2" << std::endl;
   const Position& end = artist.board.Get<Position>("Structure.end");
+  std::cout << "3" << std::endl;
   const Position size = end - start + Position(1, 1, 1);
   const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  std::cout << "4" << std::endl;
   const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  std::cout << "5" << std::endl;
 
   std::vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
@@ -698,6 +712,7 @@ Status WarnConsole(BehaviourClient& c, const std::string& msg) {
 }
 
 Status LoadNBT(BehaviourClient& c) {
+  std::cout << GetTime() << "Loading NBT file..." << std::endl;
   NBT::Value loaded_file;
   Artist& artist = static_cast<Artist&>(c);
   Position offset = artist.board.Get<Position>("anchor");
@@ -710,7 +725,7 @@ Status LoadNBT(BehaviourClient& c) {
     infile >> loaded_file;
     infile.close();
   } catch (const std::exception& e) {
-    std::cout << GetTime() << "Error loading NBT file " << e.what() << std::endl;
+    std::cout << GetTime() << "Early stop due to loading NBT file fail, " << e.what() << std::endl;
     return Status::Failure;
   }
 
@@ -720,7 +735,7 @@ Status LoadNBT(BehaviourClient& c) {
   std::map<short, int> num_blocks_used;
 
   if (!loaded_file.contains("palette") || !loaded_file["palette"].is_list_of<NBT::TagCompound>()) {
-    std::cout << GetTime() << "Error loading NBT file, no palette TagCompound found" << std::endl;
+    std::cout << GetTime() << "Early stop due to loading NBT file fail, no palette TagCompound found" << std::endl;
     return Status::Failure;
   }
 
@@ -736,7 +751,7 @@ Status LoadNBT(BehaviourClient& c) {
   Position max(std::numeric_limits<int>().min(), std::numeric_limits<int>().min(), std::numeric_limits<int>().min());
 
   if (!loaded_file.contains("blocks") || !loaded_file["blocks"].is_list_of<NBT::TagCompound>()) {
-    std::cout << GetTime() << "Error loading NBT file, no blocks TagCompound found" << std::endl;
+    std::cout << GetTime() << "Early stop due to loading NBT file fail, no blocks TagCompound found" << std::endl;
     return Status::Failure;
   }
 

@@ -60,6 +60,10 @@ public:
         {
           return {pf::BlockType::DANGER, pf::BlockType::NONE};
         }
+        else if (block->IsTransparent() && block->GetHardness() < 0)  // minecraft::light
+        {
+          return {pf::BlockType::DANGER, pf::BlockType::NONE};
+        }
         else if (block->IsSolid())
         {
           return {pf::BlockType::SAFE, pf::BlockType::NONE};

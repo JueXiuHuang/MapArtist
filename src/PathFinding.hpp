@@ -1,6 +1,7 @@
 #ifndef PATHFINDING_HPP_
 #define PATHFINDING_HPP_
 
+#include <bitset>
 #include <Evaluate/Evaluate.hpp>
 #include <Finder/Finder.hpp>
 #include <Goal/Goal.hpp>
@@ -115,6 +116,16 @@ public:
                 << " Diff: " << diffPos << " (" << i << "/"
                 << (path->size() - 1) << ")" << std::endl
                 << std::flush;
+
+      // check flying
+      if (local_player->GetFlying())
+      {
+        std::cout << GetTime() << "Player is flying...";
+        std::cout << GetTime() << "Player Abilities: " << std::bitset<8>(local_player->GetAbilitiesFlags()).to_string();
+        local_player->SetAbilitiesFlags(
+            (~((unsigned char)0x02)) & local_player->GetAbilitiesFlags());
+        std::cout << GetTime() << "Player Abilities: " << std::bitset<8>(local_player->GetAbilitiesFlags()).to_string();
+      }
 
       // Wait until we are on the ground or climbing
       const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();

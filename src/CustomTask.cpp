@@ -941,6 +941,10 @@ Status LoadConfig(BehaviourClient& c) {
 }
 
 Status EatUntilFull(BehaviourClient& c, std::string food) {
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  const Slot& slot = inventory_manager->GetPlayerInventory()->GetSlot(Window::INVENTORY_OFFHAND_INDEX);
+  std::string name = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
+  std::cout << GetTime() << "Left hand: " << name << std::endl;
   while (IsHungry(c, 20) == Status::Success) {
     Status r = Eat(c, food, true);
     if (r == Status::Failure) return Status::Failure;

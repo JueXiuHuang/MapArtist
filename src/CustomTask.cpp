@@ -646,7 +646,6 @@ Status CheckCompletion(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
   Position anchor = artist.board.Get<Position>("anchor");
-  std::cout << "1" << std::endl;
 
   Position target_pos, world_pos;
 
@@ -655,14 +654,10 @@ Status CheckCompletion(BehaviourClient& c) {
   int missing_blocks = 0;
 
   const Position& start = artist.board.Get<Position>("Structure.start");
-  std::cout << "2" << std::endl;
   const Position& end = artist.board.Get<Position>("Structure.end");
-  std::cout << "3" << std::endl;
   const Position size = end - start + Position(1, 1, 1);
   const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  std::cout << "4" << std::endl;
   const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
-  std::cout << "5" << std::endl;
 
   std::vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};

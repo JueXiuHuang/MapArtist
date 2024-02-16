@@ -78,6 +78,7 @@ Status CheckArtistBlackboardBoolData(BehaviourClient& c, const std::string &key)
 
 Status GetFood(BehaviourClient& c, const std::string& food_name) {
   std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  Artist& artist = static_cast<Artist&>(c);
 
   // Sort the chest and make sure the first slot in hotbar is empty
   // Food will place in this slot
@@ -85,7 +86,7 @@ Status GetFood(BehaviourClient& c, const std::string& food_name) {
                           Window::INVENTORY_HOTBAR_START, 
                           Window::INVENTORY_OFFHAND_INDEX);
 
-  const std::vector<Position>& chests = c.GetBlackboard().Get<std::vector<Position>>("chest:" + food_name);
+  const std::vector<Position>& chests = artist.board.Get<std::vector<Position>>("chest:" + food_name);
 
   std::vector<std::size_t> chests_indices(chests.size());
   for (std::size_t i = 0; i < chests.size(); ++i) {

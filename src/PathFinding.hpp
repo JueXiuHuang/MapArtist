@@ -60,7 +60,7 @@ public:
         {
           return {pf::BlockType::DANGER, pf::BlockType::NONE};
         }
-        else if (block->IsTransparent() && block->GetHardness() < 0)  // minecraft::light
+        else if (block->IsTransparent() && block->GetHardness() < 0) // minecraft::light
         {
           return {pf::BlockType::DANGER, pf::BlockType::NONE};
         }
@@ -177,7 +177,7 @@ public:
 
   BotCraftFinder(Botcraft::BehaviourClient *_client)
       : TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position, TEdge, TEstimate, TWeight>(
-            {false, 9999999}), // do not use 8-connect
+            {false, 9999999, true}), // do not use 8-connect
         client(_client)
   {
   }

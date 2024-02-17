@@ -78,6 +78,7 @@ Status CheckArtistBlackboardBoolData(BehaviourClient& c, const std::string &key)
 
 Status GetFood(BehaviourClient& c, const std::string& food_name) {
   std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  Artist& artist = static_cast<Artist&>(c);
 
   // Sort the chest and make sure the first slot in hotbar is empty
   // Food will place in this slot
@@ -85,7 +86,7 @@ Status GetFood(BehaviourClient& c, const std::string& food_name) {
                           Window::INVENTORY_HOTBAR_START, 
                           Window::INVENTORY_OFFHAND_INDEX);
 
-  const std::vector<Position>& chests = c.GetBlackboard().Get<std::vector<Position>>("chest:" + food_name);
+  const std::vector<Position>& chests = artist.board.Get<std::vector<Position>>("chest:" + food_name);
 
   std::vector<std::size_t> chests_indices(chests.size());
   for (std::size_t i = 0; i < chests.size(); ++i) {
@@ -646,7 +647,6 @@ Status CheckCompletion(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
   Position anchor = artist.board.Get<Position>("anchor");
-  std::cout << "1" << std::endl;
 
   Position target_pos, world_pos;
 
@@ -655,14 +655,10 @@ Status CheckCompletion(BehaviourClient& c) {
   int missing_blocks = 0;
 
   const Position& start = artist.board.Get<Position>("Structure.start");
-  std::cout << "2" << std::endl;
   const Position& end = artist.board.Get<Position>("Structure.end");
-  std::cout << "3" << std::endl;
   const Position size = end - start + Position(1, 1, 1);
   const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  std::cout << "4" << std::endl;
   const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
-  std::cout << "5" << std::endl;
 
   std::vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
@@ -941,6 +937,10 @@ Status LoadConfig(BehaviourClient& c) {
 }
 
 Status EatUntilFull(BehaviourClient& c, std::string food) {
+  std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
+  const Slot& slot = inventory_manager->GetPlayerInventory()->GetSlot(Window::INVENTORY_OFFHAND_INDEX);
+  std::string name = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
+  std::cout << GetTime() << "Left hand: " << name << std::endl;
   while (IsHungry(c, 20) == Status::Success) {
     Status r = Eat(c, food, true);
     if (r == Status::Failure) return Status::Failure;

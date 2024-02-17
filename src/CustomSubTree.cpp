@@ -71,6 +71,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> EatTree() {
         .selector()
           .leaf("put in left hand", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
           .sequence()
+            .leaf("notify", WarnConsole, "Put food in left hand fail, try to get food.")
             .leaf("get food", GetFood, "minecraft:cooked_beef")
             .leaf("put in left hand again", SetItemInHand, "minecraft:cooked_beef", Hand::Left)
           .end()

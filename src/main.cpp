@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     Artist client(args.gui, args.configPath);
 
     std::cout << GetTime() << "Starting discord bot" << std::endl;
-    if (client.board.Get<bool>("use.dpp")) {
+    if (client.board.Get<bool>("use.dpp", false)) {
       std::string token = client.board.Get<std::string>("dctoken");
       std::string chan = client.board.Get<std::string>("dcchannel");
       DiscordBot::init(token, chan, &client);

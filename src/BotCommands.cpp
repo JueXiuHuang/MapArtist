@@ -157,6 +157,7 @@ void cmdTpHome(std::smatch matches, Artist *artist) {
 void cmdDetail(std::smatch matches, Artist *artist) {
   int workCol = artist->board.Get<int>("workCol", 0);
   int workerNum = artist->board.Get<int>("workerNum", 1);
+  std::string channel = artist->board.Get<std::string>("ChannelNumber", "NOT_FOUND");
   std::string fileName = artist->board.Get<std::string>("nbt", "");
   std::string userName = artist->GetNetworkManager()->GetMyName();
   
@@ -165,6 +166,7 @@ void cmdDetail(std::smatch matches, Artist *artist) {
   oss << "Map Name: " << fileName << std::endl;
   oss << "Total Worker: " << workerNum << std::endl;
   oss << "Work Column: " << workCol << std::endl;
+  oss << "Channel: " << channel << std::endl;
   
   MessageOutput(oss.str(), artist);
 }

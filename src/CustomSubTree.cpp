@@ -52,6 +52,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
         .leaf("prioritized?", CheckArtistBlackboardBoolData, "Task.prioritized")
         .sequence()
           .leaf("task priortize", TaskPrioritize)
+          .leaf("sort inventory", SortChestWithDesirePlace)
           .leaf("dump Items", DumpItems)
           .leaf("collect Material", CollectAllMaterial)
         .end()

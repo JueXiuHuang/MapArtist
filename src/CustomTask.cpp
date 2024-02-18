@@ -225,14 +225,8 @@ Status DumpItems(BehaviourClient& c) {
     for (auto it = slots.begin(); it != slots.end(); ++it) {
       if (it->first >= 0 && it->first < firstPlayerIndex && it->second.IsEmptySlot()) {
         slotDst.push(it->first);
-      } else if (it->first >= firstPlayerIndex && !it->second.IsEmptySlot()) {
-        std::string itemName = AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName();
-        if (itemName == "minecraft:cooked_beef") continue;
-        if (itemName.find("_pickaxe") != std::string::npos) continue;
-        if (itemName.find("_axe") != std::string::npos) continue;
-        if (itemName.find("_shovel") != std::string::npos) continue;
-        if (itemName.find("shears") != std::string::npos) continue;
-
+      } else if (it->first >= firstPlayerIndex && it->first <= firstPlayerIndex+31 && !it->second.IsEmptySlot()) {
+        // we put player's tool from firstPlayerIndex+32 to firstPlayerIndex+35
         slotSrc.push(it->first);
       }
     }

@@ -73,6 +73,7 @@ void cmdInGameCommand(std::smatch matches, Artist *artist) {
   std::string exp_user = matches[2];
 
   if (exp_user != name && exp_user != "all") return;
+  artist->SendChatCommand(ingameCmd);
   MessageOutput(ingameCmd, artist);
 }
 

@@ -81,6 +81,8 @@ Status GetFood(BehaviourClient& c, const std::string& food_name) {
   Artist& artist = static_cast<Artist&>(c);
 
   // Sort the chest and make sure the first slot in hotbar is empty
+  SortChestWithDesirePlace(c);
+
   // Food will place in this slot
   SwapItemsInContainer(c, Window::PLAYER_INVENTORY_INDEX,
                           Window::INVENTORY_HOTBAR_START, 
@@ -120,8 +122,12 @@ Status GetFood(BehaviourClient& c, const std::string& food_name) {
       for (auto it = slots.begin(); it != slots.end(); ++it) {
         // Chest is src
         if (it->first >= 0 && it->first < playerFirstSlot && !it->second.IsEmptySlot() &&
-            AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName() == food_name)
+            AssetsManager::getInstance().Items().at(it->second.GetItemID())->GetName() == food_name) {
           slots_src.push_back(it->first);
+        } else if (it->first >= playerFirstSlot && it->second.IsEmptySlot()) {
+          player_dst = it->first;
+          break;
+        }
       }
 
       if (slots_src.size() > 0) {

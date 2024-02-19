@@ -24,4 +24,9 @@ void Notifier::notify_all()
   cv.notify_all();
 }
 
+std::size_t Notifier::getID()
+{
+  return id;
+}
+
 Notifier::Notifier() : id(0) {}

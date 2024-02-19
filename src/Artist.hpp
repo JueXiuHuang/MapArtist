@@ -19,6 +19,7 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     Artist(const bool use_renderer, std::string path);
     ~Artist();
 
+    std::size_t getTPID();
     void waitTP();
     template <typename Rep, typename Period>
     bool waitTP(const std::chrono::duration<Rep, Period> &duration){ return tpNotifier.wait_for(duration); }

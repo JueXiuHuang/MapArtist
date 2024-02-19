@@ -98,6 +98,10 @@ void Artist::waitTP(){
   tpNotifier.wait();
 }
 
+std::size_t Artist::getTPID(){
+  return tpNotifier.getID();
+}
+
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
   ManagersClient::Handle(msg);
   std::string text = msg.GetContent().GetText();

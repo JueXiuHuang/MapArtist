@@ -41,6 +41,7 @@ public:
 
   void notify();
   void notify_all();
+  std::size_t getID();
 };
 
 #endif

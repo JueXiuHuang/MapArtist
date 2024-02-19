@@ -112,6 +112,13 @@ public:
       return false;
     }
 
+    // record previous tp count
+    std::size_t prev_tp_id = static_cast<Artist *>(client)->getTPID();
+    auto isTPOccur = [&]() -> bool
+    {
+      return static_cast<Artist *>(client)->getTPID() != prev_tp_id;
+    };
+
     const float speed_factor = 1.0;
 
     auto &pathVec = path->get();
@@ -134,6 +141,10 @@ public:
             (~((unsigned char)0x02)) & local_player->GetAbilitiesFlags());
         std::cout << GetTime() << "Player Abilities: " << std::bitset<8>(local_player->GetAbilitiesFlags()).to_string();
       }
+      if (isTPOccur())
+      {
+        return false;
+      }
 
       // Wait until we are on the ground or climbing
       const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
@@ -146,6 +157,10 @@ public:
         }
         client->Yield();
       }
+      if (isTPOccur())
+      {
+        return false;
+      }
 
       // Basic verification to check we won't try to walk on air.
       // If so, it means some blocks have changed, better to
@@ -155,7 +170,7 @@ public:
       if ((above == nullptr || (!above->IsClimbable() && !above->IsFluid())) &&
           (next_target == nullptr || next_target->IsAir()))
       {
-        break;
+        return false;
       }
 
       // If something went wrong, break and
@@ -168,8 +183,16 @@ public:
       {
         return false;
       }
+      if (isTPOccur())
+      {
+        return false;
+      }
     }
     AdjustPosSpeed(*client);
+    if (isTPOccur())
+    {
+      return false;
+    }
     return true;
   }
 

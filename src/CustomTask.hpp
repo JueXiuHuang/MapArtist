@@ -45,6 +45,8 @@ Botcraft::Status WaitServerLoad(Botcraft::BehaviourClient& c);
 /// @return Success if the task was correctly executed, failure otherwise
 Botcraft::Status ExecuteTask(Botcraft::BehaviourClient& c, std::string action, Botcraft::Position blockPos, std::string blockName);
 
+Botcraft::Status RemoveNeighborExtraBlock(Botcraft::BehaviourClient& c, Botcraft::Position blockPos);
+
 Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient&c, Botcraft::Position pos, pathfinding::goal::GoalBase<pathfinding::Position> &goal);
 Botcraft::Status FindPathAndMove(Botcraft::BehaviourClient&c, Botcraft::Position pos, 
   int x_tol_pos, int x_tol_neg, int y_tol_pos, int y_tol_neg, int z_tol_pos, int z_tol_neg, 

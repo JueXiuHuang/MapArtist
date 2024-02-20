@@ -22,18 +22,18 @@ std::string GetTime() {
   return oss.str();
 }
 
-std::string GetWorldBlock(BehaviourClient& c, Position pos) {
+std::string GetWorldBlock(BehaviourClient& c, Position absolutePos) {
   std::shared_ptr<World> world = c.GetWorld();
 
   std::string curBlockName = "minecraft:air";
-  const Blockstate* block = world->GetBlock(pos);
+  const Blockstate* block = world->GetBlock(absolutePos);
 
   if (!block) {
     // it is a unload block
-    if (!world->IsLoaded(pos)) {
-      FindPathAndMove(c, pos,  5, 5, -1, -1, 5, 5,  -1, -1, -1, -1, -1, -1);
+    if (!world->IsLoaded(absolutePos)) {
+      FindPathAndMove(c, absolutePos,  5, 5, -1, -1, 5, 5,  -1, -1, -1, -1, -1, -1);
 
-      block = world->GetBlock(pos);
+      block = world->GetBlock(absolutePos);
       if (block) curBlockName = block->GetName();
     }
   } else {

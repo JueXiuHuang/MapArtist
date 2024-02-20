@@ -468,8 +468,8 @@ Status TaskExecutor(BehaviourClient& c) {
 
 Status ExecuteTask(BehaviourClient& c, std::string action, Position blockPos, std::string blockName) {
   std::cout << GetTime() << "Task:" << std::setw(5) << action <<
-                      ", Block Name:" << std::setw(32) << blockName <<
-                      ", Position:" << blockPos << std::endl;
+            ", Block Name:" << std::setw(32) << blockName <<
+            ", Position:" << blockPos << std::endl;
   
   if(FindPathAndMove(c, blockPos,  3, 3, 3, 3, 3, 3,  0, 0, 0, 2, 0, 0) == Status::Failure){
     std::cout << GetTime() << "Move Error" << std::endl;
@@ -480,8 +480,11 @@ Status ExecuteTask(BehaviourClient& c, std::string action, Position blockPos, st
     if (bn == "minecraft:air") return Status::Success;
     else return Dig(c, blockPos, true);
   } else if (action == "Place") {
-    if (bn == "minecraft:air") return PlaceBlock(c, blockName, blockPos, std::nullopt, true, true);
-    else if (bn != blockName) {
+    if (bn == "minecraft:air") {
+      PlaceBlock(c, blockName, blockPos, std::nullopt, true, true);
+      RemoveNeighborExtraBlock(c, blockPos);
+      return Status::Success;
+    } else if (bn != blockName) {
       Dig(c, blockPos, true);
       return Status::Failure;
     } else return Status::Success;
@@ -489,6 +492,33 @@ Status ExecuteTask(BehaviourClient& c, std::string action, Position blockPos, st
 
   std::cout << GetTime() << "Unknown task in ExecuteNextTask..." << std::endl;
   return Status::Failure;
+}
+
+Status RemoveNeighborExtraBlock(BehaviourClient& c, Position blockPos) {
+  Artist& artist = static_cast<Artist&>(c);
+  const Position& anchor = artist.board.Get<Position>("anchor");
+  const Position& start = artist.board.Get<Position>("Structure.start");
+  const Position& end = artist.board.Get<Position>("Structure.end");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  std::vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 1, 0),
+                                Position(0, -1, 0), Position(0, 0, 1), Position(0, 0, -1)};
+  
+  for (int i = 0; i < offsets.size(); i++) {
+    Position newPos = blockPos + offsets[i];
+    Position relativePos = newPos - anchor;
+    bool xCheck = newPos.x >= start.x && newPos.x <= end.x;
+    bool yCheck = newPos.y >= start.y && newPos.y <= end.y;
+    bool zCheck = newPos.z >= start.z && newPos.z <= end.z;
+    if (xCheck && yCheck && zCheck) {
+      short blockID = target[relativePos.x][relativePos.y][relativePos.z];
+      std::string idealBlock = palette.at(blockID);
+      std::string worldBlock = GetWorldBlock(c, newPos);
+      if (idealBlock != worldBlock) Dig(c, newPos);
+    }
+  }
+
+  return Status::Success;
 }
 
 Status FindPathAndMove(BehaviourClient&c, Position pos, 

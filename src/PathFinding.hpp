@@ -116,7 +116,10 @@ public:
     std::size_t prev_tp_id = static_cast<Artist *>(client)->getTPID();
     auto isTPOccur = [&]() -> bool
     {
-      return static_cast<Artist *>(client)->getTPID() != prev_tp_id;
+      bool changed = static_cast<Artist *>(client)->getTPID() != prev_tp_id;
+      if (changed)
+        std::cout << "Detect being TP" << std::endl;
+      return changed;
     };
 
     const float speed_factor = 1.0;

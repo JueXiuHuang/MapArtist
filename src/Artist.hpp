@@ -13,6 +13,7 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     bool waitTpFinish;
     bool hasWork;
     Botcraft::Blackboard board;
+    std::size_t tpID;
 
     Notifier tpNotifier;
     

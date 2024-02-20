@@ -32,6 +32,7 @@ Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClien
   inWaitingRoom = false;
   waitTpFinish = false;
   hasWork = false;
+  tpID = 0;
 
   std::ifstream file(configPath, std::ios::in);
 
@@ -99,7 +100,7 @@ void Artist::waitTP(){
 }
 
 std::size_t Artist::getTPID(){
-  return tpNotifier.getID();
+  return tpID;
 }
 
 void Artist::Handle(ClientboundSystemChatPacket &msg) {
@@ -127,6 +128,7 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
 
 void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
   ConnectionClient::Handle(msg);
+  tpID++;
   std::cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << std::endl;
   std::cout << GetTime() << "Notify all listeners" << std::endl;
   tpNotifier.notify_all();

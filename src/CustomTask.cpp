@@ -9,6 +9,7 @@
 #include <botcraft/Network/NetworkManager.hpp>
 #include <botcraft/Utilities/MiscUtilities.hpp>
 #include <botcraft/Utilities/SleepUtilities.hpp>
+#include <botcraft/Utilities/NBTUtilities.hpp>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -155,46 +156,84 @@ Status GetFood(BehaviourClient& c, const std::string& food_name) {
   return item_taken ? Status::Success : Status::Failure;
 }
 
+struct SlotWithID {
+  Slot slot;
+  int id;
+};
+
 Status SortChestWithDesirePlace(BehaviourClient& c) {
+  SortInventory(c);
   std::shared_ptr<InventoryManager> inventory_manager = c.GetInventoryManager();
   std::shared_ptr<Window> playerInv = inventory_manager->GetPlayerInventory();
-  Status state = SortInventory(c);
-  std::queue<short> taskSrc, taskDst;
+  std::vector<short> taskSrc, taskDst;
   
-  for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_HOTBAR_START+5; i++) {
-    const Slot& slot = playerInv->GetSlot(i);
-    if (slot.IsEmptySlot()) continue;
-    std::string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
-    if (itemName.find("_pickaxe") != std::string::npos) {
+  std::vector<ToolType> toolTypes {ToolType::Pickaxe, ToolType::Axe, ToolType::Shears, ToolType::Shovel};
+
+  for (int i = 0; i < toolTypes.size(); i++) {
+    std::vector<SlotWithID> tools;
+    for (int j = Window::INVENTORY_STORAGE_START; j < Window::INVENTORY_HOTBAR_START+9; j++) {
+      Slot& slot = playerInv->GetSlot(j);
+      if (slot.IsEmptySlot()) continue;
+      if (AssetsManager::getInstance().Items().at(slot.GetItemID())->GetToolType() == toolTypes[i]) {
+        tools.push_back({slot, j});
+      }
+    }
+
+    auto compareFunc = [](const SlotWithID& a, const SlotWithID& b) {
+      auto& itemA = AssetsManager::getInstance().Items().at(a.slot.GetItemID());
+      auto& itemB = AssetsManager::getInstance().Items().at(b.slot.GetItemID());
+
+      if (itemA->GetMaxDurability() != itemB->GetMaxDurability()) {
+        return itemA->GetMaxDurability() > itemB->GetMaxDurability();
+      } else {
+        return Utilities::GetDamageCount(a.slot.GetNBT()) < Utilities::GetDamageCount(b.slot.GetNBT());
+      }
+    };
+
+    if (tools.size() < 1) continue;
+    std::sort(tools.begin(), tools.end(), compareFunc);
+    switch (toolTypes[i]) {
+    case ToolType::Pickaxe:
       // put pickaxe at slot 44
-      taskSrc.push(i);
-      taskDst.push(44);
-      continue;
-    }
-    if (itemName.find("_axe") != std::string::npos) {
+      taskSrc.push_back(tools[0].id);
+      taskDst.push_back(Window::INVENTORY_HOTBAR_START+8);
+      break;
+    case ToolType::Axe:
       // put axe at slot 43
-      taskSrc.push(i);
-      taskDst.push(43);
-      continue;
-    }
-    if (itemName.find("_shovel") != std::string::npos) {
-      // put shovel at slot 42
-      taskSrc.push(i);
-      taskDst.push(42);
-      continue;
-    }
-    if (itemName.find("shears") != std::string::npos) {
-      // put shears at slot 41
-      taskSrc.push(i);
-      taskDst.push(41);
-      continue;
+      taskSrc.push_back(tools[0].id);
+      taskDst.push_back(Window::INVENTORY_HOTBAR_START+7);
+      break;
+    case ToolType::Shears:
+      // put shears at slot 42
+      taskSrc.push_back(tools[0].id);
+      taskDst.push_back(Window::INVENTORY_HOTBAR_START+6);
+      break;
+    case ToolType::Shovel:
+      // put shovel at slot 41
+      taskSrc.push_back(tools[0].id);
+      taskDst.push_back(Window::INVENTORY_HOTBAR_START+5);
+      break;
+    default:
+      std::cout << GetTime() << "Unexpected ToolType..." << std::endl;
+      break;
     }
   }
-
-  while (!taskSrc.empty() && !taskDst.empty()) {
-    SwapItemsInContainer(c, Window::PLAYER_INVENTORY_INDEX, taskSrc.front(), taskDst.front());
-    taskSrc.pop();
-    taskDst.pop();
+  
+  // Move tool to desire slot.
+  for (int i = 0; i < taskSrc.size(); i++) {
+    std::cout << taskSrc[i] << ", " << taskDst[i] << std::endl;
+    if (taskSrc[i] == taskDst[i]) continue;
+    Status s = SwapItemsInContainer(c, Window::PLAYER_INVENTORY_INDEX, taskSrc[i], taskDst[i]);
+    if (s == Status::Failure) {
+      std::cout << "Swap (" << taskSrc[i] << ", " << taskDst[i] << ") fail..." << std::endl;
+    }
+    
+    // If src and dst overlaps, swap will give wrong result.
+    // If no adjustment, item in slot A will moved to slot C instead of slot B. 
+    // (A, B), (B, C) -> (A, B), (A, C)
+    for (int j = i+1; j < taskSrc.size(); j++) {
+      if (taskSrc[j] == taskDst[i]) taskSrc[j] = taskSrc[i];
+    }
   }
 
   return Status::Success;

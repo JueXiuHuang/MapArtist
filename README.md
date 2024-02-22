@@ -14,11 +14,13 @@
     - [bar](#bar)
     - [csafe](#csafe)
     - [cmd](#cmd)
-    - [assign](#assign)
-    - [worker](#worker)
+    - [assign {user\_name} {column}](#assign-user_name-column)
+    - [worker {number}](#worker-number)
     - [duty](#duty)
+    - [detail](#detail)
     - [default](#default)
     - [ingot](#ingot)
+    - [name](#name)
     - [channel](#channel)
     - [move {x} {y} {z}](#move-x-y-z)
     - [bmove {x} {y} {z}](#bmove-x-y-z)
@@ -27,26 +29,14 @@
 
 ### Dependencies
 
-1. git
-2. cmake
+1. cmake
+2. MSVC
 
 ### Steps
 
-1. Clone [MapArtist](https://github.com/JueXiuHuang/MapArtist.git)
-  
-    ```bash
-    git clone https://github.com/JueXiuHuang/MapArtist.git
-    ```
+1. Download latest build from release.
 
-2. Change directory to MapArtist, execute below command to build MapArtist, it will take a few minutes to run.
-
-    ```bash
-    cd MapArtist
-    cmake -S . -B build -G "MinGW Makefiles"
-    cmake --build build
-    ```
-
-3. Executable file will in `MapArtist/bin`, use `mapArtist.exe --help` to see available arguments.
+1. Execute mapArtist.exe in `MapArtist/bin`, use `mapArtist.exe --help` to see available arguments.
 
 ## Tips
 
@@ -65,8 +55,9 @@ this script will delete old log file and execute the bot with logging.
 ## How to use MapArtist (After installation)
 1. Modify config file `bin/config_online.txt` to fit your minecraft environment.
 2. Prepare map art nbt file and put it under `bin/` folder.
-3. Before you start the bot, you can only leave shears, axe, pickaxe, shovel and steak in your inventory (including left hand).
+3. Before you start the bot, you can only leave shears, axe, pickaxe, shovel in your inventory.
 4. You can start the bot with `mapArtist.exe`, and use commands to control it.
+5. If you want to control bot with discord, you can create a discord bot yourself. [link](https://dpp.dev/creating-a-bot-application.html)
 
 ## Commands
 
@@ -99,12 +90,12 @@ Execute csafe command.
 Execute command in minecraft.\
 For example `cmd gamemode survival` is equivalent to `/gamemode survival`.
 
-### assign
+### assign {user_name} {column}
 
 Define specific player's working column. Default value is 0.\
 Example: `assign chishin 2`.
 
-### worker
+### worker {number}
 
 Define max worker number. Default value is 1.\
 Example: `worker 3`.
@@ -113,6 +104,10 @@ Example: `worker 3`.
 
 Display all players' set assign value and worker value.
 
+### detail
+
+Display bot's detail info. Useful in discord bot.
+
 ### default
 
 Reset all players' assign & worker value.
@@ -120,6 +115,10 @@ Reset all players' assign & worker value.
 ### ingot
 
 Display current emerald <-> villager ingot exchange rate. Used in mcfallout.
+
+### name
+
+Display bot's name.
 
 ### channel
 

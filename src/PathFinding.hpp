@@ -113,12 +113,10 @@ public:
     }
 
     // record previous tp count
-    std::size_t prev_tp_id = static_cast<Artist *>(client)->getTPID();
+    const std::size_t prev_tp_id = static_cast<Artist *>(client)->getTPID();
     auto isTPOccur = [&]() -> bool
     {
-      bool changed = static_cast<Artist *>(client)->getTPID() != prev_tp_id;
-      if (changed)
-        std::cout << "Detect being TP" << std::endl;
+      bool changed = static_cast<Artist *>(client)->getTPID() > prev_tp_id;
       return changed;
     };
 

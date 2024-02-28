@@ -1,6 +1,7 @@
 #ifndef ARTIST_HPP
 #define ARTIST_HPP
 
+#include <atomic>
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
 #include "PathFinding.hpp"
 #include "Notifier.hpp"
@@ -13,7 +14,7 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     bool waitTpFinish;
     bool hasWork;
     Botcraft::Blackboard board;
-    std::size_t tpID;
+    std::atomic<std::size_t> tpID;
 
     Notifier tpNotifier;
     

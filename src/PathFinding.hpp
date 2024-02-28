@@ -15,6 +15,8 @@
 #include <botcraft/Utilities/Logger.hpp>
 #include <botcraft/Utilities/MiscUtilities.hpp>
 
+#include "Artist.hpp"
+
 namespace Botcraft
 {
   Status StopFlying(BehaviourClient &client);

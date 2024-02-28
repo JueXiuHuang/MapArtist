@@ -15,7 +15,9 @@
 #include <botcraft/Utilities/Logger.hpp>
 #include <botcraft/Utilities/MiscUtilities.hpp>
 
-#include "Artist.hpp"
+// Forward Declarations
+class Artist;
+std::string GetTime();
 
 namespace Botcraft
 {

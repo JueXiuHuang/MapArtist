@@ -16,7 +16,6 @@
 #include <botcraft/Utilities/MiscUtilities.hpp>
 
 // Forward Declarations
-class Artist;
 std::string GetTime();
 
 namespace Botcraft

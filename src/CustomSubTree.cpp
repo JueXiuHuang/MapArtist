@@ -105,7 +105,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> DisconnectTree() {
 std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> BMoveTree(Position dest) {
   return Builder<SimpleBehaviourClient>("Move tree")
     .sequence()
-      .leaf("move", GoTo, dest, 2, 0, 0, true, true, (4.3F))
+      .leaf("move", GoTo, dest, 5, 0, 0, true, true, 1.0)
       .leaf("notify", Say, "Arrived")
       .leaf("set null tree", [](SimpleBehaviourClient& c) { c.SetBehaviourTree(nullptr); return Status::Success; })
     .end();

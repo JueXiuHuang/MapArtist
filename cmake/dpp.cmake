@@ -29,11 +29,7 @@ ExternalProject_Add(Dpp
 )
 
 file(GLOB DPP_DEPEND_DLL ${DPP_SRC_PATH}/win32/bin/*.dll)
-if(MINGW)
-  list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/libdpp.dll)
-elseif(MSVC)
-  list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/dpp.dll)
-endif()
+list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/dpp.dll)
 add_custom_command(
   TARGET Dpp-install POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different

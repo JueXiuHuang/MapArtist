@@ -6,31 +6,6 @@ on:
       - main
 
 jobs:
-  build-mingw:
-    name: Build Project (MinGW)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Use CMake Action
-        uses: threeal/cmake-action@v1.3.0
-        with:
-          generator: MinGW Makefiles
-          options: CMAKE_BUILD_TYPE=Release
-          run-build: true
-      
-      - name: Zip Binaries
-        uses: vimtor/action-zip@v1.1
-        with:
-          files: bin
-          dest: executable-MinGW.zip
-
-      - name: Check Artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          path: ${{ github.workspace }}/executable-MinGW.zip
-
   build-msvc:
     name: Build Project (MSVC)
     runs-on: windows-latest

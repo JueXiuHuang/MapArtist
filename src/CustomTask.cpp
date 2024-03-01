@@ -27,6 +27,7 @@
 #include "PathFinding.hpp"
 #include "Utils.hpp"
 #include "Artist.hpp"
+#include "Constants.hpp"
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -305,8 +306,8 @@ Status DumpItems(BehaviourClient& c) {
 
 Status TaskPrioritize(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
-  std::string algo = artist.board.Get<std::string>("prioritize");
-  artist.board.Set("Task.prioritized", true);
+  std::string algo = artist.board.Get<std::string>(KeyAlgorithm);
+  artist.board.Set(KeyTaskQueued, true);
 
   if (algo == "bfs") {
     SimpleBFS(c);
@@ -457,10 +458,10 @@ Status CollectSingleMaterial(BehaviourClient& c, std::string itemName, int neede
 Status TaskExecutor(BehaviourClient& c) {
   std::cout << GetTime() << "Execute task in queue..." << std::endl;
   Artist& artist = static_cast<Artist&>(c);
-  std::queue<Position> qTaskPosition = artist.board.Get<std::queue<Position>>("qTaskPosition");
-  std::queue<std::string> qTaskType = artist.board.Get<std::queue<std::string>>("qTaskType");
-  std::queue<std::string> qTaskName = artist.board.Get<std::queue<std::string>>("qTaskName");
-  int retry_times = artist.board.Get<int>("retry");
+  std::queue<Position> qTaskPosition = artist.board.Get<std::queue<Position>>(KeyTaskPosQ);
+  std::queue<std::string> qTaskType = artist.board.Get<std::queue<std::string>>(KeyTaskTypeQ);
+  std::queue<std::string> qTaskName = artist.board.Get<std::queue<std::string>>(KeyTaskNameQ);
+  int retry_times = artist.board.Get<int>(KeyRetry);
   std::vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 0, 1), Position(0, 0, -1),
                             Position(2, 0, 0), Position(-2, 0, 0), Position(0, 0, 2), Position(0, 0, -2)};
 
@@ -491,14 +492,14 @@ Status TaskExecutor(BehaviourClient& c) {
       }
     }
     
-    artist.board.Set("qTaskPosition", qTaskPosition);
-    artist.board.Set("qTaskType", qTaskType);
-    artist.board.Set("qTaskName", qTaskName);
+    artist.board.Set(KeyTaskPosQ, qTaskPosition);
+    artist.board.Set(KeyTaskTypeQ, qTaskType);
+    artist.board.Set(KeyTaskNameQ, qTaskName);
 
     // Still has task in queue, return fail.
     return Status::Failure;
   } else {
-    artist.board.Set("Task.prioritized", false);
+    artist.board.Set(KeyTaskQueued, false);
 
     // All tasks resolved, return success.
     return Status::Success;
@@ -535,11 +536,11 @@ Status ExecuteTask(BehaviourClient& c, std::string action, Position blockPos, st
 
 Status RemoveNeighborExtraBlock(BehaviourClient& c, Position blockPos) {
   Artist& artist = static_cast<Artist&>(c);
-  const Position& anchor = artist.board.Get<Position>("anchor");
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const Position& anchor = artist.board.Get<Position>(KeyAnchor);
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
   std::vector<Position> offsets {Position(1, 0, 0), Position(-1, 0, 0), Position(0, 1, 0),
                                 Position(0, -1, 0), Position(0, 0, 1), Position(0, 0, -1)};
   
@@ -615,7 +616,7 @@ Status FindPathAndMoveImpl(BehaviourClient&c, Position pos, pf::goal::GoalBase<p
   if (!r) {
     std::cout << GetTime() << "Bot get stuck, try to teleport..." << std::endl;
     Utilities::SleepFor(std::chrono::seconds(5));  // delay 5 seconds
-    std::string homeCommand = artist.board.Get<std::string>("home", "tp @p 0 0 0");
+    std::string homeCommand = artist.board.Get<std::string>(KeyHomeCmd, "tp @p 0 0 0");
     std::cout << GetTime() << "Send TP command..." << std::endl;
     c.SendChatCommand(homeCommand);
     std::cout << GetTime() << "Wait for TP success..." << std::endl;
@@ -646,20 +647,20 @@ If everything is correct, return Success, otherwise return Failure.
 Status checkCompletion(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
-  Position anchor = artist.board.Get<Position>("anchor");
+  Position anchor = artist.board.Get<Position>(KeyAnchor);
 
   Position target_pos, world_pos;
 
-  std::vector<std::vector<std::vector<bool>>> mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>("map_memory");
+  std::vector<std::vector<std::vector<bool>>> mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>(KeyMapMemo);
 
   int additional_blocks = 0;
   int wrong_blocks = 0;
   int missing_blocks = 0;
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
 
   Status isComplete = Status::Success;
   int workers = artist.board.Get<int>("workerNum", 1);
@@ -708,14 +709,14 @@ Status checkCompletion(BehaviourClient& c) {
     }
   }
 
-  artist.board.Set("map_memory", mapMemory);
+  artist.board.Set(KeyMapMemo, mapMemory);
   return isComplete;
 }
 
 Status CheckCompletion(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
-  Position anchor = artist.board.Get<Position>("anchor");
+  Position anchor = artist.board.Get<Position>(KeyAnchor);
 
   Position target_pos, world_pos;
 
@@ -723,11 +724,11 @@ Status CheckCompletion(BehaviourClient& c) {
   int wrong_blocks = 0;
   int missing_blocks = 0;
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
   const Position size = end - start + Position(1, 1, 1);
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
 
   std::vector<Position> checkpoints {Position(size.x*0.3, 0, size.z*0.3), Position(size.x*0.6, 0, size.z*0.3), 
                                 Position(size.x*0.3, 0, size.z*0.6), Position(size.x*0.6, 0, size.z*0.6)};
@@ -735,7 +736,7 @@ Status CheckCompletion(BehaviourClient& c) {
   // initialize map recorder
   // default value will set to true, if the block is incorrect will set to false
   std::vector<std::vector<std::vector<bool>>> mapMemory(size.x, std::vector(size.y, std::vector(size.z, true)));
-  artist.board.Set("map_memory", mapMemory);
+  artist.board.Set(KeyMapMemo, mapMemory);
 
   const bool log_details = false;
   const bool log_errors = true;
@@ -752,7 +753,7 @@ Status CheckCompletion(BehaviourClient& c) {
   }
 
   // update xCheck
-  mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>("map_memory");
+  mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>(KeyMapMemo);
   std::vector<bool> xCheck = std::vector(size.x, false);
 
   for (int x = 0; x < size.x; x++) {
@@ -766,7 +767,7 @@ Status CheckCompletion(BehaviourClient& c) {
     xCheck[x] = isAllDone;
   }
 
-  artist.board.Set("SliceDFS.xCheck", xCheck);
+  artist.board.Set(KeyXCheck, xCheck);
 
   return isComplete;
 }
@@ -780,9 +781,9 @@ Status LoadNBT(BehaviourClient& c) {
   std::cout << GetTime() << "Loading NBT file..." << std::endl;
   NBT::Value loaded_file;
   Artist& artist = static_cast<Artist&>(c);
-  Position offset = artist.board.Get<Position>("anchor");
-  std::string temp_block = artist.board.Get<std::string>("tempblock");
-  std::string nbt_path = artist.board.Get<std::string>("nbt");
+  Position offset = artist.board.Get<Position>(KeyAnchor);
+  std::string temp_block = artist.board.Get<std::string>(KeyTmpBlock);
+  std::string nbt_path = artist.board.Get<std::string>(KeyNbt);
 
   try {
     std::ifstream infile(nbt_path, std::ios::binary);
@@ -944,64 +945,11 @@ Status LoadNBT(BehaviourClient& c) {
   }
   std::cout << GetTime() << flyings.rdbuf() << std::endl;
 
-  artist.board.Set("Structure.start", start);
-  artist.board.Set("Structure.end", end);
-  artist.board.Set("Structure.target", target);
-  artist.board.Set("Structure.palette", palette);
-  artist.board.Set("Structure.loaded", true);
+  artist.board.Set(KeyNbtStart, start);
+  artist.board.Set(KeyNbtEnd, end);
+  artist.board.Set(KeyNbtTarget, target);
+  artist.board.Set(KeyNbtPalette, palette);
 
-  return Status::Success;
-}
-
-// Deprecated, config will load in Artist constructor
-Status LoadConfig(BehaviourClient& c) {
-  Blackboard& blackboard = c.GetBlackboard();
-  const std::string &configPath = blackboard.Get<std::string>("configPath");
-  std::ifstream file(configPath, std::ios::in);
-
-  if (!file.is_open()) {
-    std::cerr << GetTime() << "Unable to open file: " + configPath << std::endl;
-    return Status::Failure;
-  }
-
-  std::string line;
-  while (std::getline(file, line)) {
-    // if line start with '#' or is empty, skip
-    if (line.empty() || line[0] == '#') continue;
-
-    std::istringstream iss(line);
-    std::string key, value;
-    std::getline(iss, key, '=') && std::getline(iss, value);
-    if (key == "anchor") {
-      Position anchor = ParsePositionString(value);
-      blackboard.Set("anchor", anchor);
-    } else if (key == "nbt") {
-      blackboard.Set("nbt", value);
-    } else if (key == "tempblock") {
-      blackboard.Set("tempblock", value);
-    } else if (key == "prioritize") {
-      blackboard.Set("prioritize", value);
-    } else if (key == "home") {
-      std::cout << "TP Home command: " << value << std::endl;
-      blackboard.Set("home", value);
-    } else if (key == "retry") {
-      blackboard.Set("retry", stoi(value));
-    } else if (key == "neighbor") {
-      blackboard.Set("neighbor", value == "true");
-    } else {
-      std::vector<Position> posVec;
-      std::istringstream _iss(value);
-      std::string posGroup;
-      while (std::getline(_iss, posGroup, ';')) {
-        Position chestPos = ParsePositionString(posGroup);
-        posVec.push_back(chestPos);
-      }
-      blackboard.Set("chest:" + key, posVec);
-    }
-  }
-
-  file.close();
-  blackboard.Set("Config.loaded", true);
   return Status::Success;
 }
 

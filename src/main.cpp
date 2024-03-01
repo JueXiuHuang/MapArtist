@@ -7,6 +7,7 @@
 #include "CustomSubTree.hpp"
 #include "Utils.hpp"
 #include "Discord.hpp"
+#include "Constants.hpp"
 
 #include <Windows.h>  // must put here to avoid macro error
 
@@ -91,9 +92,9 @@ int main(int argc, char* argv[]) {
     Artist client(args.gui, args.configPath);
 
     std::cout << GetTime() << "Starting discord bot" << std::endl;
-    if (client.board.Get<bool>("use.dpp", false)) {
-      std::string token = client.board.Get<std::string>("dctoken");
-      std::string chan = client.board.Get<std::string>("dcchannel");
+    if (client.board.Get<bool>(KeyUseDc, false)) {
+      std::string token = client.board.Get<std::string>(KeyDcToken);
+      std::string chan = client.board.Get<std::string>(KeyDcChanID);
       DiscordBot::init(token, chan, &client);
       DiscordBot& b = DiscordBot::getDiscordBot();
       b.start();

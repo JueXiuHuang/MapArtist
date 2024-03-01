@@ -10,6 +10,7 @@
 #include "Regex.hpp"
 #include "BotCommands.hpp"
 #include "Discord.hpp"
+#include "Constants.hpp"
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -113,20 +114,20 @@ void CmdHandler(std::string text, Artist *artist) {
   } else if (regex_search(text, matches, WorkerPattern)) {
     cmdWorker(matches, artist);
   } else if (regex_search(text, matches, DutyPattern)) {
-    int workCol = artist->board.Get<int>("workCol", 0);
-    int workerNum = artist->board.Get<int>("workerNum", 1);
+    int workCol = artist->board.Get<int>(KeyWorkerCol, 0);
+    int workerNum = artist->board.Get<int>(KeyWorkerCount, 1);
     std::string info = "Max worker: " + std::to_string(workerNum) + ", work col: " + std::to_string(workCol);
 
     MessageOutput(info, artist);
   } else if (regex_search(text, matches, DefaultSettingPattern)) {
     cmdDefaultSetting(artist);
   } else if (regex_search(text, matches, IngotPattern)) {
-    std::string rate = artist->board.Get<std::string>("ExchangeRate", "NOT_FOUND");
+    std::string rate = artist->board.Get<std::string>(KeyIngotRate, "NOT_FOUND");
     std::string info = "1 Villager Ingot = " + rate + " emerald.";
 
     MessageOutput(info, artist);
   } else if (regex_search(text, matches, ChannelPattern)) {
-    std::string info = "Current channel: " + artist->board.Get<std::string>("ChannelNumber", "NOT_FOUND");
+    std::string info = "Current channel: " + artist->board.Get<std::string>(KeyCurrChNum, "NOT_FOUND");
 
     MessageOutput(info, artist);
   } else if (regex_search(text, matches, MovePattern)) {
@@ -143,7 +144,7 @@ void CmdHandler(std::string text, Artist *artist) {
 }
 
 void MessageOutput(std::string text, Artist* artist) {
-  if (artist->board.Get<bool>("use.dpp", false)) {
+  if (artist->board.Get<bool>(KeyUseDc, false)) {
     DiscordBot& b = DiscordBot::getDiscordBot();
     b.sendDCMessage(text);
   } else {

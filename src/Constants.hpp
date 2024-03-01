@@ -6,24 +6,24 @@
 const std::string KeyDcChanID = "discord_channel_id";
 // use.dpp
 const std::string KeyUseDc = "discord_available";
-// anchor
-const std::string KeyAnchor = "anchor";
 // dctoken
 const std::string KeyDcToken = "discord_token";
+// anchor
+const std::string KeyAnchor = "anchor_absolute_position";
 // nbt
-const std::string KeyNbt = "nbt";
+const std::string KeyNbt = "nbt_file_name";
 // tempblock
 const std::string KeyTmpBlock = "template_block";
 // prioritize
-const std::string KeyAlgo = "prioritize_algorithm";
+const std::string KeyAlgorithm = "prioritize_algorithm";
 // home
 const std::string KeyHomeCmd = "home_command";
 // retry
 const std::string KeyRetry = "retry_times";
 // neighbor
-const std::string KeyNeighbor = "neighbors";
+const std::string KeyNeighbor = "check_neighbors";
 // Config.loaded
-const std::string KeyConfigured = "config_loaded";
+const std::string KeyConfigLoaded = "is_config_loaded";
 // ExchangeRate
 const std::string KeyIngotRate = "fallout_ingot_exchange_rate";
 // ChannelNumber
@@ -35,7 +35,7 @@ const std::string KeyHeader = "fallout_header";
 // workerNum
 const std::string KeyWorkerCount = "total_worker_count";
 // workCol
-const std::string KeyWorkCol = "player_assigned_column";
+const std::string KeyWorkerCol = "player_assigned_column";
 // GetHome
 const std::string KeyBotGetHome = "bot_get_home";
 // Task.prioritized
@@ -46,6 +46,8 @@ const std::string KeyTaskPosQ = "task_position_queue";
 const std::string KeyTaskTypeQ = "task_type_queue";
 // qTaskName
 const std::string KeyTaskNameQ = "task_block_name_queue";
+// itemCounter
+const std::string KeyItemCounter = "item_counter";
 // Structure.start
 const std::string KeyNbtStart = "nbt_structure_start_absolute_position";
 // Structure.end
@@ -58,6 +60,7 @@ const std::string KeyNbtPalette = "nbt_block_id_and_block_name_mapping";
 const std::string KeyMapMemo = "map_memory";
 // SliceDFS.xCheck
 const std::string KeyXCheck = "x_check_array_for_slice_dfs_progress_display";
-// 
+// SliceDFS.xCheckStart
+const std::string KeyXCheckStart = "magic_number_for_slice_dfs_neighbor";
 
 #endif

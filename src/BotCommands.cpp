@@ -3,6 +3,7 @@
 #include "BotCommands.hpp"
 #include "CustomSubTree.hpp"
 #include "Utils.hpp"
+#include "Constants.hpp"
 
 using namespace Botcraft;
 
@@ -31,8 +32,8 @@ void cmdStart(std::smatch matches, Artist *artist) {
   if (std::string(matches[2]) != "all" && std::string(matches[2]) != name) return;
 
   // validate duty
-  int workerNum = artist->board.Get<int>("workerNum", 1);
-  int col = artist->board.Get<int>("workCol", 0);
+  int workerNum = artist->board.Get<int>(KeyWorkerCount, 1);
+  int col = artist->board.Get<int>(KeyWorkerCol, 0);
   
   if (workerNum < 1 || col >= workerNum) {
     std::string info = "Invalid duty with workers " + std::to_string(workerNum) + " and col " + std::to_string(col);
@@ -47,9 +48,9 @@ void cmdStart(std::smatch matches, Artist *artist) {
 }
 
 void cmdBar(Artist *artist) {
-  std::vector<bool> xCheck = artist->board.Get<std::vector<bool>>("SliceDFS.xCheck", std::vector(128, false));
-  int workers = artist->board.Get<int>("workerNum", 1);
-  int col = artist->board.Get<int>("workCol", 0);
+  std::vector<bool> xCheck = artist->board.Get<std::vector<bool>>(KeyXCheck, std::vector(128, false));
+  int workers = artist->board.Get<int>(KeyWorkerCount, 1);
+  int col = artist->board.Get<int>(KeyWorkerCol, 0);
   int finish = 0;
   int duty = 0;
 
@@ -87,7 +88,7 @@ void cmdAssignment(std::smatch matches, Artist *artist) {
 
   std::cout << GetTime() << info << std::endl;
   MessageOutput(info, artist);
-  artist->board.Set("workCol", col);
+  artist->board.Set(KeyWorkerCol, col);
 }
 
 void cmdWorker(std::smatch matches, Artist *artist) {
@@ -96,7 +97,7 @@ void cmdWorker(std::smatch matches, Artist *artist) {
 
   std::cout << GetTime() << info << std::endl;
   MessageOutput(info, artist);
-  artist->board.Set("workerNum", worker_num);
+  artist->board.Set(KeyWorkerCount, worker_num);
 }
 
 void cmdDefaultSetting(Artist *artist) {
@@ -104,7 +105,7 @@ void cmdDefaultSetting(Artist *artist) {
   std::string info = "Reset workCol & workerNum value";
 
   MessageOutput(info, artist);
-  artist->board.Set("workCol", 0);
+  artist->board.Set(KeyWorkerCol, 0);
 }
 
 void cmdMove(std::smatch matches, Artist *artist) {
@@ -146,19 +147,19 @@ void cmdTpSuccess(Artist *artist) {
 }
 
 void cmdTpHome(std::smatch matches, Artist *artist) {
-  std::string homeName = artist->board.Get<std::string>("home", "mapart");
+  std::string homeName = artist->board.Get<std::string>(KeyHomeCmd, "mapart");
 
   if (std::string(matches[1]) == homeName) {
-    artist->board.Set("GetHome", true);
+    artist->board.Set(KeyBotGetHome, true);
     std::cout << GetTime() << "Bot teleport to home." << std::endl;
   }
 }
 
 void cmdDetail(std::smatch matches, Artist *artist) {
-  int workCol = artist->board.Get<int>("workCol", 0);
-  int workerNum = artist->board.Get<int>("workerNum", 1);
-  std::string channel = artist->board.Get<std::string>("ChannelNumber", "NOT_FOUND");
-  std::string fileName = artist->board.Get<std::string>("nbt", "");
+  int workCol = artist->board.Get<int>(KeyWorkerCol, 0);
+  int workerNum = artist->board.Get<int>(KeyWorkerCount, 1);
+  std::string channel = artist->board.Get<std::string>(KeyCurrChNum, "NOT_FOUND");
+  std::string fileName = artist->board.Get<std::string>(KeyNbt, "");
   std::string userName = artist->GetNetworkManager()->GetMyName();
   
   std::ostringstream oss;

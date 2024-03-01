@@ -11,6 +11,7 @@
 #include "CustomTask.hpp"
 #include "Artist.hpp"
 #include "Utils.hpp"
+#include "Constants.hpp"
 
 using namespace Botcraft;
 
@@ -30,11 +31,11 @@ void SimpleBFS(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const Position& anchor = artist.board.Get<Position>("anchor");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const Position& anchor = artist.board.Get<Position>(KeyAnchor);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
 
   const Position size = end - start + Position(1, 1, 1);
   std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
@@ -107,21 +108,21 @@ void SimpleBFS(BehaviourClient& c) {
     }
   }
 
-  artist.board.Set("qTaskPosition", qTaskPosition);
-  artist.board.Set("qTaskType", qTaskType);
-  artist.board.Set("qTaskName", qTaskName);
-  artist.board.Set("itemCounter", itemCounter);
+  artist.board.Set(KeyTaskPosQ, qTaskPosition);
+  artist.board.Set(KeyTaskTypeQ, qTaskType);
+  artist.board.Set(KeyTaskNameQ, qTaskName);
+  artist.board.Set(KeyItemCounter, itemCounter);
 }
 
 void SimpleDFS(BehaviourClient& c){
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const Position& anchor = artist.board.Get<Position>("anchor");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const Position& anchor = artist.board.Get<Position>(KeyAnchor);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
 
   const Position size = end - start + Position(1, 1, 1);
 
@@ -222,28 +223,28 @@ void SimpleDFS(BehaviourClient& c){
     }
   }
 
-  artist.board.Set("qTaskPosition", qTaskPosition);
-  artist.board.Set("qTaskType", qTaskType);
-  artist.board.Set("qTaskName", qTaskName);
-  artist.board.Set("itemCounter", itemCounter);
+  artist.board.Set(KeyTaskPosQ, qTaskPosition);
+  artist.board.Set(KeyTaskTypeQ, qTaskType);
+  artist.board.Set(KeyTaskNameQ, qTaskName);
+  artist.board.Set(KeyItemCounter, itemCounter);
 }
 
 void SliceDFS(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const Position& anchor = artist.board.Get<Position>("anchor");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const Position& anchor = artist.board.Get<Position>(KeyAnchor);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
   const Position size = end - start + Position(1, 1, 1);
-  std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>("SliceDFS.xCheck", std::vector(size.x, false));
+  std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>(KeyXCheck, std::vector(size.x, false));
 
   std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
-  const int workerNum = artist.board.Get<int>("workerNum", 1);
-  const int workCol = artist.board.Get<int>("workCol", 0);
+  const int workerNum = artist.board.Get<int>(KeyWorkerCount, 1);
+  const int workCol = artist.board.Get<int>(KeyWorkerCol, 0);
 
   int slotCounter = 0;
   std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
@@ -319,22 +320,22 @@ void SliceDFS(BehaviourClient& c) {
     if (slotCounter == 27) break;
   }
 
-  artist.board.Set("SliceDFS.xCheck", xCheck);
-  artist.board.Set("qTaskPosition", qTaskPosition);
-  artist.board.Set("qTaskType", qTaskType);
-  artist.board.Set("qTaskName", qTaskName);
-  artist.board.Set("itemCounter", itemCounter);
+  artist.board.Set(KeyXCheck, xCheck);
+  artist.board.Set(KeyTaskPosQ, qTaskPosition);
+  artist.board.Set(KeyTaskTypeQ, qTaskType);
+  artist.board.Set(KeyTaskNameQ, qTaskName);
+  artist.board.Set(KeyItemCounter, itemCounter);
 }
 
 void SliceDFSNeighbor(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const Position& anchor = artist.board.Get<Position>("anchor");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
-  int xCheckStart = artist.board.Get<int>("SliceDFS.xCheckStart", 0);
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const Position& anchor = artist.board.Get<Position>(KeyAnchor);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
+  int xCheckStart = artist.board.Get<int>(KeyXCheckStart, 0);
 
   const Position size = end - start + Position(1, 1, 1);
   std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
@@ -432,29 +433,29 @@ void SliceDFSNeighbor(BehaviourClient& c) {
     if (slotCounter == 27) break;
   }
 
-  artist.board.Set("SliceDFS.xCheckStart", xCheckStart);
-  artist.board.Set("qTaskPosition", qTaskPosition);
-  artist.board.Set("qTaskType", qTaskType);
-  artist.board.Set("qTaskName", qTaskName);
-  artist.board.Set("itemCounter", itemCounter);
+  artist.board.Set(KeyXCheckStart, xCheckStart);
+  artist.board.Set(KeyTaskPosQ, qTaskPosition);
+  artist.board.Set(KeyTaskTypeQ, qTaskType);
+  artist.board.Set(KeyTaskNameQ, qTaskName);
+  artist.board.Set(KeyItemCounter, itemCounter);
 }
 
 void SliceDFSSnake(BehaviourClient& c) {
   Artist& artist = static_cast<Artist&>(c);
   std::shared_ptr<World> world = c.GetWorld();
 
-  const Position& start = artist.board.Get<Position>("Structure.start");
-  const Position& end = artist.board.Get<Position>("Structure.end");
-  const Position& anchor = artist.board.Get<Position>("anchor");
-  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>("Structure.target");
-  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>("Structure.palette");
+  const Position& start = artist.board.Get<Position>(KeyNbtStart);
+  const Position& end = artist.board.Get<Position>(KeyNbtEnd);
+  const Position& anchor = artist.board.Get<Position>(KeyAnchor);
+  const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
+  const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
   const Position size = end - start + Position(1, 1, 1);
-  std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>("SliceDFS.xCheck", std::vector(size.x, false));
+  std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>(KeyXCheck, std::vector(size.x, false));
 
   std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
 
-  const int workerNum = artist.board.Get<int>("workerNum", 1);
-  const int workCol = artist.board.Get<int>("workCol", 0);
+  const int workerNum = artist.board.Get<int>(KeyWorkerCount, 1);
+  const int workCol = artist.board.Get<int>(KeyWorkerCol, 0);
 
   int slotCounter = 0;
   std::map<std::string, int, MaterialCompare> itemCounter{MaterialCompare(artist.board)};
@@ -556,9 +557,9 @@ void SliceDFSSnake(BehaviourClient& c) {
     if (slotCounter == 27) break;
   }
 
-  artist.board.Set("SliceDFS.xCheck", xCheck);
-  artist.board.Set("qTaskPosition", qTaskPosition);
-  artist.board.Set("qTaskType", qTaskType);
-  artist.board.Set("qTaskName", qTaskName);
-  artist.board.Set("itemCounter", itemCounter);
+  artist.board.Set(KeyXCheck, xCheck);
+  artist.board.Set(KeyTaskPosQ, qTaskPosition);
+  artist.board.Set(KeyTaskTypeQ, qTaskType);
+  artist.board.Set(KeyTaskNameQ, qTaskName);
+  artist.board.Set(KeyItemCounter, itemCounter);
 }

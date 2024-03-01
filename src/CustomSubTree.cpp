@@ -2,6 +2,7 @@
 #include "CustomSubTree.hpp"
 #include "CustomBehaviorTree.hpp"
 #include "CustomTask.hpp"
+#include "Constants.hpp"
 
 using namespace Botcraft;
 
@@ -35,7 +36,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> NullTree() {
 std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> InitTree() {
   return Builder<SimpleBehaviourClient>("Init Tree")
     .selector()
-      .inverter().leaf("config loaded?", CheckArtistBlackboardBoolData, "Config.loaded")
+      .inverter().leaf("config loaded?", CheckArtistBlackboardBoolData, KeyConfigLoaded)
       .selector()
         .leaf("load NBT", LoadNBT)
         // If init failed, stop the behaviour
@@ -49,7 +50,7 @@ std::shared_ptr<BehaviourTree<SimpleBehaviourClient>> WorkTree() {
     .sequence()
       .tree(EatTree())
       .selector()
-        .leaf("prioritized?", CheckArtistBlackboardBoolData, "Task.prioritized")
+        .leaf("prioritized?", CheckArtistBlackboardBoolData, KeyTaskQueued)
         .sequence()
           .leaf("task priortize", TaskPrioritize)
           .leaf("sort inventory", SortChestWithDesirePlace)

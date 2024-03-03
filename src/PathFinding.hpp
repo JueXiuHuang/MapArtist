@@ -70,7 +70,7 @@ namespace Botcraft
           if (!Utilities::YieldForCondition([&]() -> bool
             {
               if (checkTP()) { return true; }
-              return local_player->GetY() >= static_cast<float>(target_pos.y) * 0.85;
+              return local_player->GetY() >= static_cast<float>(target_pos.y);
             }, client, 2000))
           {
             return false;

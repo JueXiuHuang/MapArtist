@@ -1,8 +1,14 @@
 # anchor means the first block in your schematic file (nbt)
 anchor=-64,-60,-65
 
+# Discord Bot token
+dctoken=
+
+# Which dc channel you want to listen to.
+channelid=1196649716692308070
+
 # the nbt file you want to build
-nbt=YaeMiko_3_1.nbt
+nbt=kafka_swim/kafka_swim_suit_0_6.nbt
 
 tempblock=minecraft:cobblestone
 

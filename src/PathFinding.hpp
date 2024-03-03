@@ -419,7 +419,17 @@ public:
       // replan the whole path to the goal
       auto Step = [&]()
         {
-          return Move(*client, local_player, Botcraft::Position(newPos.x, newPos.y + 1, newPos.z), speed_factor, true, isTPOccur);
+          bool result = Move(*client, local_player, Botcraft::Position(newPos.x, newPos.y + 1, newPos.z), speed_factor, true, isTPOccur);
+          if (result == false) {
+            std::cerr << "Move Error" << std::endl;
+            return result;
+          }
+          // check the position
+          if (getPlayerLocation() != newPos) {
+            std::cerr << "Position Error" << std::endl;
+            return false;
+          }
+          return true;
         };
       if (!(Step() || Step() || Step())) // 3 chances
       {

@@ -47,17 +47,17 @@ Status checkInventoryAllClear(BehaviourClient& c) {
   for (short i = Window::INVENTORY_STORAGE_START; i < Window::INVENTORY_HOTBAR_START+5; i++) {
     const Slot& slot = playerInv->GetSlot(i);
     if (slot.IsEmptySlot()) continue;
-    std::string itemName = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetName();
-    if (itemName.find("_pickaxe") != std::string::npos) {
+    ToolType toolType = AssetsManager::getInstance().Items().at(slot.GetItemID())->GetToolType();
+    if (toolType == ToolType::Pickaxe) {
       continue;
     }
-    if (itemName.find("_axe") != std::string::npos) {
+    if (toolType == ToolType::Axe) {
       continue;
     }
-    if (itemName.find("_shovel") != std::string::npos) {
+    if (toolType == ToolType::Shovel) {
       continue;
     }
-    if (itemName.find("shears") != std::string::npos) {
+    if (toolType == ToolType::Shears) {
       continue;
     }
     
@@ -328,7 +328,7 @@ Status TaskPrioritize(BehaviourClient& c) {
 Status CollectAllMaterial(BehaviourClient& c) {
   std::cout << GetTime() << "Trying to collect material..." << std::endl;
   Artist& artist = static_cast<Artist&>(c);
-  std::map<std::string, int, MaterialCompare> itemCounter = artist.board.Get<std::map<std::string, int, MaterialCompare>>("itemCounter");
+  std::map<std::string, int, MaterialCompare> itemCounter = artist.board.Get<std::map<std::string, int, MaterialCompare>>(KeyItemCounter);
 
   for (auto item : itemCounter) {
     Status s = CollectSingleMaterial(c, item.first, item.second);
@@ -651,7 +651,7 @@ Status checkCompletion(BehaviourClient& c) {
 
   Position target_pos, world_pos;
 
-  std::vector<std::vector<std::vector<bool>>> mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>(KeyMapMemo);
+  std::vector<std::vector<std::vector<BlockMemo>>> mapMemory = artist.board.Get<std::vector<std::vector<std::vector<BlockMemo>>>>(KeyMapMemo);
 
   int additional_blocks = 0;
   int wrong_blocks = 0;
@@ -663,8 +663,8 @@ Status checkCompletion(BehaviourClient& c) {
   const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
 
   Status isComplete = Status::Success;
-  int workers = artist.board.Get<int>("workerNum", 1);
-  int col = artist.board.Get<int>("workCol", 0);
+  int workers = artist.board.Get<int>(KeyWorkerCount, 1);
+  int col = artist.board.Get<int>(KeyWorkerCol, 0);
 
   for (int x = start.x; x <= end.x; x++) {
     if ((x-start.x)%workers != col) continue;
@@ -689,21 +689,22 @@ Status checkCompletion(BehaviourClient& c) {
           block_name = block->GetName();
         }
 
+        mapMemory[target_pos.x][target_pos.y][target_pos.z].name = block_name;
         if (block_name == "minecraft:air" && target_name == "minecraft:air") {
           // continue if it is a air block
           continue;
         } else if (block_name == "minecraft:air" && target_name != "minecraft:air") {
           // Found air in real world, but it should be something else
           isComplete = Status::Failure;
-          mapMemory[target_pos.x][target_pos.y][target_pos.z] = false;
+          mapMemory[target_pos.x][target_pos.y][target_pos.z].match = false;
         } else if (block_name != "minecraft:air" && target_name == "minecraft:air") {
           // Found something else, but it should be air.
           isComplete = Status::Failure;
-          mapMemory[target_pos.x][target_pos.y][target_pos.z] = false;
+          mapMemory[target_pos.x][target_pos.y][target_pos.z].match = false;
         } else if (block_name != target_name) {
           // The name of block not match.
           isComplete = Status::Failure;
-          mapMemory[target_pos.x][target_pos.y][target_pos.z] = false;
+          mapMemory[target_pos.x][target_pos.y][target_pos.z].match = false;
         }
       }
     }
@@ -735,7 +736,7 @@ Status CheckCompletion(BehaviourClient& c) {
 
   // initialize map recorder
   // default value will set to true, if the block is incorrect will set to false
-  std::vector<std::vector<std::vector<bool>>> mapMemory(size.x, std::vector(size.y, std::vector(size.z, true)));
+  std::vector<std::vector<std::vector<BlockMemo>>> mapMemory(size.x, std::vector(size.y, std::vector(size.z, BlockMemo{})));
   artist.board.Set(KeyMapMemo, mapMemory);
 
   const bool log_details = false;
@@ -753,14 +754,14 @@ Status CheckCompletion(BehaviourClient& c) {
   }
 
   // update xCheck
-  mapMemory = artist.board.Get<std::vector<std::vector<std::vector<bool>>>>(KeyMapMemo);
+  mapMemory = artist.board.Get<std::vector<std::vector<std::vector<BlockMemo>>>>(KeyMapMemo);
   std::vector<bool> xCheck = std::vector(size.x, false);
 
   for (int x = 0; x < size.x; x++) {
     bool isAllDone = true;
     for (int y = 0; y < size.y; y++) {
       for (int z = 0; z < size.z; z++) {
-        if (!mapMemory[x][y][z]) isAllDone = false;
+        if (!mapMemory[x][y][z].match) isAllDone = false;
       }
     }
 

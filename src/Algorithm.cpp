@@ -239,6 +239,7 @@ void SliceDFS(BehaviourClient& c) {
   const std::vector<std::vector<std::vector<short>>>& target = artist.board.Get<std::vector<std::vector<std::vector<short>>>>(KeyNbtTarget);
   const std::map<short, std::string>& palette = artist.board.Get<std::map<short, std::string>>(KeyNbtPalette);
   const Position size = end - start + Position(1, 1, 1);
+  std::vector<std::vector<std::vector<BlockMemo>>> mapMemory = artist.board.Get<std::vector<std::vector<std::vector<BlockMemo>>>>(KeyMapMemo);
   std::vector<bool> xCheck = artist.board.Get<std::vector<bool>>(KeyXCheck, std::vector(size.x, false));
 
   std::vector<std::vector<std::vector<bool>>> visited(size.x, std::vector<std::vector<bool>>(size.y, std::vector<bool>(size.z, false)));
@@ -283,7 +284,8 @@ void SliceDFS(BehaviourClient& c) {
       const short nbtBlockId = target[cp.x][cp.y][cp.z];
       const std::string nbtBlockName = palette.at(nbtBlockId);
       
-      std::string worldBlockName = GetWorldBlock(c, cp+anchor);
+      // std::string worldBlockName = GetWorldBlock(c, cp+anchor);
+      std::string worldBlockName = mapMemory[cp.x][cp.y][cp.z].name;
       std::string taskType = GetTaskType(worldBlockName, nbtBlockName);
 
       if (taskType != "None") {
@@ -308,7 +310,8 @@ void SliceDFS(BehaviourClient& c) {
         if (xCheck && yCheck && zCheck && !visited[newPos.x][newPos.y][newPos.z]) {
           short _target_id = target[newPos.x][newPos.y][newPos.z];
           std::string _target_name = palette.at(_target_id);
-          std::string _worldBlockName = GetWorldBlock(c, newPos+anchor);
+          std::string _worldBlockName = mapMemory[newPos.x][newPos.y][newPos.z].name;
+          // std::string _worldBlockName = GetWorldBlock(c, newPos+anchor);
           if (_target_name == "minecraft:air" && _worldBlockName == "minecraft:air") continue;
           visited[newPos.x][newPos.y][newPos.z] = true;
           pending.push(newPos);

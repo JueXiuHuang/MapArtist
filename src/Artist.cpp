@@ -14,20 +14,16 @@ void msgProcessor(std::string text, Artist* artist) {
   if (regex_search(text, match, DiscordPattern)) {
     std::cout << "==Discord==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  }
-  else if (regex_search(text, match, SystemInfoPattern)) {
+  } else if (regex_search(text, match, SystemInfoPattern)) {
     std::cout << "==System Info==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  }
-  else if (regex_search(text, match, WaitingRoomPattern)) {
+  } else if (regex_search(text, match, WaitingRoomPattern)) {
     std::cout << "==Wait Room==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  }
-  else if (regex_search(text, match, TpHomePattern)) {
+  } else if (regex_search(text, match, TpHomePattern)) {
     std::cout << "==TP Home==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  }
-  else {
+  } else {
     // std::cout << "==Other==" << text << std::endl;
   }
 }

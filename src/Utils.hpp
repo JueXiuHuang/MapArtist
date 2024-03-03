@@ -16,4 +16,9 @@ void CmdHandler(std::string text, Artist *artist);
 void MessageOutput(std::string text, Artist* artist);
 void ListPlayerInventory(Artist* artist);
 
+struct BlockMemo {
+  bool match = true;
+  std::string name = "";
+};
+
 #endif

@@ -123,7 +123,7 @@ void cmdWaitingRoom(std::smatch matches, Artist *artist) {
     artist->inWaitingRoom = true;
     artist->SetBehaviourTree(nullptr);
     std::cout << GetTime() << "Transfered to waiting room, stop working..." << std::endl;
-    // artist->SendChatMessage("Transfered to waiting room, stop working...");
+    artist->SendChatMessage("Transfered to waiting room, stop working...");
   } else {
     if (artist->inWaitingRoom) artist->waitTpFinish = true;
 

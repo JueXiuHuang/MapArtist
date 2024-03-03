@@ -13,6 +13,7 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     bool inWaitingRoom;
     bool waitTpFinish;
     bool hasWork;
+    bool needRestart;
     Botcraft::Blackboard board;
     std::atomic<std::size_t> tpID;
 
@@ -22,6 +23,8 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     ~Artist();
 
     std::size_t getTPID();
+    bool getNeedRestart();
+    void setNeedRestart(const bool &restart);
     void waitTP();
     template <typename Rep, typename Period>
     bool waitTP(const std::chrono::duration<Rep, Period> &duration){ return tpNotifier.wait_for(duration); }
@@ -33,5 +36,6 @@ class Artist : public Botcraft::SimpleBehaviourClient {
     virtual void Handle(ProtocolCraft::ClientboundSystemChatPacket& msg) override;
     virtual void Handle(ProtocolCraft::ClientboundTabListPacket& msg) override;
     virtual void Handle(ProtocolCraft::ClientboundPlayerPositionPacket& msg) override;
+    virtual void Handle(ProtocolCraft::ClientboundDisconnectPacket& msg) override;
 };
 #endif

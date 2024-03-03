@@ -9,21 +9,25 @@
 using namespace Botcraft;
 using namespace ProtocolCraft;
 
-void msgProcessor(std::string text, Artist *artist) {
+void msgProcessor(std::string text, Artist* artist) {
   std::smatch match;
   if (regex_search(text, match, DiscordPattern)) {
     std::cout << "==Discord==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  } else if (regex_search(text, match, SystemInfoPattern)) {
+  }
+  else if (regex_search(text, match, SystemInfoPattern)) {
     std::cout << "==System Info==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  } else if (regex_search(text, match, WaitingRoomPattern)) {
+  }
+  else if (regex_search(text, match, WaitingRoomPattern)) {
     std::cout << "==Wait Room==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  } else if (regex_search(text, match, TpHomePattern)) {
+  }
+  else if (regex_search(text, match, TpHomePattern)) {
     std::cout << "==TP Home==" << GetTime() << text << std::endl;
     CmdHandler(text, artist);
-  } else {
+  }
+  else {
     // std::cout << "==Other==" << text << std::endl;
   }
 }
@@ -33,6 +37,7 @@ Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClien
   inWaitingRoom = false;
   waitTpFinish = false;
   hasWork = false;
+  needRestart = false;
   tpID = 0;
 
   std::ifstream file(configPath, std::ios::in);
@@ -89,29 +94,37 @@ Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClien
 Artist::~Artist() {}
 
 // Local server chat
-void Artist::Handle(ClientboundPlayerChatPacket &msg) {
+void Artist::Handle(ClientboundPlayerChatPacket& msg) {
   ManagersClient::Handle(msg);
   std::string text = msg.GetBody().GetContent();
 
   CmdHandler(text, this);
 }
 
-void Artist::waitTP(){
+void Artist::waitTP() {
   tpNotifier.wait();
 }
 
-std::size_t Artist::getTPID(){
+std::size_t Artist::getTPID() {
   return tpID;
 }
 
-void Artist::Handle(ClientboundSystemChatPacket &msg) {
+bool Artist::getNeedRestart(){
+  return needRestart;
+}
+
+void Artist::setNeedRestart(const bool &restart){
+  needRestart = restart;
+}
+
+void Artist::Handle(ClientboundSystemChatPacket& msg) {
   ManagersClient::Handle(msg);
   std::string text = msg.GetContent().GetText();
 
   msgProcessor(text, this);
 }
 
-void Artist::Handle(ClientboundTabListPacket &msg) {
+void Artist::Handle(ClientboundTabListPacket& msg) {
   ManagersClient::Handle(msg);
 
   std::string header = msg.GetHeader().GetText();
@@ -127,7 +140,7 @@ void Artist::Handle(ClientboundTabListPacket &msg) {
   }
 }
 
-void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
+void Artist::Handle(ClientboundPlayerPositionPacket& msg) {
   ConnectionClient::Handle(msg);
   tpID++;
   std::cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << std::endl;
@@ -135,4 +148,10 @@ void Artist::Handle(ClientboundPlayerPositionPacket &msg) {
   tpNotifier.notify_all();
   std::cout << GetTime() << "Finish notifying all listeners" << std::endl;
   std::cout << "=========================" << std::endl;
+}
+
+void Artist::Handle(ClientboundDisconnectPacket& msg)
+{
+  ConnectionClient::Handle(msg);
+  needRestart = true;
 }

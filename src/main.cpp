@@ -101,9 +101,12 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << GetTime() << "Starting connection process" << std::endl;
-    client.Connect(args.address, args.login, args.microsoftLogin);
-    client.SetAutoRespawn(true);
-    client.RunBehaviourUntilClosed();
+    do {
+      client.setNeedRestart(false);
+      client.Connect(args.address, args.login, args.microsoftLogin);
+      client.SetAutoRespawn(true);
+      client.RunBehaviourUntilClosed();
+    } while (client.getNeedRestart());
     client.Disconnect();
 
     return 0;

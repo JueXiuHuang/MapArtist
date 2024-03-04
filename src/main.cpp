@@ -4,14 +4,11 @@
 #include <queue>
 #include <string>
 
-#include <botcraft/Game/ManagersClient.hpp>
 #include <botcraft/Utilities/Logger.hpp>
 
 #include "./Artist.hpp"
 #include "./Constants.hpp"
-#include "./CustomSubTree.hpp"
 #include "./Discord.hpp"
-#include "./Utils.hpp"
 
 #include <Windows.h>  // must put here to avoid macro error
 

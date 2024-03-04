@@ -10,9 +10,7 @@
 #include <map>
 #include <set>
 #include <sstream>
-#include <stdexcept>
 #include <string>
-#include <unordered_set>
 #include <vector>
 
 #include <botcraft/AI/Tasks/AllTasks.hpp>

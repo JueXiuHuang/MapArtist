@@ -3,11 +3,12 @@
 #ifndef SRC_DISCORD_HPP_
 #define SRC_DISCORD_HPP_
 
-#include <dpp/dpp.h>  // must be last included header
-
 #include <string>
 
 #include "./Artist.hpp"
+
+// must be last included header
+#include <dpp/dpp.h>  // NOLINT 
 
 class DiscordBot {
   static std::string token;

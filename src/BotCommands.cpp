@@ -5,6 +5,8 @@
 #include <iomanip>
 
 #include <botcraft/AI/Tasks/AllTasks.hpp>
+#include <botcraft/Game/Entities/EntityManager.hpp>
+#include <botcraft/Game/Entities/LocalPlayer.hpp>
 
 #include "./Constants.hpp"
 #include "./CustomSubTree.hpp"

@@ -9,10 +9,6 @@
 #include <memory>
 #include <string>
 
-#include <Evaluate/Evaluate.hpp>
-#include <Finder/Finder.hpp>
-#include <Goal/Goal.hpp>
-#include <Weighted/Weighted.hpp>
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
 #include <botcraft/AI/Tasks/PathfindingTask.hpp>
 #include <botcraft/Game/Entities/EntityManager.hpp>
@@ -20,6 +16,11 @@
 #include <botcraft/Game/World/World.hpp>
 #include <botcraft/Utilities/Logger.hpp>
 #include <botcraft/Utilities/MiscUtilities.hpp>
+
+#include <Evaluate/Evaluate.hpp>
+#include <Finder/Finder.hpp>
+#include <Goal/Goal.hpp>
+#include <Weighted/Weighted.hpp>
 
 // Forward Declarations
 std::string GetTime();
@@ -161,9 +162,10 @@ static bool Move(BehaviourClient &client,
               return false;
             },
             client,
-            (std::abs(motion_vector.x) + std::abs(motion_vector.z) +
-             (motion_vector.y < -0.5)) *
-                1000)) {
+            static_cast<int64_t>((std::abs(motion_vector.x) +
+                                  std::abs(motion_vector.z) +
+                                  (motion_vector.y < -0.5)) *
+                                 1000))) {
       return false;
     }
   }
@@ -213,7 +215,8 @@ static bool Move(BehaviourClient &client,
 
             return false;
           },
-          client, 1000 + 1000 * std::abs(motion_vector.y))) {
+          client,
+          static_cast<int64_t>(1000 + 1000 * std::abs(motion_vector.y)))) {
     return false;
   }
 
@@ -246,7 +249,8 @@ static bool Move(BehaviourClient &client,
 
             return false;
           },
-          client, 1000 + 1000 * std::abs(motion_vector.y))) {
+          client,
+          static_cast<int64_t>(1000 + 1000 * std::abs(motion_vector.y)))) {
     return false;
   }
 

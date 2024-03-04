@@ -863,10 +863,14 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
       artist.board.Get<std::map<int16_t, std::string>>(KeyNbtPalette);
 
   std::vector<Botcraft::Position> checkpoints{
-      Botcraft::Position(size.x * 0.3, 0, size.z * 0.3),
-      Botcraft::Position(size.x * 0.6, 0, size.z * 0.3),
-      Botcraft::Position(size.x * 0.3, 0, size.z * 0.6),
-      Botcraft::Position(size.x * 0.6, 0, size.z * 0.6)};
+      Botcraft::Position(static_cast<int>(size.x * 0.3), 0,
+                         static_cast<int>(size.z * 0.3)),
+      Botcraft::Position(static_cast<int>(size.x * 0.6), 0,
+                         static_cast<int>(size.z * 0.3)),
+      Botcraft::Position(static_cast<int>(size.x * 0.3), 0,
+                         static_cast<int>(size.z * 0.6)),
+      Botcraft::Position(static_cast<int>(size.x * 0.6), 0,
+                         static_cast<int>(size.z * 0.6))};
 
   // initialize map recorder
   // default value will set to true, if the block is incorrect will set to false

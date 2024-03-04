@@ -99,7 +99,7 @@ Botcraft::Position ParsePositionString(std::string posStr) {
     try {
       int num = std::stoi(token);
       integers.push_back(num);
-    } catch (const std::exception &e) {
+    } catch ([[maybe_unused]] const std::exception &e) {
       std::cerr << GetTime() << "Invalid position: " << token << std::endl;
     }
   }

@@ -75,7 +75,6 @@ target_link_libraries(${TARGET_NAME} dpp)
 
 # tomlplusplus
 target_include_directories(${TARGET_NAME} PUBLIC ${TOMLPLUSPLUS_HEADER_PATH})
-target_precompile_headers(${TARGET_NAME} PUBLIC ${TOMLPLUSPLUS_HEADER})
 
 # copy necessary dll when using ASAN
 get_filename_component(COMPILER_FOLDER ${CMAKE_CXX_COMPILER} DIRECTORY)

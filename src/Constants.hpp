@@ -1,66 +1,67 @@
-#ifndef CONSTANTS_HPP
-#define CONSTANTS_HPP
-#include <string>
+// Copyright 2024 JueXiuHuang, ldslds449
+
+#ifndef SRC_CONSTANTS_HPP_
+#define SRC_CONSTANTS_HPP_
 
 // dcchannel
-const std::string KeyDcChanID = "discord_channel_id";
+static const char KeyDcChanID[] = "discord_channel_id";
 // use.dpp
-const std::string KeyUseDc = "discord_available";
+static const char KeyUseDc[] = "discord_available";
 // dctoken
-const std::string KeyDcToken = "discord_token";
+static const char KeyDcToken[] = "discord_token";
 // anchor
-const std::string KeyAnchor = "anchor_absolute_position";
+static const char KeyAnchor[] = "anchor_absolute_position";
 // nbt
-const std::string KeyNbt = "nbt_file_name";
+static const char KeyNbt[] = "nbt_file_name";
 // tempblock
-const std::string KeyTmpBlock = "template_block";
+static const char KeyTmpBlock[] = "template_block";
 // prioritize
-const std::string KeyAlgorithm = "prioritize_algorithm";
+static const char KeyAlgorithm[] = "prioritize_algorithm";
 // home
-const std::string KeyHomeCmd = "home_command";
+static const char KeyHomeCmd[] = "home_command";
 // retry
-const std::string KeyRetry = "retry_times";
+static const char KeyRetry[] = "retry_times";
 // neighbor
-const std::string KeyNeighbor = "check_neighbors";
+static const char KeyNeighbor[] = "check_neighbors";
 // Config.loaded
-const std::string KeyConfigLoaded = "is_config_loaded";
+static const char KeyConfigLoaded[] = "is_config_loaded";
 // ExchangeRate
-const std::string KeyIngotRate = "fallout_ingot_exchange_rate";
+static const char KeyIngotRate[] = "fallout_ingot_exchange_rate";
 // ChannelNumber
-const std::string KeyCurrChNum = "fallout_current_channel_number";
+static const char KeyCurrChNum[] = "fallout_current_channel_number";
 // CurrentPos
-const std::string KeyCurrPos = "current_position";
+static const char KeyCurrPos[] = "current_position";
 // Header
-const std::string KeyHeader = "fallout_header";
+static const char KeyHeader[] = "fallout_header";
 // workerNum
-const std::string KeyWorkerCount = "total_worker_count";
+static const char KeyWorkerCount[] = "total_worker_count";
 // workCol
-const std::string KeyWorkerCol = "player_assigned_column";
+static const char KeyWorkerCol[] = "player_assigned_column";
 // GetHome
-const std::string KeyBotGetHome = "bot_get_home";
+static const char KeyBotGetHome[] = "bot_get_home";
 // Task.prioritized
-const std::string KeyTaskQueued = "task_already_queued";
+static const char KeyTaskQueued[] = "task_already_queued";
 // qTaskPosition
-const std::string KeyTaskPosQ = "task_position_queue";
+static const char KeyTaskPosQ[] = "task_position_queue";
 // qTaskType
-const std::string KeyTaskTypeQ = "task_type_queue";
+static const char KeyTaskTypeQ[] = "task_type_queue";
 // qTaskName
-const std::string KeyTaskNameQ = "task_block_name_queue";
+static const char KeyTaskNameQ[] = "task_block_name_queue";
 // itemCounter
-const std::string KeyItemCounter = "item_counter";
+static const char KeyItemCounter[] = "item_counter";
 // Structure.start
-const std::string KeyNbtStart = "nbt_structure_start_absolute_position";
+static const char KeyNbtStart[] = "nbt_structure_start_absolute_position";
 // Structure.end
-const std::string KeyNbtEnd = "nbt_structure_end_absolute_position";
+static const char KeyNbtEnd[] = "nbt_structure_end_absolute_position";
 // Structure.target
-const std::string KeyNbtTarget = "nbt_relative_position_and_block_id_mapping";
+static const char KeyNbtTarget[] = "nbt_relative_position_and_block_id_mapping";
 // Structure.palette
-const std::string KeyNbtPalette = "nbt_block_id_and_block_name_mapping";
+static const char KeyNbtPalette[] = "nbt_block_id_and_block_name_mapping";
 // map_memory
-const std::string KeyMapMemo = "map_memory";
+static const char KeyMapMemo[] = "map_memory";
 // SliceDFS.xCheck
-const std::string KeyXCheck = "x_check_array_for_slice_dfs_progress_display";
+static const char KeyXCheck[] = "x_check_array_for_slice_dfs_progress_display";
 // SliceDFS.xCheckStart
-const std::string KeyXCheckStart = "magic_number_for_slice_dfs_neighbor";
+static const char KeyXCheckStart[] = "magic_number_for_slice_dfs_neighbor";
 
-#endif
+#endif  // SRC_CONSTANTS_HPP_

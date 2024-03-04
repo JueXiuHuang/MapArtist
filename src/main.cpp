@@ -1,17 +1,19 @@
-#include <botcraft/Game/ManagersClient.hpp>
-#include <botcraft/Utilities/Logger.hpp>
+// Copyright 2024 JueXiuHuang, ldslds449
+
 #include <iostream>
 #include <queue>
 #include <string>
-#include "Artist.hpp"
-#include "CustomSubTree.hpp"
-#include "Utils.hpp"
-#include "Discord.hpp"
-#include "Constants.hpp"
+
+#include <botcraft/Game/ManagersClient.hpp>
+#include <botcraft/Utilities/Logger.hpp>
+
+#include "./Artist.hpp"
+#include "./Constants.hpp"
+#include "./CustomSubTree.hpp"
+#include "./Discord.hpp"
+#include "./Utils.hpp"
 
 #include <Windows.h>  // must put here to avoid macro error
-
-using namespace Botcraft;
 
 struct Args {
   // initial value
@@ -22,41 +24,55 @@ struct Args {
   bool gui = false;
 };
 
-Args parseArgv(int argc, char* argv[]){
+Args parseArgv(int argc, char *argv[]) {
   std::queue<std::string> q;
-  for (int i = 1; i < argc; ++i){
+  for (int i = 1; i < argc; ++i) {
     q.push(std::string(argv[i]));
   }
 
   Args args;
-  std::string help_str = std::string(argv[0]) + " [-a --address] [-l --login] [-c --config] [-m] [-h] [--gui]\n";
-  help_str += "--address (-a): Address of server. [Default: " + args.address + "]\n";
+  std::string help_str =
+      std::string(argv[0]) +
+      " [-a --address] [-l --login] [-c --config] [-m] [-h] [--gui]\n";
+  help_str +=
+      "--address (-a): Address of server. [Default: " + args.address + "]\n";
   help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
-  help_str += "--config (-c): Path of config file. [Default: " + args.configPath + "]\n";
-  help_str += "--microsoft (-m): Login with Microsoft account. [Default: " + std::string((args.microsoftLogin ? "True" : "False")) + "]\n";
-  help_str += "--gui: Open GUI. [Default: " + std::string((args.gui ? "True" : "False")) + "]\n";
+  help_str +=
+      "--config (-c): Path of config file. [Default: " + args.configPath +
+      "]\n";
+  help_str += "--microsoft (-m): Login with Microsoft account. [Default: " +
+              std::string((args.microsoftLogin ? "True" : "False")) + "]\n";
+  help_str += "--gui: Open GUI. [Default: " +
+              std::string((args.gui ? "True" : "False")) + "]\n";
   help_str += "--help (-h): Show help information.\n";
-  
+
   try {
-    while (!q.empty()){
-      std::string token = q.front(); q.pop();
+    while (!q.empty()) {
+      std::string token = q.front();
+      q.pop();
       if (token == "--address" || token == "-a") {
-        if (q.empty() || q.front()[0] == '-') throw std::invalid_argument("Address value is mandatory");
-        std::string val = q.front(); q.pop();
+        if (q.empty() || q.front()[0] == '-')
+          throw std::invalid_argument("Address value is mandatory");
+        std::string val = q.front();
+        q.pop();
         args.address = val;
       } else if (token == "--login" || token == "-l") {
-        if (q.empty() || q.front()[0] == '-') throw std::invalid_argument("Login value is mandatory");
-        std::string val = q.front(); q.pop();
+        if (q.empty() || q.front()[0] == '-')
+          throw std::invalid_argument("Login value is mandatory");
+        std::string val = q.front();
+        q.pop();
         args.login = val;
       } else if (token == "--config" || token == "-c") {
-        if (q.empty() || q.front()[0] == '-') throw std::invalid_argument("Config value is mandatory");
-        std::string val = q.front(); q.pop();
+        if (q.empty() || q.front()[0] == '-')
+          throw std::invalid_argument("Config value is mandatory");
+        std::string val = q.front();
+        q.pop();
         args.configPath = val;
       } else if (token == "--microsoft" || token == "-m") {
         args.microsoftLogin = true;
       } else if (token == "--gui") {
         args.gui = true;
-      }else if (token == "--help" || token == "-h") {
+      } else if (token == "--help" || token == "-h") {
         std::cout << help_str << "\n";
         exit(EXIT_SUCCESS);
       } else {
@@ -71,10 +87,10 @@ Args parseArgv(int argc, char* argv[]){
   return args;
 }
 
-int main(int argc, char* argv[]) {
-
-#if defined(_WIN32) || defined(WIN32) 
-  // Set console code page to UTF-8 so console known how to interpret string data
+int main(int argc, char *argv[]) {
+#if defined(_WIN32) || defined(WIN32)
+  // Set console code page to UTF-8 so console known how to interpret string
+  // data
   SetConsoleOutputCP(CP_UTF8);
   // Enable buffering to prevent VS from chopping up UTF-8 byte sequences
   setvbuf(stdout, nullptr, _IOFBF, 1000);
@@ -84,11 +100,11 @@ int main(int argc, char* argv[]) {
     Args args = parseArgv(argc, argv);
 
     // Init logging, log everything >= Info, only to console, no file
-    Logger::GetInstance().SetLogLevel(LogLevel::Info);
-    Logger::GetInstance().SetFilename("");
+    Botcraft::Logger::GetInstance().SetLogLevel(Botcraft::LogLevel::Info);
+    Botcraft::Logger::GetInstance().SetFilename("");
     // Add a name to this thread for logging
-    Logger::GetInstance().RegisterThread("main");
-    
+    Botcraft::Logger::GetInstance().RegisterThread("main");
+
     Artist client(args.gui, args.configPath);
 
     std::cout << GetTime() << "Starting discord bot" << std::endl;
@@ -96,7 +112,7 @@ int main(int argc, char* argv[]) {
       std::string token = client.board.Get<std::string>(KeyDcToken);
       std::string chan = client.board.Get<std::string>(KeyDcChanID);
       DiscordBot::init(token, chan, &client);
-      DiscordBot& b = DiscordBot::getDiscordBot();
+      DiscordBot &b = DiscordBot::getDiscordBot();
       b.start();
     }
 

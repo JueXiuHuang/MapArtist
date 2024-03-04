@@ -1,22 +1,27 @@
-#ifndef DISCORD_HPP
-#define DISCORD_HPP
+// Copyright 2024 JueXiuHuang, ldslds449
+
+#ifndef SRC_DISCORD_HPP_
+#define SRC_DISCORD_HPP_
+
+#include <dpp/dpp.h>  // must be last included header
 
 #include <string>
-#include "Artist.hpp"  
-#include <dpp/dpp.h>  // must be last included header
+
+#include "./Artist.hpp"
 
 class DiscordBot {
   static std::string token;
   static std::string channel;
-  static Artist* artistPtr;
+  static Artist *artistPtr;
   dpp::cluster bot;
   std::thread dcThread;
-  
+
   DiscordBot();
-public:
+
+ public:
   void start();
   void sendDCMessage(std::string);
-  static DiscordBot& getDiscordBot();
-  static void init(std::string _token, std::string _ch, Artist* _ptr);
+  static DiscordBot &getDiscordBot();
+  static void init(std::string _token, std::string _ch, Artist *_ptr);
 };
-#endif
+#endif  // SRC_DISCORD_HPP_

@@ -1,8 +1,10 @@
-#ifndef BOTCOMMANDS_HPP
-#define BOTCOMMANDS_HPP
+// Copyright 2024 JueXiuHuang, ldslds449
 
-#include "Artist.hpp"
-#include "Regex.hpp"
+#ifndef SRC_BOTCOMMANDS_HPP_
+#define SRC_BOTCOMMANDS_HPP_
+
+#include "./Artist.hpp"
+#include "./Regex.hpp"
 
 void cmdHungry(Artist *artist);
 void cmdStop(std::smatch matches, Artist *artist);
@@ -18,4 +20,4 @@ void cmdTpSuccess(Artist *artist);
 void cmdTpHome(std::smatch matches, Artist *artist);
 void cmdDetail(std::smatch matches, Artist *artist);
 
-#endif
+#endif  // SRC_BOTCOMMANDS_HPP_

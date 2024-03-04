@@ -1,5 +1,9 @@
-#ifndef CUSTOMSUBTREE_HPP_
-#define CUSTOMSUBTREE_HPP_
+// Copyright 2024 JueXiuHuang, ldslds449
+
+#ifndef SRC_CUSTOMSUBTREE_HPP_
+#define SRC_CUSTOMSUBTREE_HPP_
+
+#include <memory>
 
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
 #include <botcraft/Game/Vector3.hpp>
@@ -22,4 +26,4 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> BMoveT
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> MoveTree(Botcraft::Position dest);
 
-#endif
+#endif  // SRC_CUSTOMSUBTREE_HPP_

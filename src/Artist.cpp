@@ -1,15 +1,16 @@
-#include <iostream>
+// Copyright 2024 JueXiuHuang, ldslds449
+
+#include "./Artist.hpp"  // NOLINT
+
 #include <fstream>
-#include "Artist.hpp"
-#include "BotCommands.hpp"
-#include "Regex.hpp"
-#include "Utils.hpp"
-#include "Constants.hpp"
+#include <iostream>
 
-using namespace Botcraft;
-using namespace ProtocolCraft;
+#include "./BotCommands.hpp"
+#include "./Constants.hpp"
+#include "./Regex.hpp"
+#include "./Utils.hpp"
 
-void msgProcessor(std::string text, Artist* artist) {
+void msgProcessor(std::string text, Artist *artist) {
   std::smatch match;
   if (regex_search(text, match, DiscordPattern)) {
     std::cout << "==Discord==" << GetTime() << text << std::endl;
@@ -28,7 +29,8 @@ void msgProcessor(std::string text, Artist* artist) {
   }
 }
 
-Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClient(use_renderer), finder(this) {
+Artist::Artist(const bool use_renderer, std::string path)
+    : SimpleBehaviourClient(use_renderer), finder(this) {
   configPath = path;
   inWaitingRoom = false;
   waitTpFinish = false;
@@ -51,7 +53,7 @@ Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClien
     std::string key, value;
     getline(iss, key, '=') && getline(iss, value);
     if (key == "anchor") {
-      Position anchor = ParsePositionString(value);
+      Botcraft::Position anchor = ParsePositionString(value);
       board.Set(KeyAnchor, anchor);
     } else if (key == "dctoken" && value != "") {
       board.Set(KeyDcToken, value);
@@ -72,11 +74,11 @@ Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClien
     } else if (key == "neighbor") {
       board.Set(KeyNeighbor, value == "true");
     } else {
-      std::vector<Position> posVec;
+      std::vector<Botcraft::Position> posVec;
       std::istringstream _iss(value);
       std::string posGroup;
       while (getline(_iss, posGroup, ';')) {
-        Position chestPos = ParsePositionString(posGroup);
+        Botcraft::Position chestPos = ParsePositionString(posGroup);
         posVec.push_back(chestPos);
       }
       board.Set("chest:" + key, posVec);
@@ -90,37 +92,29 @@ Artist::Artist(const bool use_renderer, std::string path) : SimpleBehaviourClien
 Artist::~Artist() {}
 
 // Local server chat
-void Artist::Handle(ClientboundPlayerChatPacket& msg) {
+void Artist::Handle(ProtocolCraft::ClientboundPlayerChatPacket &msg) {
   ManagersClient::Handle(msg);
   std::string text = msg.GetBody().GetContent();
 
   CmdHandler(text, this);
 }
 
-void Artist::waitTP() {
-  tpNotifier.wait();
-}
+void Artist::waitTP() { tpNotifier.wait(); }
 
-std::size_t Artist::getTPID() {
-  return tpID;
-}
+std::size_t Artist::getTPID() { return tpID; }
 
-bool Artist::getNeedRestart(){
-  return needRestart;
-}
+bool Artist::getNeedRestart() { return needRestart; }
 
-void Artist::setNeedRestart(const bool &restart){
-  needRestart = restart;
-}
+void Artist::setNeedRestart(const bool &restart) { needRestart = restart; }
 
-void Artist::Handle(ClientboundSystemChatPacket& msg) {
+void Artist::Handle(ProtocolCraft::ClientboundSystemChatPacket &msg) {
   ManagersClient::Handle(msg);
   std::string text = msg.GetContent().GetText();
 
   msgProcessor(text, this);
 }
 
-void Artist::Handle(ClientboundTabListPacket& msg) {
+void Artist::Handle(ProtocolCraft::ClientboundTabListPacket &msg) {
   ManagersClient::Handle(msg);
 
   std::string header = msg.GetHeader().GetText();
@@ -136,18 +130,18 @@ void Artist::Handle(ClientboundTabListPacket& msg) {
   }
 }
 
-void Artist::Handle(ClientboundPlayerPositionPacket& msg) {
+void Artist::Handle(ProtocolCraft::ClientboundPlayerPositionPacket &msg) {
   ConnectionClient::Handle(msg);
   tpID++;
-  std::cout << GetTime() << "TP to position: " << msg.GetX() << ", " << msg.GetY() << ", " << msg.GetZ() << std::endl;
+  std::cout << GetTime() << "TP to position: " << msg.GetX() << ", "
+            << msg.GetY() << ", " << msg.GetZ() << std::endl;
   std::cout << GetTime() << "Notify all listeners" << std::endl;
   tpNotifier.notify_all();
   std::cout << GetTime() << "Finish notifying all listeners" << std::endl;
   std::cout << "=========================" << std::endl;
 }
 
-void Artist::Handle(ClientboundDisconnectPacket& msg)
-{
+void Artist::Handle(ProtocolCraft::ClientboundDisconnectPacket &msg) {
   ConnectionClient::Handle(msg);
   needRestart = true;
 }

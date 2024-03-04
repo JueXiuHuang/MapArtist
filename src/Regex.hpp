@@ -1,5 +1,7 @@
-#ifndef REGEX_HPP_
-#define REGEX_HPP_
+// Copyright 2024 JueXiuHuang, ldslds449
+
+#ifndef SRC_REGEX_HPP_
+#define SRC_REGEX_HPP_
 
 #include <regex>
 
@@ -34,16 +36,17 @@ match 15: In game position
 match 16: Channel palyer count
 match 17: Online player count
 */
-static std::regex FalloutTabPattern(R"((< 廢土伺服器 - mcFallout.net >))"
-                                R"([^\d]+(\d+/\d+))"
-                                R"([^\d]+(\d+/\d+)[^\d]+(\d+))"
-                                R"([^\d]+(\d+))"
-                                R"([^\d]+(\d+/\d+)[^\d]+(\d+)[^\d]+(\d+))"
-                                R"([^\d]+(\d+))"
-                                R"([^\d]+(\d+)[^\d]+(\d+)[^\d]+(\d+))"
-                                R"([^\d]+(\d+)[^\d]+(\d+:\d+\s(?:A|P)M)-[^\d-]+(-?\d+\s-?\d+\s-?\d+))"
-                                R"([^\d]+(\d+))"
-                                R"([^\d]+(\d+\s/\s\d+))");
+static std::regex FalloutTabPattern(
+    R"((< 廢土伺服器 - mcFallout.net >))"
+    R"([^\d]+(\d+/\d+))"
+    R"([^\d]+(\d+/\d+)[^\d]+(\d+))"
+    R"([^\d]+(\d+))"
+    R"([^\d]+(\d+/\d+)[^\d]+(\d+)[^\d]+(\d+))"
+    R"([^\d]+(\d+))"
+    R"([^\d]+(\d+)[^\d]+(\d+)[^\d]+(\d+))"
+    R"([^\d]+(\d+)[^\d]+(\d+:\d+\s(?:A|P)M)-[^\d-]+(-?\d+\s-?\d+\s-?\d+))"
+    R"([^\d]+(\d+))"
+    R"([^\d]+(\d+\s/\s\d+))");
 
 /*
 match 1:  Domain quota (remain)
@@ -67,22 +70,23 @@ match 18: In game position
 match 19: Channel palyer count
 match 20: Online player count
 */
-static std::regex FalloutTabPatternVer2(R"(\s*§\S廢土伺服器 §\S- §\SmcFallout.net\s*\n)"
-                                  R"(\s*\n)"
-                                  R"(\s*§\S當前分流領地資訊§\S :\s*\n)"
-                                  R"(\s*§\S剩餘額度§\S : §\S(\d+) §\S/§\S(\d+) 格\s*\n)"
-                                  R"(\s*\n)"
-                                  R"(\s*§\S數量來自 :\s*\n)"
-                                  R"(\s*§\S線上累積§\S : §\S(\d+) §\S/(\d+) 格 §\S\+ §\S村民錠購買§\S : §\S(\d+) §\S格\s*\n)"
-                                  R"(\s*§\S階級 §\S§\S§\S§\S§\S\S+§\S §\S §\S給予的紅利§\S : §\S(\d+) §\S格\s*\n)"
-                                  R"(\s*§\S免費領地飛行§\S : §\S(\d+) §\S/(\d+) 秒 \(§\S不使用時每(\d+) §\S秒§\S\+(\d+) §\S秒\)\s*\n)"
-                                  R"(\s*§\S無限領地飛行§\S : §\S(\d+) §\S 天 §\S\(使用村民錠購買\)\s*\n)"
-                                  R"(\s*\n)"
-                                  R"(\s*§\S綠寶石餘額§\S : §\S(\d+) §\S/ §\S村民錠餘額§\S : §\S(\d+) §\S/ §\S村民錠價格 : 每個約 §\S(\d+) 綠\s*\n)"
-                                  R"(\s*§\S所處位置 §\S: §\S分流(\d+)§\S-§\S§\S(地獄|主世界|終界) §\S-§\S(\d+:\d+\s(?:AM|PM)) §\S-§\S座標§\S : §\S(-?\d+ -?\d+ -?\d+)\s*\n)"
-                                  R"(\s*\n)"
-                                  R"(\s*§\S當前分流人數 §\S: §\S§\S(\d+)\s*\n)"
-                                  R"(\s*§\S線上人數 §\S: §\S(\d+) §\S/ §\S(\d+))");
+static std::regex FalloutTabPatternVer2(
+    R"(\s*§\S廢土伺服器 §\S- §\SmcFallout.net\s*\n)"
+    R"(\s*\n)"
+    R"(\s*§\S當前分流領地資訊§\S :\s*\n)"
+    R"(\s*§\S剩餘額度§\S : §\S(\d+) §\S/§\S(\d+) 格\s*\n)"
+    R"(\s*\n)"
+    R"(\s*§\S數量來自 :\s*\n)"
+    R"(\s*§\S線上累積§\S : §\S(\d+) §\S/(\d+) 格 §\S\+ §\S村民錠購買§\S : §\S(\d+) §\S格\s*\n)"
+    R"(\s*§\S階級 §\S§\S§\S§\S§\S\S+§\S §\S §\S給予的紅利§\S : §\S(\d+) §\S格\s*\n)"
+    R"(\s*§\S免費領地飛行§\S : §\S(\d+) §\S/(\d+) 秒 \(§\S不使用時每(\d+) §\S秒§\S\+(\d+) §\S秒\)\s*\n)"
+    R"(\s*§\S無限領地飛行§\S : §\S(\d+) §\S 天 §\S\(使用村民錠購買\)\s*\n)"
+    R"(\s*\n)"
+    R"(\s*§\S綠寶石餘額§\S : §\S(\d+) §\S/ §\S村民錠餘額§\S : §\S(\d+) §\S/ §\S村民錠價格 : 每個約 §\S(\d+) 綠\s*\n)"
+    R"(\s*§\S所處位置 §\S: §\S分流(\d+)§\S-§\S§\S(地獄|主世界|終界) §\S-§\S(\d+:\d+\s(?:AM|PM)) §\S-§\S座標§\S : §\S(-?\d+ -?\d+ -?\d+)\s*\n)"
+    R"(\s*\n)"
+    R"(\s*§\S當前分流人數 §\S: §\S§\S(\d+)\s*\n)"
+    R"(\s*§\S線上人數 §\S: §\S(\d+) §\S/ §\S(\d+))");
 
 static std::regex HungryPattern(R"(bot\s(hungry))");
 
@@ -144,4 +148,4 @@ static std::regex MovePattern(R"(bot\s(b?move)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+))");
 
 static std::regex TpSuccessPattern(R"(讀取人物成功)");
 
-#endif
+#endif  // SRC_REGEX_HPP_

@@ -164,7 +164,7 @@ void CmdHandler(std::string text, Artist *artist) {
 }
 
 void MessageOutput(std::string text, Artist *artist) {
-  if (artist->board.Get<bool>(KeyUseDc, false)) {
+  if (artist->conf.priv.discordEnable) {
     DiscordBot &b = DiscordBot::getDiscordBot();
     b.sendDCMessage(text);
   } else {

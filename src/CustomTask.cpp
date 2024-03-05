@@ -100,8 +100,7 @@ Botcraft::Status GetFood(Botcraft::BehaviourClient &c,
                        Botcraft::Window::INVENTORY_HOTBAR_START,
                        Botcraft::Window::INVENTORY_OFFHAND_INDEX);
 
-  const std::vector<Botcraft::Position> &chests =
-      artist.board.Get<std::vector<Botcraft::Position>>("chest:" + food_name);
+  const std::vector<Botcraft::Position> &chests = artist.conf.chests[food_name];
 
   std::vector<std::size_t> chests_indices(chests.size());
   for (std::size_t i = 0; i < chests.size(); ++i) {
@@ -280,10 +279,9 @@ Botcraft::Status DumpItems(Botcraft::BehaviourClient &c) {
   Artist &artist = static_cast<Artist &>(c);
   std::shared_ptr<Botcraft::InventoryManager> inventory_manager =
       c.GetInventoryManager();
-  std::vector<Botcraft::Position> chestPositions =
-      artist.board.Get<std::vector<Botcraft::Position>>("chest:recycle");
+  std::vector<Botcraft::Position> chests = artist.conf.chests["recycle"];
 
-  for (auto chest : chestPositions) {
+  for (auto chest : chests) {
     if (FindPathAndMove(c, chest, 2, 2, 0, 6, 2, 2, 2, 2, 0, 3, 2, 2) ==
         Botcraft::Status::Failure)
       continue;
@@ -351,7 +349,7 @@ Botcraft::Status DumpItems(Botcraft::BehaviourClient &c) {
 
 Botcraft::Status TaskPrioritize(Botcraft::BehaviourClient &c) {
   Artist &artist = static_cast<Artist &>(c);
-  std::string algo = artist.board.Get<std::string>(KeyAlgorithm);
+  std::string algo = artist.conf.algo.method;
   artist.board.Set(KeyTaskQueued, true);
 
   if (algo == "bfs") {
@@ -398,12 +396,11 @@ Botcraft::Status CollectSingleMaterial(Botcraft::BehaviourClient &c,
   Artist &artist = static_cast<Artist &>(c);
   std::shared_ptr<Botcraft::InventoryManager> inventory_manager =
       c.GetInventoryManager();
-  std::vector<Botcraft::Position> availableChests =
-      artist.board.Get<std::vector<Botcraft::Position>>("chest:" + itemName);
+  std::vector<Botcraft::Position> allChests = artist.conf.chests[itemName];
 
   bool get_all_material = false;
   int remain_empty_slot = -1;
-  for (auto chest : availableChests) {
+  for (auto chest : allChests) {
     std::cout << GetTime() << "========== CHEST ==========" << std::endl;
     SortInventory(c);
     Botcraft::Status moveResult =
@@ -534,7 +531,7 @@ Botcraft::Status TaskExecutor(Botcraft::BehaviourClient &c) {
       artist.board.Get<std::queue<std::string>>(KeyTaskTypeQ);
   std::queue<std::string> qTaskName =
       artist.board.Get<std::queue<std::string>>(KeyTaskNameQ);
-  int retry_times = artist.board.Get<int>(KeyRetry);
+  int retry_times = artist.conf.algo.retry;
   std::vector<Botcraft::Position> offsets{
       Botcraft::Position(1, 0, 0), Botcraft::Position(-1, 0, 0),
       Botcraft::Position(0, 0, 1), Botcraft::Position(0, 0, -1),
@@ -629,8 +626,7 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
 Botcraft::Status RemoveNeighborExtraBlock(Botcraft::BehaviourClient &c,
                                           Botcraft::Position blockPos) {
   Artist &artist = static_cast<Artist &>(c);
-  const Botcraft::Position &anchor =
-      artist.board.Get<Botcraft::Position>(KeyAnchor);
+  const Botcraft::Position &anchor = artist.conf.nbt.anchor;
   const Botcraft::Position &start =
       artist.board.Get<Botcraft::Position>(KeyNbtStart);
   const Botcraft::Position &end =
@@ -761,7 +757,7 @@ If everything is correct, return Success, otherwise return Failure.
 Botcraft::Status checkCompletion(Botcraft::BehaviourClient &c) {
   Artist &artist = static_cast<Artist &>(c);
   std::shared_ptr<Botcraft::World> world = c.GetWorld();
-  Botcraft::Position anchor = artist.board.Get<Botcraft::Position>(KeyAnchor);
+  Botcraft::Position anchor = artist.conf.nbt.anchor;
 
   Botcraft::Position target_pos, world_pos;
 
@@ -841,7 +837,7 @@ Botcraft::Status checkCompletion(Botcraft::BehaviourClient &c) {
 Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   Artist &artist = static_cast<Artist &>(c);
   std::shared_ptr<Botcraft::World> world = c.GetWorld();
-  Botcraft::Position anchor = artist.board.Get<Botcraft::Position>(KeyAnchor);
+  Botcraft::Position anchor = artist.conf.nbt.anchor;
 
   Botcraft::Position target_pos, world_pos;
 
@@ -925,9 +921,9 @@ Botcraft::Status LoadNBT(Botcraft::BehaviourClient &c) {
   std::cout << GetTime() << "Loading NBT file..." << std::endl;
   ProtocolCraft::NBT::Value loaded_file;
   Artist &artist = static_cast<Artist &>(c);
-  Botcraft::Position offset = artist.board.Get<Botcraft::Position>(KeyAnchor);
-  std::string temp_block = artist.board.Get<std::string>(KeyTmpBlock);
-  std::string nbt_path = artist.board.Get<std::string>(KeyNbt);
+  Botcraft::Position offset = artist.conf.nbt.anchor;
+  std::string temp_block = artist.conf.nbt.tmpBlock;
+  std::string nbt_path = artist.conf.nbt.name;
 
   try {
     std::ifstream infile(nbt_path, std::ios::binary);
@@ -1118,6 +1114,7 @@ Botcraft::Status LoadNBT(Botcraft::BehaviourClient &c) {
   artist.board.Set(KeyNbtEnd, end);
   artist.board.Set(KeyNbtTarget, target);
   artist.board.Set(KeyNbtPalette, palette);
+  artist.board.Set(KeyNBTLoaded, true);
 
   return Botcraft::Status::Success;
 }

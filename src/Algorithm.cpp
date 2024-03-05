@@ -38,8 +38,7 @@ void SimpleBFS(Botcraft::BehaviourClient &c) {
       artist.board.Get<Botcraft::Position>(KeyNbtStart);
   const Botcraft::Position &end =
       artist.board.Get<Botcraft::Position>(KeyNbtEnd);
-  const Botcraft::Position &anchor =
-      artist.board.Get<Botcraft::Position>(KeyAnchor);
+  const Botcraft::Position &anchor = artist.conf.nbt.anchor;
   const std::vector<std::vector<std::vector<int16_t>>> &target =
       artist.board.Get<std::vector<std::vector<std::vector<int16_t>>>>(
           KeyNbtTarget);
@@ -53,7 +52,7 @@ void SimpleBFS(Botcraft::BehaviourClient &c) {
 
   int slotCounter = 0;
   std::map<std::string, int, MaterialCompare> itemCounter{
-      MaterialCompare(artist.board)};
+      MaterialCompare(artist.conf.chests)};
 
   std::queue<Botcraft::Position> pending, qTaskPosition;
   std::queue<std::string> qTaskType, qTaskName;
@@ -141,8 +140,7 @@ void SimpleDFS(Botcraft::BehaviourClient &c) {
       artist.board.Get<Botcraft::Position>(KeyNbtStart);
   const Botcraft::Position &end =
       artist.board.Get<Botcraft::Position>(KeyNbtEnd);
-  const Botcraft::Position &anchor =
-      artist.board.Get<Botcraft::Position>(KeyAnchor);
+  const Botcraft::Position &anchor = artist.conf.nbt.anchor;
   const std::vector<std::vector<std::vector<int16_t>>> &target =
       artist.board.Get<std::vector<std::vector<std::vector<int16_t>>>>(
           KeyNbtTarget);
@@ -152,7 +150,7 @@ void SimpleDFS(Botcraft::BehaviourClient &c) {
   const Botcraft::Position size = end - start + Botcraft::Position(1, 1, 1);
 
   std::map<std::string, int, MaterialCompare> itemCounter{
-      MaterialCompare(artist.board)};
+      MaterialCompare(artist.conf.chests)};
   std::queue<Botcraft::Position> pending, qTaskPosition;
   std::queue<std::string> qTaskType, qTaskName;
 
@@ -279,8 +277,7 @@ void SliceDFS(Botcraft::BehaviourClient &c) {
       artist.board.Get<Botcraft::Position>(KeyNbtStart);
   const Botcraft::Position &end =
       artist.board.Get<Botcraft::Position>(KeyNbtEnd);
-  const Botcraft::Position &anchor =
-      artist.board.Get<Botcraft::Position>(KeyAnchor);
+  const Botcraft::Position &anchor = artist.conf.nbt.anchor;
   const std::vector<std::vector<std::vector<int16_t>>> &target =
       artist.board.Get<std::vector<std::vector<std::vector<int16_t>>>>(
           KeyNbtTarget);
@@ -302,7 +299,7 @@ void SliceDFS(Botcraft::BehaviourClient &c) {
 
   int slotCounter = 0;
   std::map<std::string, int, MaterialCompare> itemCounter{
-      MaterialCompare(artist.board)};
+      MaterialCompare(artist.conf.chests)};
 
   std::queue<Botcraft::Position> qTaskPosition;
   std::queue<std::string> qTaskType, qTaskName;
@@ -399,8 +396,7 @@ void SliceDFSNeighbor(Botcraft::BehaviourClient &c) {
       artist.board.Get<Botcraft::Position>(KeyNbtStart);
   const Botcraft::Position &end =
       artist.board.Get<Botcraft::Position>(KeyNbtEnd);
-  const Botcraft::Position &anchor =
-      artist.board.Get<Botcraft::Position>(KeyAnchor);
+  const Botcraft::Position &anchor = artist.conf.nbt.anchor;
   const std::vector<std::vector<std::vector<int16_t>>> &target =
       artist.board.Get<std::vector<std::vector<std::vector<int16_t>>>>(
           KeyNbtTarget);
@@ -418,7 +414,7 @@ void SliceDFSNeighbor(Botcraft::BehaviourClient &c) {
 
   int slotCounter = 0;
   std::map<std::string, int, MaterialCompare> itemCounter{
-      MaterialCompare(artist.board)};
+      MaterialCompare(artist.conf.chests)};
 
   std::queue<Botcraft::Position> qTaskPosition;
   std::queue<std::string> qTaskType, qTaskName;
@@ -533,8 +529,7 @@ void SliceDFSSnake(Botcraft::BehaviourClient &c) {
       artist.board.Get<Botcraft::Position>(KeyNbtStart);
   const Botcraft::Position &end =
       artist.board.Get<Botcraft::Position>(KeyNbtEnd);
-  const Botcraft::Position &anchor =
-      artist.board.Get<Botcraft::Position>(KeyAnchor);
+  const Botcraft::Position &anchor = artist.conf.nbt.anchor;
   const std::vector<std::vector<std::vector<int16_t>>> &target =
       artist.board.Get<std::vector<std::vector<std::vector<int16_t>>>>(
           KeyNbtTarget);
@@ -553,7 +548,7 @@ void SliceDFSSnake(Botcraft::BehaviourClient &c) {
 
   int slotCounter = 0;
   std::map<std::string, int, MaterialCompare> itemCounter{
-      MaterialCompare(artist.board)};
+      MaterialCompare(artist.conf.chests)};
 
   std::queue<Botcraft::Position> qTaskPosition;
   std::queue<std::string> qTaskType, qTaskName;

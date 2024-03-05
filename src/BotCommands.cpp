@@ -119,6 +119,7 @@ void cmdDefaultSetting(Artist *artist) {
 
   MessageOutput(info, artist);
   artist->board.Set(KeyWorkerCol, 0);
+  artist->board.Set(KeyWorkerCount, 1);
 }
 
 void cmdMove(std::smatch matches, Artist *artist) {
@@ -175,7 +176,7 @@ void cmdDetail(std::smatch matches, Artist *artist) {
   int workerNum = artist->board.Get<int>(KeyWorkerCount, 1);
   std::string channel =
       artist->board.Get<std::string>(KeyCurrChNum, "NOT_FOUND");
-  std::string fileName = artist->board.Get<std::string>(KeyNbt, "");
+  std::string fileName = artist->conf.nbt.name;
   std::string userName = artist->GetNetworkManager()->GetMyName();
 
   std::ostringstream oss;

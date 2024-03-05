@@ -1,0 +1,224 @@
+[private]
+name = "private.toml"
+
+
+[nbt]
+# anchor means the first block in your schematic file (nbt)
+anchor = "-576,60,4415"
+
+# the nbt file you want to build
+name = "kafka_swim/kafka_swim_suit_0_6.nbt"
+
+tempblock = "minecraft:cobblestone"
+
+
+[other]
+home = "homes mapart"
+
+
+[algorithm]
+# available algorithm: bfs, dfs, slice_dfs, slice_dfs_neighbor
+method = "slice_dfs"
+
+# if the bot will place it's neighboring blocks.
+neighbor = false
+
+# retry is the number of times we retry an action
+retry = 12
+
+
+# The fields below represent each block and the position of the chest they are stored in.
+# Recycle is the chest you can put everything in it.
+# You can use recycle chest as item classifier's source chest.
+[[chests]]
+name = "recycle"
+coordinate = ["-574,72,4399", "-574,72,4398", "-574,72,4397", "-574,72,4396", "-574,72,4395"]
+[[chests]]
+name = "minecraft:cooked_beef"
+coordinate = ["-586,60,4415"]
+[[chests]]
+name = "minecraft:white_wool"
+coordinate = ["-572,61,4397", "-572,62,4397", "-572,63,4397"]
+[[chests]]
+name = "minecraft:light_gray_wool"
+coordinate = ["-571,61,4397", "-571,62,4397", "-571,63,4397"]
+[[chests]]
+name = "minecraft:gray_wool"
+coordinate = ["-570,61,4397", "-570,62,4397", "-570,63,4397"]
+[[chests]]
+name = "minecraft:black_wool"
+coordinate = ["-569,61,4397", "-569,62,4397", "-569,63,4397"]
+[[chests]]
+name = "minecraft:red_wool"
+coordinate = ["-568,61,4397", "-568,62,4397", "-568,63,4397"]
+[[chests]]
+name = "minecraft:orange_wool"
+coordinate = ["-567,61,4397", "-567,62,4397", "-567,63,4397"]
+[[chests]]
+name = "minecraft:yellow_wool"
+coordinate = ["-566,61,4397", "-566,62,4397", "-566,63,4397"]
+[[chests]]
+name = "minecraft:lime_wool"
+coordinate = ["-565,61,4397", "-565,62,4397", "-565,63,4397"]
+[[chests]]
+name = "minecraft:green_wool"
+coordinate = ["-564,61,4397", "-564,62,4397", "-564,63,4397"]
+[[chests]]
+name = "minecraft:light_blue_wool"
+coordinate = ["-563,61,4397", "-563,62,4397", "-563,63,4397"]
+[[chests]]
+name = "minecraft:cyan_wool"
+coordinate = ["-562,61,4397", "-562,62,4397", "-562,63,4397"]
+[[chests]]
+name = "minecraft:blue_wool"
+coordinate = ["-561,61,4397", "-561,62,4397", "-561,63,4397"]
+[[chests]]
+name = "minecraft:purple_wool"
+coordinate = ["-560,61,4397", "-560,62,4397", "-560,63,4397"]
+[[chests]]
+name = "minecraft:magenta_wool"
+coordinate = ["-559,61,4397", "-559,62,4397", "-559,63,4397"]
+[[chests]]
+name = "minecraft:pink_wool"
+coordinate = ["-558,61,4397", "-558,62,4397", "-558,63,4397"]
+[[chests]]
+name = "minecraft:brown_wool"
+coordinate = ["-557,61,4397", "-557,62,4397", "-557,63,4397"]
+[[chests]]
+name = "minecraft:white_terracotta"
+coordinate = ["-572,61,4410", "-572,62,4410", "-572,63,4410"]
+[[chests]]
+name = "minecraft:light_gray_terracotta"
+coordinate = ["-571,61,4410", "-571,62,4410", "-571,63,4410"]
+[[chests]]
+name = "minecraft:gray_terracotta"
+coordinate = ["-570,61,4410", "-570,62,4410", "-570,63,4410"]
+[[chests]]
+name = "minecraft:black_terracotta"
+coordinate = ["-569,61,4410", "-569,62,4410", "-569,63,4410"]
+[[chests]]
+name = "minecraft:red_terracotta"
+coordinate = ["-568,61,4410", "-568,62,4410", "-568,63,4410"]
+[[chests]]
+name = "minecraft:orange_terracotta"
+coordinate = ["-567,61,4410", "-567,62,4410", "-567,63,4410"]
+[[chests]]
+name = "minecraft:yellow_terracotta"
+coordinate = ["-566,61,4410", "-566,62,4410", "-566,63,4410"]
+[[chests]]
+name = "minecraft:lime_terracotta"
+coordinate = ["-565,61,4410", "-565,62,4410", "-565,63,4410"]
+[[chests]]
+name = "minecraft:green_terracotta"
+coordinate = ["-564,61,4410", "-564,62,4410", "-564,63,4410"]
+[[chests]]
+name = "minecraft:light_blue_terracotta"
+coordinate = ["-563,61,4410", "-563,62,4410", "-563,63,4410"]
+[[chests]]
+name = "minecraft:cyan_terracotta"
+coordinate = ["-562,61,4410", "-562,62,4410", "-562,63,4410"]
+[[chests]]
+name = "minecraft:blue_terracotta"
+coordinate = ["-561,61,4410", "-561,62,4410", "-561,63,4410"]
+[[chests]]
+name = "minecraft:purple_terracotta"
+coordinate = ["-560,61,4410", "-560,62,4410", "-560,63,4410"]
+[[chests]]
+name = "minecraft:magenta_terracotta"
+coordinate = ["-559,61,4410", "-559,62,4410", "-559,63,4410"]
+[[chests]]
+name = "minecraft:pink_terracotta"
+coordinate = ["-558,61,4410", "-558,62,4410", "-558,63,4410"]
+[[chests]]
+name = "minecraft:brown_terracotta"
+coordinate = ["-557,61,4410", "-557,62,4410", "-557,63,4410"]
+[[chests]]
+name = "minecraft:grass_block"
+coordinate = ["-572,67,4397", "-572,68,4397", "-572,69,4397"]
+[[chests]]
+name = "minecraft:cobblestone"
+coordinate = ["-571,67,4397", "-571,68,4397", "-571,69,4397", "-564,67,4410", "-564,68,4410", "-564,69,4410", "-557,67,4410", "-557,68,4410", "-557,69,4410"]
+[[chests]]
+name = "minecraft:dirt"
+coordinate = ["-570,67,4397", "-570,68,4397", "-570,69,4397"]
+[[chests]]
+name = "minecraft:deepslate"
+coordinate = ["-569,67,4397", "-569,68,4397", "-569,69,4397"]
+[[chests]]
+name = "minecraft:gold_block"
+coordinate = ["-568,67,4397", "-568,68,4397", "-568,69,4397"]
+[[chests]]
+name = "minecraft:iron_block"
+coordinate = ["-567,67,4397", "-567,68,4397", "-567,69,4397"]
+[[chests]]
+name = "minecraft:raw_iron_block"
+coordinate = ["-566,67,4397", "-566,68,4397", "-566,69,4397"]
+[[chests]]
+name = "minecraft:lapis_block"
+coordinate = ["-565,67,4397", "-565,68,4397", "-565,69,4397"]
+[[chests]]
+name = "minecraft:emerald_block"
+coordinate = ["-564,67,4397", "-564,68,4397", "-564,69,4397"]
+[[chests]]
+name = "minecraft:redstone_block"
+coordinate = ["-563,67,4397", "-563,68,4397", "-563,69,4397"]
+[[chests]]
+name = "minecraft:prismarine_bricks"
+coordinate = ["-562,67,4397", "-562,68,4397", "-562,69,4397"]
+[[chests]]
+name = "minecraft:netherrack"
+coordinate = ["-561,67,4397", "-561,68,4397", "-561,69,4397"]
+[[chests]]
+name = "minecraft:warped_nylium"
+coordinate = ["-560,67,4397", "-560,68,4397", "-560,69,4397"]
+[[chests]]
+name = "minecraft:crimson_nylium"
+coordinate = ["-559,67,4397", "-559,68,4397", "-559,69,4397"]
+[[chests]]
+name = "minecraft:clay"
+coordinate = ["-558,67,4397", "-558,68,4397", "-558,69,4397"]
+[[chests]]
+name = "minecraft:glass"
+coordinate = ["-557,67,4397", "-557,68,4397", "-557,69,4397"]
+[[chests]]
+name = "minecraft:oak_planks"
+coordinate = ["-572,67,4410", "-572,68,4410", "-572,69,4410"]
+[[chests]]
+name = "minecraft:spruce_planks"
+coordinate = ["-571,67,4410", "-571,68,4410", "-571,69,4410"]
+[[chests]]
+name = "minecraft:birch_planks"
+coordinate = ["-570,67,4410", "-570,68,4410", "-570,69,4410"]
+[[chests]]
+name = "minecraft:jungle_planks"
+coordinate = ["-569,67,4410", "-569,68,4410", "-569,69,4410"]
+[[chests]]
+name = "minecraft:crimson_planks"
+coordinate = ["-568,67,4410", "-568,68,4410", "-568,69,4410"]
+[[chests]]
+name = "minecraft:warped_planks"
+coordinate = ["-567,67,4410", "-567,68,4410", "-567,69,4410"]
+[[chests]]
+name = "minecraft:crimson_hyphae"
+coordinate = ["-566,67,4410", "-566,68,4410", "-566,69,4410"]
+[[chests]]
+name = "minecraft:warped_hyphae"
+coordinate = ["-565,67,4410", "-565,68,4410", "-565,69,4410"]
+[[chests]]
+name = "minecraft:diorite"
+coordinate = ["-563,67,4410", "-563,68,4410", "-563,69,4410"]
+[[chests]]
+name = "minecraft:oak_leaves"
+coordinate = ["-562,67,4410", "-562,68,4410", "-562,69,4410"]
+[[chests]]
+name = "minecraft:packed_ice"
+coordinate = ["-561,67,4410", "-561,68,4410", "-561,69,4410"]
+[[chests]]
+name = "minecraft:mushroom_stem"
+coordinate = ["-560,67,4410", "-560,68,4410", "-560,69,4410"]
+[[chests]]
+name = "minecraft:verdant_froglight"
+coordinate = ["-559,67,4410", "-559,68,4410", "-559,69,4410"]
+[[chests]]
+name = "minecraft:nether_wart_block"
+coordinate = ["-558,67,4410", "-558,68,4410", "-558,69,4410"]

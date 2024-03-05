@@ -29,65 +29,15 @@ void msgProcessor(std::string text, Artist *artist) {
   }
 }
 
-Artist::Artist(const bool use_renderer, std::string path)
+Artist::Artist(const bool use_renderer, Config _conf)
     : SimpleBehaviourClient(use_renderer),
       finder(static_cast<Botcraft::BehaviourClient *>(this)) {
-  configPath = path;
+  conf = _conf;
   inWaitingRoom = false;
   waitTpFinish = false;
   hasWork = false;
   needRestart = false;
   tpID = 0;
-
-  std::ifstream file(configPath, std::ios::in);
-
-  if (!file.is_open()) {
-    std::cerr << GetTime() << "Unable to open file: " + configPath << std::endl;
-  }
-
-  std::string line;
-  while (getline(file, line)) {
-    // if line start with '#' or is empty, skip
-    if (line.empty() || line[0] == '#') continue;
-
-    std::istringstream iss(line);
-    std::string key, value;
-    getline(iss, key, '=') && getline(iss, value);
-    if (key == "anchor") {
-      Botcraft::Position anchor = ParsePositionString(value);
-      board.Set(KeyAnchor, anchor);
-    } else if (key == "dctoken" && value != "") {
-      board.Set(KeyDcToken, value);
-      board.Set(KeyUseDc, true);
-    } else if (key == "channelid") {
-      board.Set(KeyDcChanID, value);
-    } else if (key == "nbt") {
-      board.Set(KeyNbt, value);
-    } else if (key == "tempblock") {
-      board.Set(KeyTmpBlock, value);
-    } else if (key == "prioritize") {
-      board.Set(KeyAlgorithm, value);
-    } else if (key == "home") {
-      std::cout << "TP Home command: " << value << std::endl;
-      board.Set(KeyHomeCmd, value);
-    } else if (key == "retry") {
-      board.Set(KeyRetry, stoi(value));
-    } else if (key == "neighbor") {
-      board.Set(KeyNeighbor, value == "true");
-    } else {
-      std::vector<Botcraft::Position> posVec;
-      std::istringstream _iss(value);
-      std::string posGroup;
-      while (getline(_iss, posGroup, ';')) {
-        Botcraft::Position chestPos = ParsePositionString(posGroup);
-        posVec.push_back(chestPos);
-      }
-      board.Set("chest:" + key, posVec);
-    }
-  }
-
-  file.close();
-  board.Set(KeyConfigLoaded, true);
 }
 
 Artist::~Artist() {}

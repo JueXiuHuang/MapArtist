@@ -8,13 +8,14 @@
 
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
 
+#include "./ConfigParser.hpp"
 #include "./Notifier.hpp"
 #include "./PathFinding.hpp"
 
 class Artist : public Botcraft::SimpleBehaviourClient {
  public:
-  std::string configPath;
   PathFinder finder;
+  Config conf;
   bool inWaitingRoom;
   bool waitTpFinish;
   bool hasWork;
@@ -24,7 +25,7 @@ class Artist : public Botcraft::SimpleBehaviourClient {
 
   Notifier tpNotifier;
 
-  Artist(const bool use_renderer, std::string path);
+  Artist(const bool use_renderer, Config _conf);
   ~Artist();
 
   std::size_t getTPID();

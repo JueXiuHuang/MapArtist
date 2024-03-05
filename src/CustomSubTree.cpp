@@ -38,7 +38,7 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> NullTr
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> InitTree() {
   return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Init Tree")
     .selector()
-      .inverter().leaf("config loaded?", CheckArtistBlackboardBoolData, KeyConfigLoaded)
+      .leaf("nbt file loaded?", CheckArtistBlackboardBoolData, KeyNBTLoaded)
       .selector()
         .leaf("load NBT", LoadNBT)
         // If init failed, stop the behaviour

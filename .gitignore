@@ -1,6 +1,8 @@
 bin/*
 !bin/config_local.txt
 !bin/config_online.txt
+!bin/config_local.toml
+!bin/config_online.toml
 !bin/_run_local.bat
 !bin/_run_login.bat
 build/

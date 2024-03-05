@@ -6,27 +6,27 @@
 #include <string>
 
 // dcchannel
-static const std::string KeyDcChanID = "discord_channel_id";
+// static const std::string KeyDcChanID = "discord_channel_id";
 // use.dpp
-static const std::string KeyUseDc = "discord_available";
+// static const std::string KeyUseDc = "discord_available";
 // dctoken
-static const std::string KeyDcToken = "discord_token";
+// static const std::string KeyDcToken = "discord_token";
 // anchor
-static const std::string KeyAnchor = "anchor_absolute_position";
+// static const std::string KeyAnchor = "anchor_absolute_position";
 // nbt
-static const std::string KeyNbt = "nbt_file_name";
+// static const std::string KeyNbt = "nbt_file_name";
 // tempblock
-static const std::string KeyTmpBlock = "template_block";
+// static const std::string KeyTmpBlock = "template_block";
 // prioritize
-static const std::string KeyAlgorithm = "prioritize_algorithm";
+// static const std::string KeyAlgorithm = "prioritize_algorithm";
 // home
 static const std::string KeyHomeCmd = "home_command";
 // retry
-static const std::string KeyRetry = "retry_times";
+// static const std::string KeyRetry = "retry_times";
 // neighbor
-static const std::string KeyNeighbor = "check_neighbors";
+// static const std::string KeyNeighbor = "check_neighbors";
 // Config.loaded
-static const std::string KeyConfigLoaded = "is_config_loaded";
+static const std::string KeyNBTLoaded = "is_nbt_loaded";
 // ExchangeRate
 static const std::string KeyIngotRate = "fallout_ingot_exchange_rate";
 // ChannelNumber

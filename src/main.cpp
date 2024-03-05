@@ -7,6 +7,7 @@
 #include <botcraft/Utilities/Logger.hpp>
 
 #include "./Artist.hpp"
+#include "./ConfigParser.hpp"
 #include "./Constants.hpp"
 #include "./Discord.hpp"
 
@@ -16,7 +17,7 @@ struct Args {
   // initial value
   std::string address = "127.0.0.1:25565";
   std::string login = "33ss";
-  std::string configPath = "config_local.txt";
+  std::string configPath = "config_local.toml";
   bool microsoftLogin = false;
   bool gui = false;
 };
@@ -102,12 +103,14 @@ int main(int argc, char *argv[]) {
     // Add a name to this thread for logging
     Botcraft::Logger::GetInstance().RegisterThread("main");
 
-    Artist client(args.gui, args.configPath);
+    Config conf = ParseConfig(args.configPath);
+
+    Artist client(args.gui, conf);
 
     std::cout << GetTime() << "Starting discord bot" << std::endl;
-    if (client.board.Get<bool>(KeyUseDc, false)) {
-      std::string token = client.board.Get<std::string>(KeyDcToken);
-      std::string chan = client.board.Get<std::string>(KeyDcChanID);
+    if (client.conf.priv.discordEnable) {
+      std::string token = client.conf.priv.discordToken;
+      std::string chan = client.conf.priv.discordChannel;
       DiscordBot::init(token, chan, &client);
       DiscordBot &b = DiscordBot::getDiscordBot();
       b.start();

@@ -9,6 +9,8 @@
 #include <botcraft/AI/BehaviourClient.hpp>
 #include <botcraft/Game/Vector3.hpp>
 
+#include "./ConfigParser.hpp"
+
 void SimpleBFS(Botcraft::BehaviourClient &c);
 void SimpleDFS(Botcraft::BehaviourClient &c);
 void SliceDFS(Botcraft::BehaviourClient &c);
@@ -16,14 +18,12 @@ void SliceDFSNeighbor(Botcraft::BehaviourClient &c);
 
 // Used for material collecting optimization
 struct MaterialCompare {
-  Botcraft::Blackboard &bb;
+  ChestConf &conf;
 
-  explicit MaterialCompare(Botcraft::Blackboard &blackboard) : bb(blackboard) {}
+  explicit MaterialCompare(ChestConf &conf) : conf(conf) {}
   bool operator()(const std::string &a, const std::string &b) const {
-    Botcraft::Position posA =
-        bb.Get<std::vector<Botcraft::Position>>("chest:" + a)[0];
-    Botcraft::Position posB =
-        bb.Get<std::vector<Botcraft::Position>>("chest:" + b)[0];
+    Botcraft::Position posA = conf[a][0];
+    Botcraft::Position posB = conf[b][0];
 
     if (posA.y != posB.y)
       return posA.y < posB.y;

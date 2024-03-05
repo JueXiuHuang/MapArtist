@@ -10,6 +10,7 @@
 #include "./ConfigParser.hpp"
 #include "./Constants.hpp"
 #include "./Discord.hpp"
+#include "./Utils.hpp"
 
 #include <Windows.h>  // must put here to avoid macro error
 

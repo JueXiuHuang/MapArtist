@@ -8,7 +8,7 @@
 
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
 
-#include <Vec3.hpp>
+#include <pf/Vec3.hpp>
 
 namespace pf = pathfinding;
 

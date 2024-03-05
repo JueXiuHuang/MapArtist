@@ -16,10 +16,10 @@
 #include <botcraft/Game/World/World.hpp>
 #include <botcraft/Utilities/MiscUtilities.hpp>
 
-#include <Evaluate/Evaluate.hpp>
-#include <Finder/Finder.hpp>
-#include <Goal/Goal.hpp>
-#include <Weighted/Weighted.hpp>
+#include <pf/Evaluate/Evaluate.hpp>
+#include <pf/Finder/Finder.hpp>
+#include <pf/Goal/Goal.hpp>
+#include <pf/Weighted/Weighted.hpp>
 
 #include "./Artist.hpp"
 #include "./Utils.hpp"
@@ -490,7 +490,7 @@ template <template <class, class, class, class, class> class TFinder,
 BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::BotCraftFinder(
     Botcraft::BehaviourClient *_client)
     : TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position,
-              TEdge, TEstimate, TWeight>({false, false, 9999999, true}) {
+              TEdge, TEstimate, TWeight>({false, false, true}) {
   // do not use 8-connect
   client = _client;
 }

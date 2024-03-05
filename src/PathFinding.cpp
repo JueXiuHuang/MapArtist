@@ -22,8 +22,13 @@
 #include <Weighted/Weighted.hpp>
 
 #include "./Artist.hpp"
+#include "./Utils.hpp"
 
 namespace Botcraft {
+
+// forward declaration
+Status StopFlying(BehaviourClient &client);
+void AdjustPosSpeed(BehaviourClient &client);
 
 // a75f87e0-0583-435b-847a-cf0c18ede2d1
 static constexpr std::array<unsigned char, 16> botcraft_pathfinding_speed_uuid =

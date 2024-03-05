@@ -163,7 +163,7 @@ void cmdTpSuccess(Artist *artist) {
 }
 
 void cmdTpHome(std::smatch matches, Artist *artist) {
-  std::string homeName = artist->board.Get<std::string>(KeyHomeCmd, "mapart");
+  std::string homeName = artist->conf.other.home;
 
   if (std::string(matches[1]) == homeName) {
     artist->board.Set(KeyBotGetHome, true);

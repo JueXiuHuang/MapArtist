@@ -12,11 +12,8 @@ nbt=kafka_swim_suit_0_5.nbt
 
 tempblock=minecraft:cobblestone
 
-# available algorithm: bfs, dfs, slice_dfs
+# available algorithm: slice_dfs
 prioritize=slice_dfs
-
-# if the bot will place it's neighboring blocks.
-neighbor=true
 
 # bot will try to teleport home if get stuck.
 # if remove this setting, bot will use `/tp @p 0 0 0` by default.

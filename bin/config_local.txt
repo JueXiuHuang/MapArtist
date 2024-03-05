@@ -12,11 +12,8 @@ nbt=kafka_swim/kafka_swim_suit_0_6.nbt
 
 tempblock=minecraft:cobblestone
 
-# available algorithm: bfs, dfs, slice_dfs, slice_dfs_neighbor
+# available algorithm: slice_dfs
 prioritize=slice_dfs
-
-# if the bot will place it's neighboring blocks.
-neighbor=true
 
 # retry is the number of times we retry an action
 retry=12;

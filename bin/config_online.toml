@@ -17,11 +17,8 @@ home = "homes mapart"
 
 
 [algorithm]
-# available algorithm: bfs, dfs, slice_dfs, slice_dfs_neighbor
+# available algorithm: slice_dfs
 method = "slice_dfs"
-
-# if the bot will place it's neighboring blocks.
-neighbor = false
 
 # retry is the number of times we retry an action
 retry = 12

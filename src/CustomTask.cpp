@@ -352,14 +352,8 @@ Botcraft::Status TaskPrioritize(Botcraft::BehaviourClient &c) {
   std::string algo = artist.conf.algo.method;
   artist.board.Set(KeyTaskQueued, true);
 
-  if (algo == "bfs") {
-    SimpleBFS(c);
-  } else if (algo == "dfs") {
-    SimpleDFS(c);
-  } else if (algo == "slice_dfs") {
+  if (algo == "slice_dfs") {
     SliceDFS(c);
-  } else if (algo == "slice_dfs_neighbor") {
-    SliceDFSNeighbor(c);
   } else {
     std::cout << GetTime() << "Get unrecognized prioritize method: " << algo
               << std::endl;
@@ -723,8 +717,7 @@ Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient &c,
   if (!r) {
     std::cout << GetTime() << "Bot get stuck, try to teleport..." << std::endl;
     Botcraft::Utilities::SleepFor(std::chrono::seconds(5));  // delay 5 seconds
-    std::string homeCommand =
-        artist.board.Get<std::string>(KeyHomeCmd, "tp @p 0 0 0");
+    std::string homeCommand = artist.conf.other.home;
     std::cout << GetTime() << "Send TP command..." << std::endl;
     c.SendChatCommand(homeCommand);
     std::cout << GetTime() << "Wait for TP success..." << std::endl;

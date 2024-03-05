@@ -19,7 +19,6 @@ std::ostream &operator<<(std::ostream &os, const NBTConf &conf) {
 
 std::ostream &operator<<(std::ostream &os, const AlgorithmConf &conf) {
   os << "Method: " << conf.method << std::endl
-     << "Neighbor: " << conf.neighbor << std::endl
      << "Retry: " << conf.retry << std::endl;
   return os;
 }
@@ -86,7 +85,6 @@ AlgorithmConf parseAlgorithm(toml::table* table) {
   AlgorithmConf conf;
 
   conf.method = (*table)["method"].value_or("");
-  conf.neighbor = (*table)["neighbor"].value_or(false);
   conf.retry = (*table)["retry"].value_or(999);
 
   std::cout << conf << std::endl;

@@ -19,7 +19,6 @@ struct NBTConf {
 
 struct AlgorithmConf {
   std::string method;
-  bool neighbor;
   int retry;
 };
 

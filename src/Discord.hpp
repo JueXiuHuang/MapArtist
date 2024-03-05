@@ -8,7 +8,7 @@
 #include "./Artist.hpp"
 
 // must be last included header
-#include <dpp/dpp.h>  // NOLINT 
+#include <dpp/cluster.h>  // NOLINT
 
 class DiscordBot {
   static std::string token;

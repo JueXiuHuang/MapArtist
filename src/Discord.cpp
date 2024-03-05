@@ -2,6 +2,9 @@
 
 #include "./Discord.hpp"  // NOLINT
 
+#include <dpp/once.h>
+#include <dpp/message.h>
+
 #include <iostream>
 #include <thread>
 

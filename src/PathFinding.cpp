@@ -490,7 +490,7 @@ template <template <class, class, class, class, class> class TFinder,
 BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::BotCraftFinder(
     Botcraft::BehaviourClient *_client)
     : TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position,
-              TEdge, TEstimate, TWeight>({false, false, true}) {
+              TEdge, TEstimate, TWeight>(pf::FinderConfig{false, true, true}) {
   // do not use 8-connect
   client = _client;
 }
@@ -505,6 +505,6 @@ BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::operator=(
   return *this;
 }
 
-template class BotCraftFinder<pf::AstarFinder, pf::eval::Manhattan,
+template class BotCraftFinder<pf::MultiGoalFinder, pf::eval::Manhattan,
                               pf::eval::Manhattan,
                               pf::weight::ConstWeighted<1, 1>>;

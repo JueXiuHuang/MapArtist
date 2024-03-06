@@ -41,10 +41,10 @@ class BotCraftFinder final
 };
 
 using PathFinder =
-    BotCraftFinder<pf::AstarFinder, pf::eval::Manhattan, pf::eval::Manhattan,
-                   pf::weight::ConstWeighted<1, 1>>;
+    BotCraftFinder<pf::MultiGoalFinder, pf::eval::Manhattan,
+                   pf::eval::Manhattan, pf::weight::ConstWeighted<1, 1>>;
 
-extern template class BotCraftFinder<pf::AstarFinder, pf::eval::Manhattan,
+extern template class BotCraftFinder<pf::MultiGoalFinder, pf::eval::Manhattan,
                                      pf::eval::Manhattan,
                                      pf::weight::ConstWeighted<1, 1>>;
 

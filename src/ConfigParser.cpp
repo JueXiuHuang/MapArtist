@@ -1,5 +1,7 @@
 // Copyright 2024 JueXiuHuang, ldslds449
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -9,6 +11,8 @@
 #include "./Utils.hpp"
 
 using namespace std::string_view_literals;
+
+namespace fs = std::filesystem;
 
 std::ostream &operator<<(std::ostream &os, const NBTConf &conf) {
   os << "Anchor: " << conf.anchor << std::endl
@@ -46,7 +50,17 @@ PrivateConf parsePrivate(std::string configFileName) {
     discord_channel = ""
   )"sv;
 
-  if (configFileName == "") {
+  if (configFileName == "" || !fs::exists("private.toml")) {
+    std::cout << "Generate default private toml file..." << std::endl;
+    tbl = toml::parse(defaultConfig);
+
+    std::ofstream defaultFile;
+    defaultFile.open("private.toml");
+    defaultFile << tbl;
+    defaultFile.close();
+  } else if (configFileName == "") {
+    std::cout << "Private config not define, read default config..."
+              << std::endl;
     tbl = toml::parse(defaultConfig);
   } else {
     tbl = toml::parse_file(configFileName);
@@ -80,7 +94,7 @@ NBTConf parseNBT(toml::table *table) {
   return conf;
 }
 
-AlgorithmConf parseAlgorithm(toml::table* table) {
+AlgorithmConf parseAlgorithm(toml::table *table) {
   std::cout << "Parsing algorithm config..." << std::endl;
   AlgorithmConf conf;
 
@@ -113,7 +127,7 @@ ChestConf parseChests(toml::array *materials) {
   return conf;
 }
 
-OtherConf parseOther(toml::table* table) {
+OtherConf parseOther(toml::table *table) {
   std::cout << "Parsing other config..." << std::endl;
   OtherConf conf;
 

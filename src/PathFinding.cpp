@@ -325,8 +325,8 @@ BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getBlockTypeImpl(
       } else if (block->IsTransparent() &&
                  !block->IsSolid()) {  // minecraft::torch
         return {pf::BlockType::AIR, pf::BlockType::FORCE_DOWN};
-      } else if (block->IsTransparent() &&
-                 block->IsSolid()) {  // minecraft::slab
+      } else if (block->IsTransparent() && block->IsSolid() &&
+                 block->GetHardness() >= 1) {  // minecraft::slab
         return {pf::BlockType::DANGER, pf::BlockType::NONE};
       } else if (block->IsSolid()) {
         return {pf::BlockType::SAFE, pf::BlockType::NONE};

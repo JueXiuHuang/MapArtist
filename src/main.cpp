@@ -20,7 +20,6 @@ struct Args {
   std::string login = "33ss";
   std::string configPath = "config_local.toml";
   bool microsoftLogin = false;
-  bool gui = false;
 };
 
 Args parseArgv(int argc, char *argv[]) {
@@ -32,7 +31,7 @@ Args parseArgv(int argc, char *argv[]) {
   Args args;
   std::string help_str =
       std::string(argv[0]) +
-      " [-a --address] [-l --login] [-c --config] [-m] [-h] [--gui]\n";
+      " [-a --address] [-l --login] [-c --config] [-m] [-h]\n";
   help_str +=
       "--address (-a): Address of server. [Default: " + args.address + "]\n";
   help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
@@ -41,8 +40,6 @@ Args parseArgv(int argc, char *argv[]) {
       "]\n";
   help_str += "--microsoft (-m): Login with Microsoft account. [Default: " +
               std::string((args.microsoftLogin ? "True" : "False")) + "]\n";
-  help_str += "--gui: Open GUI. [Default: " +
-              std::string((args.gui ? "True" : "False")) + "]\n";
   help_str += "--help (-h): Show help information.\n";
 
   try {
@@ -69,8 +66,6 @@ Args parseArgv(int argc, char *argv[]) {
         args.configPath = val;
       } else if (token == "--microsoft" || token == "-m") {
         args.microsoftLogin = true;
-      } else if (token == "--gui") {
-        args.gui = true;
       } else if (token == "--help" || token == "-h") {
         std::cout << help_str << "\n";
         exit(EXIT_SUCCESS);
@@ -106,7 +101,7 @@ int main(int argc, char *argv[]) {
 
     Config conf = ParseConfig(args.configPath);
 
-    Artist client(args.gui, conf);
+    Artist client(false, conf);
 
     std::cout << GetTime() << "Starting discord bot" << std::endl;
     if (client.conf.priv.discordEnable) {

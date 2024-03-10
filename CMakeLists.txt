@@ -34,8 +34,6 @@ message(STATUS "BUILD_PLATFORM: " ${BUILD_PLATFORM})
 set(MAPARTIST_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
 
 include("cmake/pathfinding.cmake")
-include("cmake/openssl.cmake")
-include("cmake/zlib.cmake")
 include("cmake/botcraft.cmake")
 include("cmake/dpp.cmake")
 include("cmake/tomlplusplus.cmake")
@@ -60,8 +58,6 @@ message(STATUS "Asan: ${Asan}")
 # botcraft
 add_dependencies(${TARGET_NAME} Botcraft-install)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
-target_compile_definitions(${TARGET_NAME} PUBLIC "USE_IMGUI=1")
-target_compile_definitions(${TARGET_NAME} PUBLIC "USE_GUI=1")
 target_compile_options(${TARGET_NAME} PUBLIC $<$<AND:$<CONFIG:Debug>,$<BOOL:${Asan}>>:/fsanitize=address>)
 target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
 

@@ -1,18 +1,12 @@
 [submodule "dependency/pathfinding"]
 	path = dependency/pathfinding
 	url = https://github.com/ldslds449/PathFinding.git
-[submodule "dependency/botcraft"]
-	path = dependency/botcraft
-	url = https://github.com/adepierre/Botcraft
-[submodule "dependency/openssl"]
-	path = dependency/openssl
-	url = https://github.com/janbar/openssl-cmake
-[submodule "dependency/zlib"]
-	path = dependency/zlib
-	url = https://github.com/madler/zlib
 [submodule "dependency/dpp"]
 	path = dependency/dpp
 	url = https://github.com/brainboxdotcc/DPP
 [submodule "dependency/tomlplusplus"]
 	path = dependency/tomlplusplus
 	url = https://github.com/marzer/tomlplusplus.git
+[submodule "dependency/botcraft"]
+	path = dependency/botcraft
+	url = https://github.com/ldslds449/Botcraft

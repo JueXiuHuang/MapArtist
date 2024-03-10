@@ -108,7 +108,7 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> Discon
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> BMoveTree(Botcraft::Position dest) {
   return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Move tree")
       .sequence()
-      .leaf("move", Botcraft::GoTo, dest, 5, 0, 0, true, true, 1.0)
+      .leaf("move", Botcraft::GoTo, dest, 0, 0, 0, true, true, 1.0)
       .leaf("notify", Botcraft::Say, "Arrived")
       .leaf("set null tree",
             [](Botcraft::SimpleBehaviourClient &c) {
@@ -121,7 +121,7 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> BMoveT
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> MoveTree(Botcraft::Position dest) {
   return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Move tree")
       .sequence()
-      .leaf("move", FindPathAndMove, dest, 0, 0, 5, 5, 0, 0, -1, -1, -1, -1, -1,
+      .leaf("move", FindPathAndMove, dest, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1,
             -1)
       .leaf("notify", Botcraft::Say, "Arrived")
       .leaf("set null tree",

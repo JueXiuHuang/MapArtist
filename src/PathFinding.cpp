@@ -177,10 +177,11 @@ bool BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::goImpl(
     // If something went wrong, break and
     // replan the whole path to the goal
     auto Step = [&]() {
-      bool result =
-          Move(*client, local_player,
-               Botcraft::Vector3<double>(newPos.x, newPos.y + 1, newPos.z),
-               speed_factor, true);
+      bool result = Move(*client, local_player,
+      // adding 0.5 and 1.0 to change pf coordinate to botcraft coordinate
+                         Botcraft::Vector3<double>(newPos.x + 0.5, newPos.y + 1,
+                                                   newPos.z + 0.5),
+                         speed_factor, true);
       if (result == false) {
         std::cerr << "Move Error" << std::endl;
         return result;

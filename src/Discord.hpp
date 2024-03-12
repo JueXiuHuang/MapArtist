@@ -11,6 +11,14 @@
 #include <dpp/cluster.h>  // NOLINT
 
 class DiscordBot {
+ public:
+  void start();
+  void sendDCMessage(std::string);
+  void setDCStatus(std::string);
+  static DiscordBot &getDiscordBot();
+  static void init(std::string _token, std::string _ch, Artist *_ptr);
+
+ private:
   static std::string token;
   static std::string channel;
   static Artist *artistPtr;
@@ -18,11 +26,5 @@ class DiscordBot {
   std::thread dcThread;
 
   DiscordBot();
-
- public:
-  void start();
-  void sendDCMessage(std::string);
-  static DiscordBot &getDiscordBot();
-  static void init(std::string _token, std::string _ch, Artist *_ptr);
 };
 #endif  // SRC_DISCORD_HPP_

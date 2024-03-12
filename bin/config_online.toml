@@ -7,7 +7,7 @@ name = "private.toml"
 anchor = "-576,60,4415"
 
 # the nbt file you want to build
-name = "kafka_swim/kafka_swim_suit_0_6.nbt"
+name = "kafka_swim/kafka_swim_suit_1_4.nbt"
 
 tempblock = "minecraft:cobblestone"
 

@@ -2,15 +2,15 @@
 
 #include "./Discord.hpp"  // NOLINT
 
-#include <dpp/once.h>
 #include <dpp/message.h>
+#include <dpp/once.h>
 
 #include <iostream>
 #include <thread>
 
 #include "./Utils.hpp"
 
-std::string DiscordBot::token;  // NOLINT
+std::string DiscordBot::token;    // NOLINT
 std::string DiscordBot::channel;  // NOLINT
 Artist *DiscordBot::artistPtr;
 
@@ -64,4 +64,9 @@ void DiscordBot::init(std::string _token, std::string _ch, Artist *_ptr) {
   token = _token;
   channel = _ch;
   artistPtr = _ptr;
+}
+
+void DiscordBot::setDCStatus(std::string status) {
+  dpp::presence_status isOnline = dpp::presence_status::ps_online;
+  bot.set_presence(dpp::presence(isOnline, dpp::at_custom, status));
 }

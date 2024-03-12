@@ -3,8 +3,8 @@
 #ifndef SRC_UTILS_HPP_
 #define SRC_UTILS_HPP_
 
-#include <regex>
 #include <string>
+#include <tuple>
 
 #include <botcraft/AI/BehaviourClient.hpp>
 #include <botcraft/Game/Vector3.hpp>
@@ -21,6 +21,7 @@ Botcraft::Position ParsePositionString(std::string posStr);
 void CmdHandler(std::string text, Artist *artist);
 void MessageOutput(std::string text, Artist *artist);
 void ListPlayerInventory(Artist *artist);
+std::tuple<int, double> CalRatioAndPercent(Artist *artist);
 
 struct BlockMemo {
   bool match = true;

@@ -29,6 +29,7 @@
 #include "./Algorithm.hpp"
 #include "./Artist.hpp"
 #include "./Constants.hpp"
+#include "./Discord.hpp"
 #include "./PathFinding.hpp"
 #include "./Utils.hpp"
 
@@ -827,6 +828,17 @@ Botcraft::Status checkCompletion(Botcraft::BehaviourClient &c) {
   return isComplete;
 }
 
+void updateDiscordStatus(Artist *artist) {
+  if (!artist->conf.priv.discordEnable) return;
+
+  DiscordBot &b = DiscordBot::getDiscordBot();
+  int ratio;
+  double percent;
+  std::tie(ratio, percent) = CalRatioAndPercent(artist);
+  b.setDCStatus(std::to_string(percent) + " %");
+  return;
+}
+
 Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   Artist &artist = static_cast<Artist &>(c);
   std::shared_ptr<Botcraft::World> world = c.GetWorld();
@@ -899,6 +911,7 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   }
 
   artist.board.Set(KeyXCheck, xCheck);
+  updateDiscordStatus(&artist);
 
   return isComplete;
 }

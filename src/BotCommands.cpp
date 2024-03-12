@@ -3,6 +3,7 @@
 #include "./BotCommands.hpp"  // NOLINT
 
 #include <iomanip>
+#include <tuple>
 
 #include <botcraft/AI/Tasks/AllTasks.hpp>
 #include <botcraft/Game/Entities/EntityManager.hpp>
@@ -59,20 +60,9 @@ void cmdStart(std::smatch matches, Artist *artist) {
 }
 
 void cmdBar(Artist *artist) {
-  std::vector<bool> xCheck =
-      artist->board.Get<std::vector<bool>>(KeyXCheck, std::vector(128, false));
-  int workers = artist->board.Get<int>(KeyWorkerCount, 1);
-  int col = artist->board.Get<int>(KeyWorkerCol, 0);
-  int finish = 0;
-  int duty = 0;
-
-  for (int i = 0; i < xCheck.size(); i++) {
-    if (i % workers != col) continue;
-    duty++;
-    if (xCheck[i]) finish++;
-  }
-  int ratio = finish * 20 / duty;
-  double percent = static_cast<double>(finish) * 100 / duty;
+  int ratio;
+  double percent;
+  std::tie(ratio, percent) = CalRatioAndPercent(artist);
 
   std::ostringstream bar;
   bar << "[" << std::string(ratio, '#') << std::string(20 - ratio, '-') << "]  "

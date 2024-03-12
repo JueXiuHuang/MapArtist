@@ -5,6 +5,8 @@
 #include <ctime>
 #include <sstream>
 #include <string>
+#include <tuple>
+#include <vector>
 
 #include <botcraft/AI/Tasks/AllTasks.hpp>
 #include <botcraft/Game/AssetsManager.hpp>
@@ -194,4 +196,23 @@ void ListPlayerInventory(Artist *artist) {
     }
   }
   std::cout << GetTime() << "======= LIST END =======" << std::endl;
+}
+
+std::tuple<int, double> CalRatioAndPercent(Artist *artist) {
+  std::vector<bool> xCheck =
+      artist->board.Get<std::vector<bool>>(KeyXCheck, std::vector(128, false));
+  int workers = artist->board.Get<int>(KeyWorkerCount, 1);
+  int col = artist->board.Get<int>(KeyWorkerCol, 0);
+  int finish = 0;
+  int duty = 0;
+
+  for (int i = 0; i < xCheck.size(); i++) {
+    if (i % workers != col) continue;
+    duty++;
+    if (xCheck[i]) finish++;
+  }
+  int ratio = finish * 20 / duty;
+  double percent = static_cast<double>(finish) * 100 / duty;
+
+  return std::make_tuple(ratio, percent);
 }

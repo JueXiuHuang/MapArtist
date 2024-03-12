@@ -94,5 +94,6 @@ void Artist::Handle(ProtocolCraft::ClientboundPlayerPositionPacket &msg) {
 
 void Artist::Handle(ProtocolCraft::ClientboundDisconnectPacket &msg) {
   ConnectionClient::Handle(msg);
+  std::cout << GetTime() << "Detect Closing" << std::endl;
   needRestart = true;
 }

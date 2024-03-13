@@ -353,7 +353,7 @@ Botcraft::Status TaskPrioritize(Botcraft::BehaviourClient &c) {
   std::string algo = artist.conf.algo.method;
   artist.board.Set(KeyTaskQueued, true);
 
-  if (algo == "slice_dfs") {
+  if (algo == AlgoSliceDFS) {
     SliceDFS(c);
   } else {
     std::cout << GetTime() << "Get unrecognized prioritize method: " << algo

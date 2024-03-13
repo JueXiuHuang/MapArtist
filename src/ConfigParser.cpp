@@ -14,6 +14,14 @@ using namespace std::string_view_literals;
 
 namespace fs = std::filesystem;
 
+std::ostream &operator<<(std::ostream &os, const ServerConf &conf) {
+  os << "Address: " << conf.address << std::endl
+     << "Player Name: " << conf.playerName << std::endl
+     << "Online: " << (conf.online ? "True" : "False") << std::endl
+     << "Reconnect: " << (conf.reconnect ? "True" : "False") << std::endl;
+  return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const NBTConf &conf) {
   os << "Anchor: " << conf.anchor << std::endl
      << "NBT file name: " << conf.name << std::endl
@@ -39,7 +47,21 @@ std::ostream &operator<<(std::ostream &os, const OtherConf &conf) {
   return os;
 }
 
-PrivateConf parsePrivate(std::string configFileName) {
+static ServerConf parseServer(toml::table *table) {
+  std::cout << "Parsing Server config..." << std::endl;
+  ServerConf conf;
+
+  conf.address = (*table)["address"].value_or(conf.address);
+  conf.playerName = (*table)["playerName"].value_or(conf.playerName);
+  conf.online = (*table)["online"].value_or(conf.online);
+  conf.reconnect = (*table)["reconnect"].value_or(conf.reconnect);
+
+  std::cout << conf << std::endl;
+
+  return conf;
+}
+
+static PrivateConf parsePrivate(std::string configFileName) {
   std::cout << "Parsing private config..." << std::endl;
   toml::table tbl;
   PrivateConf conf;
@@ -79,7 +101,7 @@ PrivateConf parsePrivate(std::string configFileName) {
   return conf;
 }
 
-NBTConf parseNBT(toml::table *table) {
+static NBTConf parseNBT(toml::table *table) {
   std::cout << "Parsing NBT config..." << std::endl;
   NBTConf conf;
 
@@ -94,7 +116,7 @@ NBTConf parseNBT(toml::table *table) {
   return conf;
 }
 
-AlgorithmConf parseAlgorithm(toml::table *table) {
+static AlgorithmConf parseAlgorithm(toml::table *table) {
   std::cout << "Parsing algorithm config..." << std::endl;
   AlgorithmConf conf;
 
@@ -106,7 +128,7 @@ AlgorithmConf parseAlgorithm(toml::table *table) {
   return conf;
 }
 
-ChestConf parseChests(toml::array *materials) {
+static ChestConf parseChests(toml::array *materials) {
   std::cout << "Parsing chest config..." << std::endl;
   ChestConf conf;
 
@@ -127,12 +149,10 @@ ChestConf parseChests(toml::array *materials) {
   return conf;
 }
 
-OtherConf parseOther(toml::table *table) {
+static OtherConf parseOther(toml::table *table) {
   std::cout << "Parsing other config..." << std::endl;
   OtherConf conf;
 
-  Botcraft::Position anchor =
-      ParsePositionString((*table)["anchor"].value_or("0,0,0"));
   conf.home = (*table)["home"].value_or("tp @p 0 0 0");
 
   std::cout << conf << std::endl;
@@ -140,12 +160,15 @@ OtherConf parseOther(toml::table *table) {
   return conf;
 }
 
-Config ParseConfig(std::string configFileName) {
+const Config ParseConfig(std::string configFileName) {
   std::cout << "Parsing config..." << std::endl;
   Config conf;
 
   try {
     toml::table tbl = toml::parse_file(configFileName);
+
+    ServerConf serverConf = parseServer(tbl["server"].as_table());
+    conf.server = serverConf;
 
     PrivateConf privateConf = parsePrivate(tbl["private"]["name"].value_or(""));
     conf.priv = privateConf;

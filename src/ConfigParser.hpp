@@ -11,6 +11,13 @@
 using ChestConf =
     std::unordered_map<std::string, std::vector<Botcraft::Position>>;
 
+struct ServerConf {
+  std::string address = "127.0.0.1:25565";
+  std::string playerName = "";
+  bool online = true;
+  bool reconnect = true;
+};
+
 struct NBTConf {
   Botcraft::Position anchor = Botcraft::Position(0, 0, 0);
   std::string name = "";
@@ -33,6 +40,7 @@ struct OtherConf {
 };
 
 struct Config {
+  ServerConf server;
   NBTConf nbt;
   AlgorithmConf algo;
   PrivateConf priv;
@@ -40,6 +48,6 @@ struct Config {
   OtherConf other;
 };
 
-Config ParseConfig(std::string fileName);
+const Config ParseConfig(std::string fileName);
 
 #endif  // SRC_CONFIGPARSER_HPP_

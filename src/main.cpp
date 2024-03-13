@@ -16,10 +16,7 @@
 
 struct Args {
   // initial value
-  std::string address = "127.0.0.1:25565";
-  std::string login = "33ss";
   std::string configPath = "config_local.toml";
-  bool microsoftLogin = false;
 };
 
 Args parseArgv(int argc, char *argv[]) {
@@ -29,43 +26,22 @@ Args parseArgv(int argc, char *argv[]) {
   }
 
   Args args;
-  std::string help_str =
-      std::string(argv[0]) +
-      " [-a --address] [-l --login] [-c --config] [-m] [-h]\n";
-  help_str +=
-      "--address (-a): Address of server. [Default: " + args.address + "]\n";
-  help_str += "--login (-l): Login user name. [Default: " + args.login + "]\n";
+  std::string help_str = std::string(argv[0]) + " [-c --config] [-h --help]\n";
   help_str +=
       "--config (-c): Path of config file. [Default: " + args.configPath +
       "]\n";
-  help_str += "--microsoft (-m): Login with Microsoft account. [Default: " +
-              std::string((args.microsoftLogin ? "True" : "False")) + "]\n";
   help_str += "--help (-h): Show help information.\n";
 
   try {
     while (!q.empty()) {
       std::string token = q.front();
       q.pop();
-      if (token == "--address" || token == "-a") {
-        if (q.empty() || q.front()[0] == '-')
-          throw std::invalid_argument("Address value is mandatory");
-        std::string val = q.front();
-        q.pop();
-        args.address = val;
-      } else if (token == "--login" || token == "-l") {
-        if (q.empty() || q.front()[0] == '-')
-          throw std::invalid_argument("Login value is mandatory");
-        std::string val = q.front();
-        q.pop();
-        args.login = val;
-      } else if (token == "--config" || token == "-c") {
+      if (token == "--config" || token == "-c") {
         if (q.empty() || q.front()[0] == '-')
           throw std::invalid_argument("Config value is mandatory");
         std::string val = q.front();
         q.pop();
         args.configPath = val;
-      } else if (token == "--microsoft" || token == "-m") {
-        args.microsoftLogin = true;
       } else if (token == "--help" || token == "-h") {
         std::cout << help_str << "\n";
         exit(EXIT_SUCCESS);
@@ -99,7 +75,7 @@ int main(int argc, char *argv[]) {
     // Add a name to this thread for logging
     Botcraft::Logger::GetInstance().RegisterThread("main");
 
-    Config conf = ParseConfig(args.configPath);
+    const Config conf = ParseConfig(args.configPath);
 
     Artist client(false, conf);
 
@@ -116,10 +92,11 @@ int main(int argc, char *argv[]) {
     do {
       client.setNeedRestart(false);
       client.SetShouldBeClosed(false);
-      client.Connect(args.address, args.login, args.microsoftLogin);
+      client.Connect(conf.server.address, conf.server.playerName,
+                     conf.server.online);
       client.SetAutoRespawn(true);
       client.RunBehaviourUntilClosed();
-    } while (client.getNeedRestart());
+    } while (client.getNeedRestart() && conf.server.reconnect);
     client.Disconnect();
 
     return 0;

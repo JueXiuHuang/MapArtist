@@ -62,4 +62,7 @@ static const std::string KeyMapMemo = "map_memory";
 // SliceDFS.xCheck
 static const std::string KeyXCheck = "x_check_array_for_slice_dfs_progress_display";
 
+// slice_dfs
+static const std::string AlgoSliceDFS = "slice_dfs";
+
 #endif  // SRC_CONSTANTS_HPP_

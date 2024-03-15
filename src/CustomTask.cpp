@@ -828,17 +828,6 @@ Botcraft::Status checkCompletion(Botcraft::BehaviourClient &c) {
   return isComplete;
 }
 
-void updateDiscordStatus(Artist *artist) {
-  if (!artist->conf.priv.discordEnable) return;
-
-  DiscordBot &b = DiscordBot::getDiscordBot();
-  int ratio;
-  double percent;
-  std::tie(ratio, percent) = CalRatioAndPercent(artist);
-  b.setDCStatus(std::to_string(percent) + " %");
-  return;
-}
-
 Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   Artist &artist = static_cast<Artist &>(c);
   std::shared_ptr<Botcraft::World> world = c.GetWorld();
@@ -861,6 +850,7 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   const std::map<int16_t, std::string> &palette =
       artist.board.Get<std::map<int16_t, std::string>>(KeyNbtPalette);
 
+  // TODO: auto calcutate checkpoint position
   std::vector<Botcraft::Position> checkpoints{
       Botcraft::Position(static_cast<int>(size.x * 0.3), 0,
                          static_cast<int>(size.z * 0.3)),
@@ -882,15 +872,20 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   const bool full_check = true;
 
   Botcraft::Status isComplete = Botcraft::Status::Success;
-  for (auto cp : checkpoints) {
-    std::cout << GetTime() << "Check checkpoint..." << std::endl;
-    Botcraft::Status moveResult = FindPathAndMove(c, anchor + cp, 0, 0, 5, 5, 0,
-                                                  0, -1, -1, -1, -1, -1, -1);
+  for (int i = 0; i < checkpoints.size(); i++) {
+    std::ostringstream info;
+    info << "Check point " << i + 1 << "/" << checkpoints.size();
+    std::cout << GetTime() << info.str() << std::endl;
+    UpdateDcStatus(c, info.str());
+
+    Botcraft::Status moveResult = FindPathAndMove(
+        c, anchor + checkpoints[i], 0, 0, 5, 5, 0, 0, -1, -1, -1, -1, -1, -1);
     if (moveResult == Botcraft::Status::Failure) {
       std::cout << GetTime() << "Move to checkpoint fail..." << std::endl;
     }
-    if (checkCompletion(c) == Botcraft::Status::Failure)
+    if (checkCompletion(c) == Botcraft::Status::Failure) {
       isComplete = Botcraft::Status::Failure;
+    }
   }
 
   // update xCheck
@@ -911,7 +906,6 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   }
 
   artist.board.Set(KeyXCheck, xCheck);
-  updateDiscordStatus(&artist);
 
   return isComplete;
 }
@@ -1143,5 +1137,31 @@ Botcraft::Status EatUntilFull(Botcraft::BehaviourClient &c, std::string food) {
     if (r == Botcraft::Status::Failure) return Botcraft::Status::Failure;
   }
 
+  return Botcraft::Status::Success;
+}
+
+Botcraft::Status UpdateDcStatus(Botcraft::BehaviourClient &c,
+                                std::string info) {
+  std::cout << GetTime() << "Attempt to set dc bot status " << info
+            << std::endl;
+  Artist &artist = static_cast<Artist &>(c);
+  if (!artist.conf.priv.discordEnable) return Botcraft::Status::Success;
+
+  DiscordBot &b = DiscordBot::getDiscordBot();
+  b.setDCStatus(info);
+  return Botcraft::Status::Success;
+}
+
+Botcraft::Status UpdateDcStatusProgress(Botcraft::BehaviourClient &c) {
+  Artist &artist = static_cast<Artist &>(c);
+  if (!artist.conf.priv.discordEnable) return Botcraft::Status::Success;
+
+  DiscordBot &b = DiscordBot::getDiscordBot();
+  int ratio;
+  double percent;
+  std::tie(ratio, percent) = CalRatioAndPercent(&artist);
+  std::ostringstream info;
+  info << "Progress " << std::fixed << std::setprecision(2) << percent << " %";
+  b.setDCStatus(info.str());
   return Botcraft::Status::Success;
 }

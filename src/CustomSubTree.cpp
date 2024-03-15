@@ -9,6 +9,7 @@
 #include "./Constants.hpp"
 
 // Order: init, serverload, sortchest, complete, eat & work
+// Tree will keep repeating until set to nullptr
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> FullTree() {
   return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Full Tree")
     .sequence()
@@ -29,10 +30,13 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> FullTr
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> NullTree() {
   return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Null Tree")
-    .leaf("set null tree", [](Botcraft::SimpleBehaviourClient &c) {
+    .sequence()
+      .leaf("set dc bot status", UpdateDcStatus, "Idle")
+      .leaf("set null tree", [](Botcraft::SimpleBehaviourClient &c) {
         c.SetBehaviourTree(nullptr);
         return Botcraft::Status::Success;
-    });
+      })
+    .end();
 }
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> InitTree() {
@@ -56,8 +60,11 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> WorkTr
         .sequence()
           .leaf("task priortize", TaskPrioritize)
           .leaf("sort inventory", SortChestWithDesirePlace)
+          .leaf("set dc bot status", UpdateDcStatus, "Dump items")
           .leaf("dump Items", DumpItems)
+          .leaf("set dc bot status", UpdateDcStatus, "Collecting material")
           .leaf("collect Material", CollectAllMaterial)
+          .leaf("set dc bot status", UpdateDcStatusProgress)
         .end()
         .tree(NullTree())
       .end()

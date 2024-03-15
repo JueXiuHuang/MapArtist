@@ -33,7 +33,7 @@ void cmdStop(std::smatch matches, Artist *artist) {
 
   MessageOutput("=== BOT STOP ===", artist);
   artist->hasWork = false;
-  artist->SetBehaviourTree(nullptr);
+  artist->SetBehaviourTree(NullTree());
 }
 
 void cmdStart(std::smatch matches, Artist *artist) {

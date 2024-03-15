@@ -94,4 +94,9 @@ Botcraft::Status LoadConfig(Botcraft::BehaviourClient &c);
 Botcraft::Status EatUntilFull(Botcraft::BehaviourClient &c,
                               const std::string food);
 
+Botcraft::Status UpdateDcStatusProgress(Botcraft::BehaviourClient &c);
+
+Botcraft::Status UpdateDcStatus(Botcraft::BehaviourClient &c,
+                                const std::string info);
+
 #endif  // SRC_CUSTOMTASK_HPP_

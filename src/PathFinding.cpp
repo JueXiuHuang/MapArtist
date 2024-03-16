@@ -67,11 +67,11 @@ BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getBlockTypeImpl(
       } else if (block->IsSolid()) {
         // check the block height
         const auto &colliders = block->GetCollidersAtPos(botcraftPos);
-        float height = 0.0f;
+        float height = static_cast<float>(pos.y);
         for (const auto &c : colliders) {
           height = std::max(static_cast<float>(c.GetMax().y), height);
         }
-        if (height < 1.0) {
+        if ((height - pos.y) < 1.0) {
           return {pf::BlockType::DANGER, pf::BlockType::NONE};
         } else {
           return {pf::BlockType::SAFE, pf::BlockType::NONE};

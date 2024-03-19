@@ -1,0 +1,26 @@
+site_name: MapArtist
+theme:
+  language: en
+  name: material
+  palette:
+    scheme: slate
+extra:
+  alternate:
+    - name: 繁體中文
+      link: /zh-TW/
+      lang: zh-TW
+    - name: English
+      link: /en/ 
+      lang: en
+
+plugins:
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: zh-TW
+          name: 繁體中文
+          build: true

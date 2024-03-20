@@ -1,4 +1,6 @@
 site_name: MapArtist
+site_url: !ENV [SITE_NAME, '']
+repo_url: https://github.com/JueXiuHuang/MapArtist
 theme:
   language: en
   name: material
@@ -8,9 +10,10 @@ theme:
     scheme: slate
 
 nav:
-  - Home: index.md
+  - MapArtist: index.md
   - Install: install.md
   - Usage: usage.md
+  - Command: command.md
   - ChangeLog: changelog.md
 
 plugins:
@@ -24,8 +27,10 @@ plugins:
         - locale: zh-TW
           name: 繁體中文
           build: true
+          link: /zh-TW/
           nav_translations:
             Home: MapArtist
             Install: 安裝
             Usage: 使用方法
+            Command: 指令
             ChangeLog: 更新紀錄

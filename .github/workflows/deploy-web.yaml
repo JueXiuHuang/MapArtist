@@ -1,4 +1,4 @@
-name: ci 
+name: deploy-web 
 on:
   push:
     branches:
@@ -7,6 +7,8 @@ permissions:
   contents: write
 jobs:
   deploy:
+    env:
+      SITE_NAME: https://juexiuhuang.github.io/MapArtist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

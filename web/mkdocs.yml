@@ -29,7 +29,7 @@ plugins:
           build: true
           link: /zh-TW/
           nav_translations:
-            Home: MapArtist
+            MapArtist: MapArtist
             Install: 安裝
             Usage: 使用方法
             Command: 指令

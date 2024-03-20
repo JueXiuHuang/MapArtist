@@ -2,16 +2,16 @@ site_name: MapArtist
 theme:
   language: en
   name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
   palette:
     scheme: slate
-extra:
-  alternate:
-    - name: 繁體中文
-      link: /zh-TW/
-      lang: zh-TW
-    - name: English
-      link: /en/ 
-      lang: en
+
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Usage: usage.md
+  - ChangeLog: changelog.md
 
 plugins:
   - i18n:
@@ -24,3 +24,8 @@ plugins:
         - locale: zh-TW
           name: 繁體中文
           build: true
+          nav_translations:
+            Home: MapArtist
+            Install: 安裝
+            Usage: 使用方法
+            ChangeLog: 更新紀錄

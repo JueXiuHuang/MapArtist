@@ -1,5 +1,5 @@
 # MapArtist
 
-## Feature
+## 功能
 
-## Todo List
+## 預計推出

@@ -44,7 +44,13 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
-add_executable(${TARGET_NAME} ${SRC_FILES})
+# icon
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  enable_language("RC")
+  set(WIN32_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/icon/icon.rc)
+endif()
+
+add_executable(${TARGET_NAME} ${SRC_FILES} ${WIN32_RESOURCES})
 
 # flags
 set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")

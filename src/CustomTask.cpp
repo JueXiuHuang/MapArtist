@@ -37,7 +37,12 @@ Botcraft::Status WaitServerLoad(Botcraft::BehaviourClient &c) {
   std::shared_ptr<Botcraft::LocalPlayer> local_player =
       c.GetEntityManager()->GetLocalPlayer();
   Botcraft::Utilities::WaitForCondition(
-      [&]() { return local_player->GetPosition().y < 1000; }, 10000);
+      [&]() {
+        std::shared_ptr<Botcraft::LocalPlayer> local_player =
+            c.GetEntityManager()->GetLocalPlayer();
+        return local_player != nullptr && local_player->GetPosition().y < 1000;
+      },
+      10000);
 
   return Botcraft::Status::Success;
 }

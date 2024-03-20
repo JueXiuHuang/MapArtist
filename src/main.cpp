@@ -9,6 +9,7 @@
 #include "./Artist.hpp"
 #include "./ConfigParser.hpp"
 #include "./Constants.hpp"
+#include "./CustomSubTree.hpp"
 #include "./Discord.hpp"
 #include "./Utils.hpp"
 
@@ -95,9 +96,10 @@ int main(int argc, char *argv[]) {
       client.Connect(conf.server.address, conf.server.playerName,
                      conf.server.online);
       client.SetAutoRespawn(true);
+      if (client.hasWork) client.SetBehaviourTree(FullTree());
       client.RunBehaviourUntilClosed();
+      client.Disconnect();
     } while (client.getNeedRestart() && conf.server.reconnect);
-    client.Disconnect();
 
     return 0;
   } catch (std::exception &e) {

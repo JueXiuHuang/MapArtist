@@ -1,3 +1,3 @@
 # 安裝
 
-https://github.com/JueXiuHuang/MapArtist/releases
+待更新

@@ -4,34 +4,15 @@
 
 ---
 
-## :fontawesome-solid-scroll: hungry
+## :fontawesome-solid-scroll: assign
 
-確認 BOT 是否處於飢餓狀態。
-
-```txt
-bot hungry
-```
-
----
-
-## :fontawesome-solid-scroll: stop
-
-停止特定或全部 BOT 的工作進程。
+設定特定玩家的工作列（column），預設值是 0。
 
 ```txt
-bot stop all
-bot stop {user_name}
-```
+bot assign {user_name} {column}
 
----
-
-## :fontawesome-solid-scroll: start
-
-讓特定或全部 BOT 開始工作進程。
-
-```txt
-bot start all
-bot start {user_name}
+# 範例
+bot assign player211 1
 ```
 
 ---
@@ -46,14 +27,27 @@ bot bar
 
 ---
 
-## :fontawesome-solid-scroll: csafe
+## :fontawesome-solid-scroll: bmove
 
-執行 csafe 指令。
+使用 Botcraft 的 GoTo 讓 BOT 移動到指定座標。
+
+```txt
+bot bmove {x} {y} {z}
+
+# 範例
+bot bmove 110, 65, 35
+```
+
+---
+
+## :fontawesome-solid-scroll: channel
+
+顯示 BOT 所處分流。
 
 :warning: 用於廢土伺服器。
 
 ```txt
-bot csafe
+bot channel
 ```
 
 ---
@@ -73,38 +67,24 @@ bot cmd player211 gamemode survival
 
 ---
 
-## :fontawesome-solid-scroll: assign
+## :fontawesome-solid-scroll: csafe
 
-設定特定玩家的工作列（column），預設值是 0。
+執行 csafe 指令。
+
+:warning: 用於廢土伺服器。
 
 ```txt
-bot assign {user_name} {column}
-
-# 範例
-bot assign player211 1
+bot csafe
 ```
 
 ---
 
-## :fontawesome-solid-scroll: worker
+## :fontawesome-solid-scroll: default
 
-設定 BOT 的數量，預設值為 1。
-
-```txt
-bot worker {number}
-
-# 範例
-bot worker 3
-```
-
----
-
-## :fontawesome-solid-scroll: duty
-
-顯示所有 BOT 負責的工作列以及 BOT 總數。
+初始化 BOT 的工作列與總數設定。
 
 ```txt
-bot duty
+bot default
 ```
 
 ---
@@ -121,12 +101,22 @@ bot detail
 
 ---
 
-## :fontawesome-solid-scroll: default
+## :fontawesome-solid-scroll: duty
 
-初始化 BOT 的工作列與總數設定。
+顯示所有 BOT 負責的工作列以及 BOT 總數。
 
 ```txt
-bot default
+bot duty
+```
+
+---
+
+## :fontawesome-solid-scroll: hungry
+
+確認 BOT 是否處於飢餓狀態。
+
+```txt
+bot hungry
 ```
 
 ---
@@ -139,28 +129,6 @@ bot default
 
 ```txt
 bot ingot
-```
-
----
-
-## :fontawesome-solid-scroll: name
-
-顯示 BOT 名稱。
-
-```txt
-bot name
-```
-
----
-
-## :fontawesome-solid-scroll: channel
-
-顯示 BOT 所處分流。
-
-:warning: 用於廢土伺服器。
-
-```txt
-bot channel
 ```
 
 ---
@@ -178,13 +146,45 @@ bot move 110, 65, 35
 
 ---
 
-## :fontawesome-solid-scroll: bmove
+## :fontawesome-solid-scroll: name
 
-使用 Botcraft 的 GoTo 讓 BOT 移動到指定座標。
+顯示 BOT 名稱。
 
 ```txt
-bot bmove {x} {y} {z}
+bot name
+```
+
+---
+
+## :fontawesome-solid-scroll: start
+
+讓特定或全部 BOT 開始工作進程。
+
+```txt
+bot start all
+bot start {user_name}
+```
+
+---
+
+## :fontawesome-solid-scroll: stop
+
+停止特定或全部 BOT 的工作進程。
+
+```txt
+bot stop all
+bot stop {user_name}
+```
+
+---
+
+## :fontawesome-solid-scroll: worker
+
+設定 BOT 的數量，預設值為 1。
+
+```txt
+bot worker {number}
 
 # 範例
-bot bmove 110, 65, 35
+bot worker 3
 ```

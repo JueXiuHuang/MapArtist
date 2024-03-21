@@ -1,7 +1,7 @@
 # MapArtist
 
 <p align="center">
-  <img src="/images/logo.png" />
+  <img src="site:images/logo.png" />
 </p>
 
 <p align="center">

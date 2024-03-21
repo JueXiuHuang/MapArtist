@@ -37,6 +37,7 @@ nav:
   - ChangeLog: changelog.md
 
 plugins:
+  - site-urls
   - i18n:
       docs_structure: suffix
       languages:

@@ -5,34 +5,15 @@ For example, `bot hungry`.
 
 ---
 
-## :fontawesome-solid-scroll: hungry
+## :fontawesome-solid-scroll: assign
 
-Check if player is hungry or not.
-
-```txt
-bot hungry
-```
-
----
-
-## :fontawesome-solid-scroll: stop
-
-Stop all players' or specific player's working progress.
+Set specific player's working column. Default value is 0.
 
 ```txt
-bot stop all
-bot stop {user_name}
-```
+bot assign {user_name} {column}
 
----
-
-## :fontawesome-solid-scroll: start
-
-Ask specific player or all players start to work.
-
-```txt
-bot start all
-bot start {user_name}
+# Example
+bot assign player211 1
 ```
 
 ---
@@ -47,14 +28,27 @@ bot bar
 
 ---
 
-## :fontawesome-solid-scroll: csafe
+## :fontawesome-solid-scroll: bmove
 
-Execute csafe command, it's equivalent to `bot cmd csafe`.
+Ask player move to specified position with botcraft GoTo.
+
+```txt
+bot bmove {x} {y} {z}
+
+# Example
+bot bmove 110, 65, 35
+```
+
+---
+
+## :fontawesome-solid-scroll: channel
+
+Display player's current channel.  
 
 :warning: It can only be used in mcfallout.
 
 ```txt
-bot csafe
+bot channel
 ```
 
 ---
@@ -73,48 +67,14 @@ bot cmd player211 gamemode survival
 
 ---
 
-## :fontawesome-solid-scroll: assign
+## :fontawesome-solid-scroll: csafe
 
-Set specific player's working column. Default value is 0.
+Execute csafe command, it's equivalent to `bot cmd csafe`.
 
-```txt
-bot assign {user_name} {column}
-
-# Example
-bot assign player211 1
-```
-
----
-
-## :fontawesome-solid-scroll: worker
-
-Set max worker number. Default value is 1.
+:warning: It can only be used in mcfallout.
 
 ```txt
-bot worker {number}
-
-# Example
-bot worker 3
-```
-
----
-
-## :fontawesome-solid-scroll: duty
-
-Display all players' set assign value and worker value.
-
-```txt
-bot duty
-```
-
----
-
-## :fontawesome-solid-scroll: detail
-
-Display bot's detail info. Useful in discord bot.
-
-```txt
-bot detail
+bot csafe
 ```
 
 ---
@@ -129,6 +89,36 @@ bot default
 
 ---
 
+## :fontawesome-solid-scroll: detail
+
+Display bot's detail info. Useful in discord bot.
+
+```txt
+bot detail
+```
+
+---
+
+## :fontawesome-solid-scroll: duty
+
+Display all players' set assign value and worker value.
+
+```txt
+bot duty
+```
+
+---
+
+## :fontawesome-solid-scroll: hungry
+
+Check if player is hungry or not.
+
+```txt
+bot hungry
+```
+
+---
+
 ## :fontawesome-solid-scroll: ingot
 
 Display current emerald <-> villager ingot exchange rate.
@@ -137,28 +127,6 @@ Display current emerald <-> villager ingot exchange rate.
 
 ```txt
 bot ingot
-```
-
----
-
-## :fontawesome-solid-scroll: name
-
-Display bot's name.
-
-```txt
-bot name
-```
-
----
-
-## :fontawesome-solid-scroll: channel
-
-Display player's current channel.  
-
-:warning: It can only be used in mcfallout.
-
-```txt
-bot channel
 ```
 
 ---
@@ -176,13 +144,45 @@ bot move 110, 65, 35
 
 ---
 
-## :fontawesome-solid-scroll: bmove
+## :fontawesome-solid-scroll: name
 
-Ask player move to specified position with botcraft GoTo.
+Display bot's name.
 
 ```txt
-bot bmove {x} {y} {z}
+bot name
+```
+
+---
+
+## :fontawesome-solid-scroll: start
+
+Ask specific player or all players start to work.
+
+```txt
+bot start all
+bot start {user_name}
+```
+
+---
+
+## :fontawesome-solid-scroll: stop
+
+Stop all players' or specific player's working progress.
+
+```txt
+bot stop all
+bot stop {user_name}
+```
+
+---
+
+## :fontawesome-solid-scroll: worker
+
+Set max worker number. Default value is 1.
+
+```txt
+bot worker {number}
 
 # Example
-bot bmove 110, 65, 35
+bot worker 3
 ```

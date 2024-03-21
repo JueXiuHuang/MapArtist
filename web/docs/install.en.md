@@ -10,7 +10,7 @@ There are two ways to get the executable file. If you are an user, there is no n
 
 Just download the zip file from the Github Release, and unzip it.
 
-![release](images/release.png)
+![release](/images/release.png)
 
 ---
 

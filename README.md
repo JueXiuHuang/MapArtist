@@ -30,5 +30,5 @@ Please see website ([https://juexiuhuang.github.io/MapArtist/](https://juexiuhua
 ## Roadmap
 
 - Support flying mode
-
+- Support Channel
 - Add GUI to control the bot

@@ -26,5 +26,5 @@
 ## Roadmap
 
 - Support flying mode
-
+- Support Channel
 - Add GUI to control the bot

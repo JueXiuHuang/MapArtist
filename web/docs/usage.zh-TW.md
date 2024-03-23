@@ -6,9 +6,9 @@
 
 ## 設定檔案
 
-我們會使用設定檔來設定所有的參數，以下是設定檔的範例
+我們會使用設定檔來設定所有的參數，以下是設定檔的範例。
 
-``` toml title='設定檔範例'
+``` toml title='config.toml'
 [server]
 # 伺服器地址
 address = "127.0.0.1:25565"
@@ -61,6 +61,12 @@ coordinate = ["-68,-60,-92"]
 name = "minecraft:white_wool"
 coordinate = ["-61,-59,-93", "-61,-58,-93"]
 
+```
+
+``` toml title='private.toml'
+discord_enable = true
+discord_token = "{Discord Bot 權杖}"
+discord_channel = "{Discord 頻道 ID}"
 ```
 
 ---

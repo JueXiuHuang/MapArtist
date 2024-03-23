@@ -6,9 +6,11 @@ Here we will tell you how to use MapArtist to build your owesome map art !
 
 ## Config File
 
-We use config file to set every parameters. Below is an example of config file.
+We use config file to set every parameters. Below is an example of config file.  
 
-``` toml title='Minimum Example Config'
+Minimum Example Config:
+
+``` toml title='config.toml'
 [server]
 # server ip
 address = "127.0.0.1:25565"
@@ -61,6 +63,12 @@ coordinate = ["-68,-60,-92"]
 name = "minecraft:white_wool"
 coordinate = ["-61,-59,-93", "-61,-58,-93"]
 
+```
+
+``` toml title='private.toml'
+discord_enable = true
+discord_token = "{discord bot token}"
+discord_channel = "{discord channel id}"
 ```
 
 ---

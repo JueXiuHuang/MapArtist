@@ -30,6 +30,10 @@ method = "slice_dfs"
 retry = 12
 
 
+[move]
+use_flash = false
+
+
 # The fields below represent each block and the position of the chest they are stored in.
 # Recycle is the chest you can put everything in it.
 # You can use recycle chest as item classifier's source chest.

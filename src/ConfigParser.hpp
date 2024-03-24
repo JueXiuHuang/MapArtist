@@ -35,6 +35,10 @@ struct PrivateConf {
   std::string discordChannel;
 };
 
+struct MoveConf {
+  bool use_flash;
+};
+
 struct OtherConf {
   std::string home;
 };
@@ -45,6 +49,7 @@ struct Config {
   AlgorithmConf algo;
   PrivateConf priv;
   ChestConf chests;
+  MoveConf move;
   OtherConf other;
 };
 

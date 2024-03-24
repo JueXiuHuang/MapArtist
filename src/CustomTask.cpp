@@ -285,7 +285,7 @@ Botcraft::Status DumpItems(Botcraft::BehaviourClient &c) {
   std::vector<Botcraft::Position> chests = artist.conf.chests["recycle"];
 
   for (auto chest : chests) {
-    if (FindPathAndMove(c, chest, 2, 2, 0, 6, 2, 2, 2, 2, 0, 3, 2, 2) ==
+    if (FindPathAndMove(c, chest, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0) ==
         Botcraft::Status::Failure)
       continue;
     std::cout << GetTime() << "dumping items..." << std::endl;
@@ -605,7 +605,7 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
       return Dig(c, blockPos, true);
   } else if (action == "Place") {
     if (bn == "minecraft:air") {
-      PlaceBlock(c, blockName, blockPos, std::nullopt, true, true);
+      PlaceBlock(c, blockName, blockPos, std::nullopt, true, true, false);
       RemoveNeighborExtraBlock(c, blockPos);
       return Botcraft::Status::Success;
     } else if (bn != blockName) {

@@ -13,7 +13,7 @@ name = "private.toml"
 anchor = "-576,60,4415"
 
 # the nbt file you want to build
-name = "kafka/kafka_swim_suit_1_6.nbt"
+name = "kafka/kafka_swim_suit_2_0.nbt"
 
 tempblock = "minecraft:cobblestone"
 
@@ -27,7 +27,11 @@ home = "homes mapart"
 method = "slice_dfs"
 
 # retry is the number of times we retry an action
-retry = 12
+retry = 1
+
+
+[move]
+use_flash = true
 
 
 # The fields below represent each block and the position of the chest they are stored in.

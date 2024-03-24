@@ -32,12 +32,13 @@ class BotCraftFinder final
 
   inline int getMaxYImpl() const;
 
-  explicit BotCraftFinder(Botcraft::BehaviourClient *_client);
+  explicit BotCraftFinder(Botcraft::BehaviourClient *_client, bool _use_flash);
 
   BotCraftFinder &operator=(const BotCraftFinder &other);
 
  private:
   Botcraft::BehaviourClient *client;
+  bool use_flash;
 };
 
 using PathFinder =

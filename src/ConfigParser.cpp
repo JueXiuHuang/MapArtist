@@ -42,6 +42,11 @@ std::ostream &operator<<(std::ostream &os, const PrivateConf &conf) {
   return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const MoveConf &conf) {
+  os << "Use Flash: " << (conf.use_flash ? "True" : "False") << std::endl;
+  return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const OtherConf &conf) {
   os << "Home command: " << conf.home << std::endl;
   return os;
@@ -149,6 +154,17 @@ static ChestConf parseChests(toml::array *materials) {
   return conf;
 }
 
+static MoveConf parseMove(toml::table *table) {
+  std::cout << "Parsing move config..." << std::endl;
+  MoveConf conf;
+
+  conf.use_flash = (*table)["use_flash"].value_or(false);
+
+  std::cout << conf << std::endl;
+
+  return conf;
+}
+
 static OtherConf parseOther(toml::table *table) {
   std::cout << "Parsing other config..." << std::endl;
   OtherConf conf;
@@ -178,6 +194,9 @@ const Config ParseConfig(std::string configFileName) {
 
     AlgorithmConf algoConf = parseAlgorithm(tbl["algorithm"].as_table());
     conf.algo = algoConf;
+
+    MoveConf moveConf = parseMove(tbl["move"].as_table());
+    conf.move = moveConf;
 
     OtherConf otherConf = parseOther(tbl["other"].as_table());
     conf.other = otherConf;

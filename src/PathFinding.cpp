@@ -34,12 +34,68 @@ bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player,
           const bool sprint);
 }  // namespace Botcraft
 
+template <class T1, class T2>
+Botcraft::Vector3<T1> convert(pf::Vec3<T2> vec) {
+  return Botcraft::Vector3<T1>(static_cast<T1>(vec.x), static_cast<T1>(vec.y),
+                               static_cast<T1>(vec.z));
+}
+
+template <class T1, class T2>
+pf::Vec3<T1> convert(Botcraft::Vector3<T2> vec) {
+  return pf::Vec3<T1>(static_cast<T1>(vec.x), static_cast<T1>(vec.y),
+                      static_cast<T1>(vec.z));
+}
+
+bool Flash(Botcraft::BehaviourClient &client,
+           std::shared_ptr<Botcraft::LocalPlayer> &local_player,
+           const Botcraft::Vector3<double> &target_position) {
+  Botcraft::Vector3<double> now_pos = local_player->GetPosition();
+  const double flash_threshold = 80.0;
+  const uint64_t delay = 50;
+  bool final_step = false;
+  // loop
+  while (!final_step) {
+    // determine the target
+    Botcraft::Vector3<double> now_target = target_position;
+    const Botcraft::Vector3<double> vector = (now_target - now_pos);
+    const double norm = vector.SqrNorm();
+    if (norm > flash_threshold) {
+      const Botcraft::Vector3<double> unit = vector / (std::sqrt(norm));
+      now_target = unit * flash_threshold + now_pos;
+      final_step = false;
+    } else {
+      final_step = true;
+    }
+    // set view
+    const Botcraft::Vector3<double> look_at_target =
+        target_position +
+        Botcraft::Vector3<double>(0.0, local_player->GetEyeHeight(), 0.0);
+    local_player->LookAt(look_at_target, true);
+    // flash
+    local_player->SetPosition(now_target);
+    // wait for flash
+    Botcraft::Utilities::SleepFor(std::chrono::milliseconds(delay));
+    if (!Botcraft::Utilities::YieldForCondition(
+            [&]() -> bool {
+              return std::sqrt((local_player->GetPosition() - target_position)
+                                   .SqrNorm()) < 0.1;
+            },
+            client, 2000)) {
+      return false;
+    }
+    // break the loop
+    if (final_step) break;
+  }
+
+  return true;
+}
+
 template <template <class, class, class, class, class> class TFinder,
           class TEdge, class TEstimate, class TWeight>
 pf::BlockType
 BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getBlockTypeImpl(
     const pf::Position &pos) const {
-  Botcraft::Position botcraftPos(pos.x, pos.y, pos.z);
+  Botcraft::Position botcraftPos = convert<int, int>(pos);
 
   // get block information
   auto world = client->GetWorld();
@@ -92,7 +148,7 @@ template <template <class, class, class, class, class> class TFinder,
 float BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getFallDamageImpl(
     [[maybe_unused]] const pf::Position &landingPos,
     [[maybe_unused]] const typename pf::Position::value_type &height) const {
-  return 0.0;
+  return height <= 4.0 ? 0 : 999999;
 }
 
 template <template <class, class, class, class, class> class TFinder,
@@ -166,9 +222,9 @@ bool BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::goImpl(
     // If so, it means some blocks have changed, better to
     // recompute a new path
     const Botcraft::Blockstate *next_target =
-        world->GetBlock(Botcraft::Position(newPos.x, newPos.y, newPos.z));
+        world->GetBlock(convert<int, int>(newPos));
     const Botcraft::Blockstate *above =
-        world->GetBlock(Botcraft::Position(newPos.x, newPos.y + 1, newPos.z));
+        world->GetBlock(convert<int, int>(newPos.offsetY(1)));
     if ((above == nullptr || (!above->IsClimbable() && !above->IsFluid())) &&
         (next_target == nullptr || next_target->IsAir())) {
       return false;
@@ -177,11 +233,14 @@ bool BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::goImpl(
     // If something went wrong, break and
     // replan the whole path to the goal
     auto Step = [&]() {
-      bool result = Move(*client, local_player,
-      // adding 0.5 and 1.0 to change pf coordinate to botcraft coordinate
-                         Botcraft::Vector3<double>(newPos.x + 0.5, newPos.y + 1,
-                                                   newPos.z + 0.5),
-                         speed_factor, true);
+      // adding 0.5 and 1.0 to change pf coordinate to
+      // botcraft coordinate
+      auto target = convert<double, double>(
+          static_cast<pf::Vec3<double>>(newPos).offset(0.5, 1, 0.5));
+      bool result =
+          (use_flash ? Flash(*client, local_player, target)
+                     : Move(*client, local_player, target, speed_factor, true));
+
       if (result == false) {
         std::cerr << "Move Error" << std::endl;
         return result;
@@ -236,12 +295,13 @@ int BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getMaxYImpl() const {
 template <template <class, class, class, class, class> class TFinder,
           class TEdge, class TEstimate, class TWeight>
 BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::BotCraftFinder(
-    Botcraft::BehaviourClient *_client)
+    Botcraft::BehaviourClient *_client, bool _use_flash)
     : TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position,
               TEdge, TEstimate, TWeight>(
-          pf::FinderConfig{false, true, true, true}) {
+          pf::FinderConfig{true, false, true, true}) {
   // do not use 8-connect
   client = _client;
+  use_flash = _use_flash;
 }
 
 template <template <class, class, class, class, class> class TFinder,

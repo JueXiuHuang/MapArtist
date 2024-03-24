@@ -601,17 +601,22 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
   if (action == "Dig") {
     if (bn == "minecraft:air")
       return Botcraft::Status::Success;
-    else
-      return Dig(c, blockPos, true);
+    else {
+      Botcraft::Status result = Dig(c, blockPos, true);
+      if (result == Botcraft::Status::Failure) {
+        std::cout << GetTime() << "Task fail (Dig block)" << std::endl;
+      }
+      return result;
+    }
   } else if (action == "Place") {
     if (bn == "minecraft:air") {
       Botcraft::Status result =
           PlaceBlock(c, blockName, blockPos, std::nullopt, true, true, false);
       if (result == Botcraft::Status::Failure) {
-        std::cout << GetTime() << "Place block fail..." << std::endl;
+        std::cout << GetTime() << "Task fail (Place block)" << std::endl;
       }
       RemoveNeighborExtraBlock(c, blockPos);
-      return Botcraft::Status::Success;
+      return result;
     } else if (bn != blockName) {
       Dig(c, blockPos, true);
       return Botcraft::Status::Failure;
@@ -660,10 +665,10 @@ Botcraft::Status RemoveNeighborExtraBlock(Botcraft::BehaviourClient &c,
 }
 
 Botcraft::Status FindPathAndMoveDist(Botcraft::BehaviourClient &c,
-                                 Botcraft::Position pos, int dist,
-                                 int excl_x_pos, int excl_x_neg, int excl_y_pos,
-                                 int excl_y_neg, int excl_z_pos,
-                                 int excl_z_neg) {
+                                     Botcraft::Position pos, int dist,
+                                     int excl_x_pos, int excl_x_neg,
+                                     int excl_y_pos, int excl_y_neg,
+                                     int excl_z_pos, int excl_z_neg) {
   try {
     pf::Position to{pos.x, pos.y, pos.z};
     if (excl_x_pos >= 0 || excl_x_neg >= 0 || excl_y_pos >= 0 ||

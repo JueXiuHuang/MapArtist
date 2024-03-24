@@ -605,7 +605,10 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
       return Dig(c, blockPos, true);
   } else if (action == "Place") {
     if (bn == "minecraft:air") {
-      PlaceBlock(c, blockName, blockPos, std::nullopt, true, true, false);
+      Botcraft::Status result = PlaceBlock(c, blockName, blockPos, std::nullopt, true, true, false);
+      if (result == Botcraft::Status::Failure) {
+        std::cout << GetTime() << "Place block fail..." << std::endl;
+      }
       RemoveNeighborExtraBlock(c, blockPos);
       return Botcraft::Status::Success;
     } else if (bn != blockName) {

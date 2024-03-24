@@ -592,7 +592,7 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
             << ", Block Name:" << std::setw(32) << blockName
             << ", Botcraft::Position:" << blockPos << std::endl;
 
-  if (FindPathAndMoveDist(c, blockPos, 3, 0, 0, 0, 2, 0, 0) ==
+  if (FindPathAndMoveDist(c, blockPos, 2, 0, 0, 0, 2, 0, 0) ==
       Botcraft::Status::Failure) {
     std::cout << GetTime() << "Move Error" << std::endl;
     return Botcraft::Status::Failure;

@@ -67,6 +67,11 @@ Botcraft::Status FindPathAndMove(Botcraft::BehaviourClient &c,
                                  int z_tol_pos, int z_tol_neg, int excl_x_pos,
                                  int excl_x_neg, int excl_y_pos, int excl_y_neg,
                                  int excl_z_pos, int excl_z_neg);
+Botcraft::Status FindPathAndMoveDist(Botcraft::BehaviourClient &c,
+                                 Botcraft::Position pos, int dist,
+                                 int excl_x_pos, int excl_x_neg, int excl_y_pos,
+                                 int excl_y_neg, int excl_z_pos,
+                                 int excl_z_neg);
 
 /// @brief Check if the whole structure is built, check in the blackboard for
 /// CheckCompletion.(print_details, print_errors and full_check) to know if

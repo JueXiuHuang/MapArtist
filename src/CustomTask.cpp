@@ -592,7 +592,7 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
             << ", Block Name:" << std::setw(32) << blockName
             << ", Botcraft::Position:" << blockPos << std::endl;
 
-  if (FindPathAndMove(c, blockPos, 3, 3, 3, 3, 3, 3, 0, 0, 0, 2, 0, 0) ==
+  if (FindPathAndMoveDist(c, blockPos, 3, 0, 0, 0, 2, 0, 0) ==
       Botcraft::Status::Failure) {
     std::cout << GetTime() << "Move Error" << std::endl;
     return Botcraft::Status::Failure;
@@ -605,7 +605,8 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
       return Dig(c, blockPos, true);
   } else if (action == "Place") {
     if (bn == "minecraft:air") {
-      Botcraft::Status result = PlaceBlock(c, blockName, blockPos, std::nullopt, true, true, false);
+      Botcraft::Status result =
+          PlaceBlock(c, blockName, blockPos, std::nullopt, true, true, false);
       if (result == Botcraft::Status::Failure) {
         std::cout << GetTime() << "Place block fail..." << std::endl;
       }
@@ -656,6 +657,34 @@ Botcraft::Status RemoveNeighborExtraBlock(Botcraft::BehaviourClient &c,
   }
 
   return Botcraft::Status::Success;
+}
+
+Botcraft::Status FindPathAndMoveDist(Botcraft::BehaviourClient &c,
+                                 Botcraft::Position pos, int dist,
+                                 int excl_x_pos, int excl_x_neg, int excl_y_pos,
+                                 int excl_y_neg, int excl_z_pos,
+                                 int excl_z_neg) {
+  try {
+    pf::Position to{pos.x, pos.y, pos.z};
+    if (excl_x_pos >= 0 || excl_x_neg >= 0 || excl_y_pos >= 0 ||
+        excl_y_neg >= 0 || excl_z_pos >= 0 || excl_z_neg >= 0) {
+      using DGoal = pf::goal::DistanceGoal<pf::Position, pf::eval::Euclidean>;
+      using RGoal = pf::goal::RangeGoal<pf::Position>;
+      using EGoal = pf::goal::ExclusiveGoal<RGoal>;
+      using CGoal = pf::goal::CombineGoal<DGoal, EGoal>;
+      CGoal goal(DGoal(to, dist),
+                 EGoal(RGoal(to, excl_x_pos, excl_x_neg, excl_y_pos, excl_y_neg,
+                             excl_z_pos, excl_z_neg)));
+      return FindPathAndMoveImpl(c, pos, goal);
+    } else {
+      pf::goal::DistanceGoal<pf::Position, pf::eval::Euclidean> goal(to, dist);
+      return FindPathAndMoveImpl(c, pos, goal);
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Move Fatal Error" << std::endl;
+    std::cerr << e.what() << std::endl;
+    return Botcraft::Status::Failure;
+  }
 }
 
 Botcraft::Status FindPathAndMove(Botcraft::BehaviourClient &c,
@@ -867,7 +896,8 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
                          static_cast<int>(size.z * 0.6))};
 
   // initialize map recorder
-  // default value will set to true, if the block is incorrect will set to false
+  // default value will set to true, if the block is incorrect will set to
+  // false
   std::vector<std::vector<std::vector<BlockMemo>>> mapMemory(
       size.x, std::vector(size.y, std::vector(size.z, BlockMemo{})));
   artist.board.Set(KeyMapMemo, mapMemory);

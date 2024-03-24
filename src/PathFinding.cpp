@@ -148,7 +148,7 @@ template <template <class, class, class, class, class> class TFinder,
 float BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getFallDamageImpl(
     [[maybe_unused]] const pf::Position &landingPos,
     [[maybe_unused]] const typename pf::Position::value_type &height) const {
-  return height <= 4.0 ? 0 : 999999;
+  return height <= 4 ? 0.0 : 999999.0;
 }
 
 template <template <class, class, class, class, class> class TFinder,

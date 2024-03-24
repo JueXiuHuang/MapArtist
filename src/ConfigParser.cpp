@@ -1,5 +1,7 @@
 // Copyright 2024 JueXiuHuang, ldslds449
 
+#include "./ConfigParser.hpp"  // NOLINT
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -7,12 +9,10 @@
 
 #include <toml++/toml.hpp>
 
-#include "./ConfigParser.hpp"
 #include "./Utils.hpp"
 
-using namespace std::string_view_literals;
-
 namespace fs = std::filesystem;
+using std::string_view_literals::operator""sv;
 
 std::ostream &operator<<(std::ostream &os, const ServerConf &conf) {
   os << "Address: " << conf.address << std::endl

@@ -33,6 +33,7 @@ void cmdStop(std::smatch matches, Artist *artist) {
 
   MessageOutput("=== BOT STOP ===", artist);
   artist->hasWork = false;
+  artist->board.Set(KeyTaskQueued, false);
   artist->SetBehaviourTree(NullTree());
 }
 
@@ -56,6 +57,7 @@ void cmdStart(std::smatch matches, Artist *artist) {
   std::cout << GetTime() << "=== BOT START ===" << std::endl;
   MessageOutput("=== BOT START ===", artist);
   artist->hasWork = true;
+  artist->board.Set(KeyTaskQueued, false);
   artist->SetBehaviourTree(FullTree());
 }
 

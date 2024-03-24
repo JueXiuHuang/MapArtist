@@ -31,7 +31,7 @@ retry = 12
 
 
 [move]
-use_flash = false
+use_flash = true
 
 
 # The fields below represent each block and the position of the chest they are stored in.
@@ -39,7 +39,7 @@ use_flash = false
 # You can use recycle chest as item classifier's source chest.
 [[chests]]
 name = "recycle"
-coordinate = ["-62,-50,-91", "-62,-50,-92", "-62,-50,-93", "-62,-50,-94", "-62,-50,-95", "-62,-50,-96"]
+coordinate = ["-63,-50,-91", "-63,-50,-92", "-63,-50,-93", "-63,-50,-94", "-63,-50,-95", "-63,-50,-96"]
 [[chests]]
 name = "minecraft:cooked_beef"
 coordinate = ["-68,-60,-92"]

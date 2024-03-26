@@ -789,17 +789,37 @@ void recordMapCache(Botcraft::BehaviourClient &c) {
   Botcraft::Position anchor = artist.conf.nbt.anchor;
 
   std::shared_ptr<Botcraft::World> world = c.GetWorld();
+  Botcraft::Position center =
+      c.GetEntityManager()->GetLocalPlayer()->GetPosition();
 
-  for (int x = 0; x < 128; ++x) {
-    for (int z = 0; z < 128; ++z) {
-      for (int y = 0; y < 128; ++y) {
-        Botcraft::Position target = anchor + Botcraft::Position(x, y, z);
-        if (world->IsLoaded(target)) {
-          artist.finder.updateCache(target);
+  auto recordQuad = [&](int maxX, int maxZ, int scaleX, int scaleZ) {
+    for (int x = 0; x <= maxX; ++x) {
+      const int offsetX = scaleX * x;
+      if (!world->IsLoaded(center + Botcraft::Position(offsetX, 0, 0))) {
+        break;
+      }
+      for (int z = 0; z <= maxZ; ++z) {
+        const int offsetZ = scaleX * z;
+        if (!world->IsLoaded(center +
+                             Botcraft::Position(offsetX, 0, offsetZ))) {
+          break;
+        }
+        for (int y = 0; y < 128; ++y) {
+          Botcraft::Position target = Botcraft::Position(
+              center.x + offsetX, anchor.y + y, center.z + offsetZ);
+          if (world->IsLoaded(target)) {
+            artist.finder.updateCache(target);
+          }
         }
       }
     }
-  }
+  };
+
+  Botcraft::Position offset = center - anchor;
+  recordQuad(128 - offset.x, 128 - offset.z, 1, 1);
+  recordQuad(offset.x, 128 - offset.z, -1, 1);
+  recordQuad(128 - offset.x, offset.z, 1, -1);
+  recordQuad(offset.x, offset.z, -1, -1);
 }
 
 /*
@@ -944,6 +964,8 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
     if (checkCompletion(c) == Botcraft::Status::Failure) {
       isComplete = Botcraft::Status::Failure;
     }
+    // record map cache
+    recordMapCache(c);
   }
 
   // update xCheck
@@ -964,9 +986,6 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   }
 
   artist.board.Set(KeyXCheck, xCheck);
-
-  // record map cache
-  recordMapCache(c);
 
   return isComplete;
 }

@@ -784,6 +784,24 @@ Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient &c,
   return (r ? Botcraft::Status::Success : Botcraft::Status::Failure);
 }
 
+void recordMapCache(Botcraft::BehaviourClient &c) {
+  Artist &artist = static_cast<Artist &>(c);
+  Botcraft::Position anchor = artist.conf.nbt.anchor;
+
+  std::shared_ptr<Botcraft::World> world = c.GetWorld();
+
+  for (int x = 0; x < 128; ++x) {
+    for (int z = 0; z < 128; ++z) {
+      for (int y = 0; y < 128; ++y) {
+        Botcraft::Position target = anchor + Botcraft::Position(x, y, z);
+        if (world->IsLoaded(target)) {
+          artist.finder.updateCache(target);
+        }
+      }
+    }
+  }
+}
+
 /*
 If everything is correct, return Success, otherwise return Failure.
 */
@@ -946,6 +964,9 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c) {
   }
 
   artist.board.Set(KeyXCheck, xCheck);
+
+  // record map cache
+  recordMapCache(c);
 
   return isComplete;
 }

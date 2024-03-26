@@ -7,8 +7,13 @@
 #include <string>
 
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
+#include <botcraft/Game/Vector3.hpp>
+#include <botcraft/Game/World/Blockstate.hpp>
+#include <botcraft/Game/World/World.hpp>
 
 #include <pf/Vec3.hpp>
+
+#include "./DS/Octree.hpp"
 
 namespace pf = pathfinding;
 
@@ -19,6 +24,8 @@ class BotCraftFinder final
                      pf::Position, TEdge, TEstimate, TWeight> {
  public:
   pf::BlockType getBlockTypeImpl(const pf::Position &pos) const;
+
+  pf::BlockType _getBlockType(const pf::Position &pos) const;
 
   inline float getFallDamageImpl(
       [[maybe_unused]] const pf::Position &landingPos,
@@ -32,13 +39,18 @@ class BotCraftFinder final
 
   inline int getMaxYImpl() const;
 
-  explicit BotCraftFinder(Botcraft::BehaviourClient *_client, bool _use_flash);
+  explicit BotCraftFinder(Botcraft::BehaviourClient *_client,
+                          Botcraft::Vector3<int> anchor, bool _use_flash);
 
   BotCraftFinder &operator=(const BotCraftFinder &other);
+
+  void updateCache(const Botcraft::Vector3<int> &pos);
 
  private:
   Botcraft::BehaviourClient *client;
   bool use_flash;
+
+  ds::Octree<pf::BlockType> cache;
 };
 
 using PathFinder =

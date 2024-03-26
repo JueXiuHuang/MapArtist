@@ -31,7 +31,7 @@ void msgProcessor(std::string text, Artist *artist) {
 
 Artist::Artist(const bool use_renderer, Config _conf)
     : SimpleBehaviourClient(use_renderer),
-      finder(static_cast<Botcraft::BehaviourClient *>(this), _conf.move.use_flash) {
+      finder(static_cast<Botcraft::BehaviourClient *>(this), _conf.nbt.anchor, _conf.move.use_flash) {
   conf = _conf;
   inWaitingRoom = false;
   waitTpFinish = false;

@@ -97,6 +97,22 @@ BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getBlockTypeImpl(
     const pf::Position &pos) const {
   Botcraft::Position botcraftPos = convert<int, int>(pos);
 
+  auto world = client->GetWorld();
+  if (world->IsLoaded(botcraftPos)) {
+    return _getBlockType(pos);
+  } else if (cache.in({pos.x, pos.y, pos.z})) {
+    return cache.get({pos.x, pos.y, pos.z});
+  } else {
+    return {pf::BlockType::UNKNOWN, pf::BlockType::NONE};
+  }
+}
+
+template <template <class, class, class, class, class> class TFinder,
+          class TEdge, class TEstimate, class TWeight>
+pf::BlockType BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::_getBlockType(
+    const pf::Position &pos) const {
+  Botcraft::Position botcraftPos = convert<int, int>(pos);
+
   // get block information
   auto world = client->GetWorld();
   const Botcraft::Blockstate *block = world->GetBlock(botcraftPos);
@@ -148,7 +164,7 @@ template <template <class, class, class, class, class> class TFinder,
 float BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getFallDamageImpl(
     [[maybe_unused]] const pf::Position &landingPos,
     [[maybe_unused]] const typename pf::Position::value_type &height) const {
-  return height <= 4 ? 0.0 : 999999.0;
+  return static_cast<float>(height <= 4 ? 0.0 : 999999.0);
 }
 
 template <template <class, class, class, class, class> class TFinder,
@@ -294,11 +310,22 @@ int BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getMaxYImpl() const {
 
 template <template <class, class, class, class, class> class TFinder,
           class TEdge, class TEstimate, class TWeight>
+void BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::updateCache(
+    const Botcraft::Vector3<int> &pos) {
+  cache.update({pos.x, pos.y, pos.z}, _getBlockType(convert<int, int>(pos)));
+}
+
+template <template <class, class, class, class, class> class TFinder,
+          class TEdge, class TEstimate, class TWeight>
 BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::BotCraftFinder(
-    Botcraft::BehaviourClient *_client, bool _use_flash)
+    Botcraft::BehaviourClient *_client, Botcraft::Vector3<int> anchor,
+    bool _use_flash)
     : TFinder<BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>, pf::Position,
               TEdge, TEstimate, TWeight>(
-          pf::FinderConfig{true, false, true, true}) {
+          pf::FinderConfig{true, false, true, true}),
+      cache({anchor.x, anchor.y, anchor.z},
+            {anchor.x + 128, anchor.y + 128, anchor.z + 128},
+            pf::BlockType{pf::BlockType::UNKNOWN, pf::BlockType::NONE}) {
   // do not use 8-connect
   client = _client;
   use_flash = _use_flash;

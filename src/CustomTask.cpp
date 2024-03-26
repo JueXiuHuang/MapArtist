@@ -599,9 +599,9 @@ Botcraft::Status ExecuteTask(Botcraft::BehaviourClient &c, std::string action,
   }
   std::string bn = GetWorldBlock(c, blockPos);
   if (action == "Dig") {
-    if (bn == "minecraft:air")
+    if (bn == "minecraft:air") {
       return Botcraft::Status::Success;
-    else {
+    } else {
       Botcraft::Status result = Dig(c, blockPos, true);
       if (result == Botcraft::Status::Failure) {
         std::cout << GetTime() << "Task fail (Dig block)" << std::endl;

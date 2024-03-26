@@ -285,7 +285,7 @@ Botcraft::Status DumpItems(Botcraft::BehaviourClient &c) {
   std::vector<Botcraft::Position> chests = artist.conf.chests["recycle"];
 
   for (auto chest : chests) {
-    if (FindPathAndMove(c, chest, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0) ==
+    if (FindPathAndMoveDist(c, chest, 3, 0, 0, 0, 2, 0, 0) ==
         Botcraft::Status::Failure)
       continue;
     std::cout << GetTime() << "dumping items..." << std::endl;

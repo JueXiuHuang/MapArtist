@@ -6,7 +6,9 @@
 #include <array>
 #include <iostream>
 #include <memory>
+#include <stack>
 #include <tuple>
+#include <utility>
 
 #include "./Point3D.hpp"
 
@@ -35,8 +37,10 @@ class Octree {
     }
 
     // find leaf
+    std::stack<std::shared_ptr<OcNode>> path;
     std::shared_ptr<OcNode> now = root;
     while (now && !now->isLeaf) {
+      path.push(now);
       now = now->children[now->getID(p)];
     }
     assert(now);
@@ -44,14 +48,21 @@ class Octree {
     // check whether we need to update
     if (*now->data != data) {
       // divide until there is only one point
+      bool hasDivided = false;
       while (!now->onlyContain1Point()) {
         now->divide();
         uint8_t id = now->getID(p);
         now = now->children[id];
+        hasDivided = true;
       }
       // update data
       now->data = std::make_unique<T>(data);
-      // TODO: merge value
+      // check merge value
+      if (!hasDivided) {
+        while (!path.empty() && path.top()->merge()) {
+          path.pop();
+        }
+      }
     }
   }
 
@@ -122,6 +133,30 @@ class Octree {
       }
       isLeaf = false;  // not a leaf anymore
       data.reset();    // clear itself data
+    }
+
+    bool merge() {
+      // check the consistency
+      bool valid = true;
+      for (int i = 1; i < CHILD_NUM; ++i) {
+        if (!children[i]->isLeaf || !children[i - 1]->isLeaf ||
+            *(children[i]->data) != *(children[i - 1]->data)) {
+          valid = false;
+          break;
+        }
+      }
+      if (!valid) return false;
+
+      // merge
+      data = std::move(children[0]->data);
+      isLeaf = true;
+
+      // clean
+      for (int i = 0; i < CHILD_NUM; ++i) {
+        children[i].reset();
+      }
+
+      return true;
     }
 
     bool onlyContain1Point() {

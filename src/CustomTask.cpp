@@ -285,7 +285,7 @@ Botcraft::Status DumpItems(Botcraft::BehaviourClient &c) {
   std::vector<Botcraft::Position> chests = artist.conf.chests["recycle"];
 
   for (auto chest : chests) {
-    if (FindPathAndMoveDist(c, chest, 3, 0, 0, 0, 2, 0, 0) ==
+    if (FindPathAndMoveDist(c, chest, 4, 0, 0, 0, 2, 0, 0) ==
         Botcraft::Status::Failure)
       continue;
     std::cout << GetTime() << "dumping items..." << std::endl;
@@ -544,6 +544,11 @@ Botcraft::Status TaskExecutor(Botcraft::BehaviourClient &c) {
     qTaskType.pop();
     std::string blockName = qTaskName.front();
     qTaskName.pop();
+
+    // set preferred X
+    artist.finder.enablePreferred(true);
+    artist.finder.setPreferredX(taskPos.x);
+
     for (int i = 0; i < retry_times; i++) {
       if (GetItemAmount(c, blockName) == 0 && taskType == "Place") {
         // Item not enough
@@ -574,6 +579,8 @@ Botcraft::Status TaskExecutor(Botcraft::BehaviourClient &c) {
     artist.board.Set(KeyTaskPosQ, qTaskPosition);
     artist.board.Set(KeyTaskTypeQ, qTaskType);
     artist.board.Set(KeyTaskNameQ, qTaskName);
+
+    artist.finder.enablePreferred(false);
 
     // Still has task in queue, return fail.
     return Botcraft::Status::Failure;
@@ -785,6 +792,9 @@ Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient &c,
 }
 
 void recordMapCache(Botcraft::BehaviourClient &c) {
+  std::cout << GetTime() << "Recording..." << std::endl;
+  auto t1 = std::chrono::steady_clock::now();
+
   Artist &artist = static_cast<Artist &>(c);
   Botcraft::Position anchor = artist.conf.nbt.anchor;
 
@@ -820,6 +830,15 @@ void recordMapCache(Botcraft::BehaviourClient &c) {
   recordQuad(offset.x + 1, 128 - offset.z, -1, 1);
   recordQuad(128 - offset.x, offset.z + 1, 1, -1);
   recordQuad(offset.x + 1, offset.z + 1, -1, -1);
+
+  auto t2 = std::chrono::steady_clock::now();
+
+  std::cout
+      << GetTime() << "Elapsed Time: "
+      << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
+      << " ms "
+      << "Octree Node Count: " << artist.finder.getCacheNodeCount()
+      << std::endl;
 }
 
 /*

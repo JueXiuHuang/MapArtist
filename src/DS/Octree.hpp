@@ -20,6 +20,8 @@
 
 namespace ds {
 
+// Octree implementation
+// not thread-safe
 template <class T>
 class Octree {
  public:
@@ -54,6 +56,7 @@ class Octree {
         uint8_t id = now->getID(p);
         now = now->children[id];
         hasDivided = true;
+        node_count += CHILD_NUM;
       }
       // update data
       now->data = std::make_unique<T>(data);
@@ -61,6 +64,7 @@ class Octree {
       if (!hasDivided) {
         while (!path.empty() && path.top()->merge()) {
           path.pop();
+          node_count -= CHILD_NUM;
         }
       }
     }
@@ -87,6 +91,8 @@ class Octree {
   inline bool in(const Point3D &p) const {
     return root->minCorner <= p && p < root->maxCorner;
   }
+
+  inline std::size_t getNodeCount() const { return node_count; }
 
  private:
   struct OcNode {
@@ -167,6 +173,7 @@ class Octree {
   };
 
   std::shared_ptr<OcNode> root;
+  std::size_t node_count = 1;  // root
 };
 
 }  // namespace ds

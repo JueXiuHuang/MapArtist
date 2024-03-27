@@ -310,9 +310,42 @@ int BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getMaxYImpl() const {
 
 template <template <class, class, class, class, class> class TFinder,
           class TEdge, class TEstimate, class TWeight>
+float BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getBlockExtraCostImpl(
+    const pf::Position &pos) const {
+  if (enablePref) {
+    if (pos.x != prefX) {
+      return 99.0;
+    }
+  }
+  return 0.0;
+}
+
+template <template <class, class, class, class, class> class TFinder,
+          class TEdge, class TEstimate, class TWeight>
 void BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::updateCache(
     const Botcraft::Vector3<int> &pos) {
   cache.update({pos.x, pos.y, pos.z}, _getBlockType(convert<int, int>(pos)));
+}
+
+template <template <class, class, class, class, class> class TFinder,
+          class TEdge, class TEstimate, class TWeight>
+std::size_t
+BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::getCacheNodeCount() {
+  return cache.getNodeCount();
+}
+
+template <template <class, class, class, class, class> class TFinder,
+          class TEdge, class TEstimate, class TWeight>
+void BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::setPreferredX(
+    const int &X) {
+  prefX = X;
+}
+
+template <template <class, class, class, class, class> class TFinder,
+          class TEdge, class TEstimate, class TWeight>
+void BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::enablePreferred(
+    const bool &enable) {
+  enablePref = enable;
 }
 
 template <template <class, class, class, class, class> class TFinder,
@@ -325,10 +358,12 @@ BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::BotCraftFinder(
           pf::FinderConfig{true, false, true, true}),
       cache({anchor.x, anchor.y, anchor.z},
             {anchor.x + 128, anchor.y + 128, anchor.z + 128},
-            pf::BlockType{pf::BlockType::UNKNOWN, pf::BlockType::NONE}) {
+            pf::BlockType{pf::BlockType::AIR, pf::BlockType::FORCE_DOWN}) {
   // do not use 8-connect
   client = _client;
   use_flash = _use_flash;
+
+  enablePref = false;
 }
 
 template <template <class, class, class, class, class> class TFinder,
@@ -341,6 +376,4 @@ BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::operator=(
   return *this;
 }
 
-template class BotCraftFinder<pf::MultiGoalFinder, pf::eval::Manhattan,
-                              pf::eval::Manhattan,
-                              pf::weight::ConstWeighted<1, 1>>;
+template class BotCraftFinder<Finder, Edge, Estimate, Weight>;

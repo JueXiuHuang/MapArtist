@@ -793,13 +793,13 @@ void recordMapCache(Botcraft::BehaviourClient &c) {
       c.GetEntityManager()->GetLocalPlayer()->GetPosition();
 
   auto recordQuad = [&](int maxX, int maxZ, int scaleX, int scaleZ) {
-    for (int x = 0; x <= maxX; ++x) {
+    for (int x = 0; x < maxX; ++x) {
       const int offsetX = scaleX * x;
       if (!world->IsLoaded(center + Botcraft::Position(offsetX, 0, 0))) {
         break;
       }
-      for (int z = 0; z <= maxZ; ++z) {
-        const int offsetZ = scaleX * z;
+      for (int z = 0; z < maxZ; ++z) {
+        const int offsetZ = scaleZ * z;
         if (!world->IsLoaded(center +
                              Botcraft::Position(offsetX, 0, offsetZ))) {
           break;
@@ -817,9 +817,9 @@ void recordMapCache(Botcraft::BehaviourClient &c) {
 
   Botcraft::Position offset = center - anchor;
   recordQuad(128 - offset.x, 128 - offset.z, 1, 1);
-  recordQuad(offset.x, 128 - offset.z, -1, 1);
-  recordQuad(128 - offset.x, offset.z, 1, -1);
-  recordQuad(offset.x, offset.z, -1, -1);
+  recordQuad(offset.x + 1, 128 - offset.z, -1, 1);
+  recordQuad(128 - offset.x, offset.z + 1, 1, -1);
+  recordQuad(offset.x + 1, offset.z + 1, -1, -1);
 }
 
 /*

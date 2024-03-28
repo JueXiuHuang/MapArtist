@@ -140,11 +140,12 @@ static std::regex DetailPattern(R"(bot\s(detail))");
 
 /*
 match 1: move or bmove
-match 2: x position
-match 3: y position
-match 4: z position
+match 2: user name
+match 3: x position
+match 4: y position
+match 5: z position
 */
-static std::regex MovePattern(R"(bot\s(b?move)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+))");
+static std::regex MovePattern(R"(bot\s(b?move)\s+(\S+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+))");
 
 /*
 match 1: flash

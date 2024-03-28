@@ -115,6 +115,9 @@ void cmdDefaultSetting(Artist *artist) {
 }
 
 void cmdMove(std::smatch matches, Artist *artist) {
+  std::string name = artist->GetNetworkManager()->GetMyName();
+  if (name != matches[2]) return;
+
   int x = std::stoi(matches[2]), y = std::stoi(matches[3]),
       z = std::stoi(matches[4]);
 
@@ -185,9 +188,8 @@ void cmdFlash(std::smatch matches, Artist *artist) {
   std::string name = artist->GetNetworkManager()->GetMyName();
   if (name != matches[2]) return;
 
-  double x = std::stod(matches[3]);
-  double y = std::stod(matches[4]);
-  double z = std::stod(matches[5]);
+  double x = std::stod(matches[3]), y = std::stod(matches[4]),
+         z = std::stod(matches[5]);
 
   std::cout << GetTime() << "Flash to (" << x << ", " << y << ", " << z << ")"
             << std::endl;

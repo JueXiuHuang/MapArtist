@@ -1,12 +1,16 @@
 [submodule "dependency/pathfinding"]
 	path = dependency/pathfinding
 	url = https://github.com/ldslds449/PathFinding.git
+	branch = main
 [submodule "dependency/dpp"]
 	path = dependency/dpp
 	url = https://github.com/brainboxdotcc/DPP
+	branch = master
 [submodule "dependency/tomlplusplus"]
 	path = dependency/tomlplusplus
 	url = https://github.com/marzer/tomlplusplus.git
+	branch = master
 [submodule "dependency/botcraft"]
 	path = dependency/botcraft
 	url = https://github.com/ldslds449/Botcraft
+	branch = master

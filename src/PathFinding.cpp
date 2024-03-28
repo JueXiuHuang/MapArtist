@@ -262,7 +262,7 @@ bool BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::goImpl(
         return result;
       }
       // check the position
-      if (getPlayerLocation() != newPos) {
+      if (this->getPlayerLocation() != newPos) {
         std::cerr << "Position Error" << std::endl;
         return false;
       }

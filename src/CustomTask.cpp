@@ -198,7 +198,7 @@ Botcraft::Status SortChestWithDesirePlace(Botcraft::BehaviourClient &c) {
     std::vector<SlotWithID> tools;
     for (int j = Botcraft::Window::INVENTORY_STORAGE_START;
          j < Botcraft::Window::INVENTORY_HOTBAR_START + 9; j++) {
-      ProtocolCraft::Slot &slot = playerInv->GetSlot(j);
+      ProtocolCraft::Slot slot = playerInv->GetSlot(j);
       if (slot.IsEmptySlot()) continue;
       if (Botcraft::AssetsManager::getInstance()
               .Items()

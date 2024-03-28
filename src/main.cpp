@@ -13,7 +13,9 @@
 #include "./Discord.hpp"
 #include "./Utils.hpp"
 
+#ifdef _WIN32
 #include <Windows.h>  // must put here to avoid macro error
+#endif
 
 struct Args {
   // initial value
@@ -59,7 +61,7 @@ Args parseArgv(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-#if defined(_WIN32) || defined(WIN32)
+#ifdef _WIN32
   // Set console code page to UTF-8 so console known how to interpret string
   // data
   SetConsoleOutputCP(CP_UTF8);

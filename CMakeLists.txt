@@ -21,8 +21,23 @@ if(MINGW)
 message(FATAL_ERROR "We do not support MinGW compiler.")
 endif()
 
+# options
+if(NOT Asan)
+  set(Asan 0)
+endif()
+message(STATUS "Asan: ${Asan}")
+
+if(NOT Rebuild)
+  set(Rebuild 0)
+endif()
+message(STATUS "Rebuild: ${Rebuild}")
+
 message(STATUS "Config Type: ${CMAKE_CONFIGURATION_TYPES}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
+if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
+elseif(GCC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+endif()
 if(NOT CMAKE_GENERATOR_PLATFORM STREQUAL "")
   list(APPEND BUILD_PLATFORM "-A ${CMAKE_GENERATOR_PLATFORM}")
 endif()
@@ -45,7 +60,7 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
 )
 
 # icon
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(WIN32)
   enable_language("RC")
   set(WIN32_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/icon/icon.rc)
 endif()
@@ -53,19 +68,19 @@ endif()
 add_executable(${TARGET_NAME} ${SRC_FILES} ${WIN32_RESOURCES})
 
 # flags
-set(MAPARTIST_CXX_FLAGS "/std:c++17" "/utf-8")
+target_compile_features(${TARGET_NAME} PRIVATE cxx_std_17)
 target_compile_options(${TARGET_NAME} PUBLIC ${MAPARTIST_CXX_FLAGS})
-
-if(NOT Asan)
-  set(Asan 0)
-endif()
-message(STATUS "Asan: ${Asan}")
+target_compile_options(${TARGET_NAME} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 # botcraft
 add_dependencies(${TARGET_NAME} Botcraft-install)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
 target_compile_options(${TARGET_NAME} PUBLIC $<$<AND:$<CONFIG:Debug>,$<BOOL:${Asan}>>:/fsanitize=address>)
-target_link_libraries(${TARGET_NAME} ws2_32 botcraft$<$<CONFIG:Debug>:_d> protocolCraft$<$<CONFIG:Debug>:_d>)
+target_link_libraries(${TARGET_NAME} 
+  $<$<PLATFORM_ID:Windows>:ws2_32>
+  $<$<PLATFORM_ID:Linux>:pthread>
+  botcraft$<$<CONFIG:Debug>:_d>
+  protocolCraft$<$<CONFIG:Debug>:_d>)
 
 # pathfinding
 target_include_directories(${TARGET_NAME} PUBLIC ${PATHFINDING_HEADER_PATH})

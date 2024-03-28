@@ -23,3 +23,17 @@ asan:
       long: Add address sanitizer
       settings:
         Asan: 1
+
+rebuild:
+  default: no-rebuild
+  choices:
+    no-rebuild:
+      short: No Rebuild
+      long: No Rebuild
+      settings:
+        Rebuild: 0
+    rebuild:
+      short: Rebuild
+      long: Rebuild
+      settings:
+        Rebuild: 1

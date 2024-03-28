@@ -6,15 +6,15 @@ on:
       - main
 
 jobs:
-  build-msvc:
-    name: Build Project (MSVC)
+  build-windows:
+    name: Build Project (Windows)
     runs-on: windows-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.2
 
       - name: Use CMake Action
-        uses: threeal/cmake-action@v1.3.0
+        uses: threeal/cmake-action@main
         with:
           generator: Visual Studio 17 2022
           build-args: --config Release
@@ -24,9 +24,33 @@ jobs:
         uses: vimtor/action-zip@v1.1
         with:
           files: bin
-          dest: executable-MSVC.zip
+          dest: executable-Windows.zip
 
       - name: Check Artifact
         uses: actions/upload-artifact@v3.1.3
         with:
-          path: ${{ github.workspace }}/executable-MSVC.zip
+          path: ${{ github.workspace }}/executable-Windows.zip
+
+  build-gcc:
+    name: Build Project (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4.1.2
+
+      - name: Use CMake Action
+        uses: threeal/cmake-action@main
+        with:
+          build-args: --config Release
+          run-build: true
+      
+      - name: Zip Binaries
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: bin
+          dest: executable-Linux.zip
+
+      - name: Check Artifact
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          path: ${{ github.workspace }}/executable-Linux.zip

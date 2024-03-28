@@ -22,7 +22,12 @@
 std::string GetTime() {
   auto t = time(nullptr);
   struct tm now_time;
+
+#ifdef __linux__
+  localtime_r(&t, &now_time);
+#elif _WIN32
   localtime_s(&now_time, &t);
+#endif
   std::ostringstream oss;
   oss << "[" << std::put_time(&now_time, "%Y-%m-%d %H:%M:%S") << "] ";
   return oss.str();

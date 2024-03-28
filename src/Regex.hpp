@@ -146,6 +146,15 @@ match 4: z position
 */
 static std::regex MovePattern(R"(bot\s(b?move)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+))");
 
+/*
+match 1: flash
+match 2: user name
+match 3: x position
+match 4: y position
+match 5: z position
+*/
+static std::regex FlashPattern(R"(bot\s(flash)\s+(\S+)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*))");
+
 static std::regex TpSuccessPattern(R"(讀取人物成功)");
 
 #endif  // SRC_REGEX_HPP_

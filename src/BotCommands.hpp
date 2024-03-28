@@ -19,5 +19,6 @@ void cmdWaitingRoom(std::smatch matches, Artist *artist);
 void cmdTpSuccess(Artist *artist);
 void cmdTpHome(std::smatch matches, Artist *artist);
 void cmdDetail(std::smatch matches, Artist *artist);
+void cmdFlash(std::smatch matches, Artist *artist);
 
 #endif  // SRC_BOTCOMMANDS_HPP_

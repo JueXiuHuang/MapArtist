@@ -180,3 +180,15 @@ void cmdDetail(std::smatch matches, Artist *artist) {
 
   MessageOutput(oss.str(), artist);
 }
+
+void cmdFlash(std::smatch matches, Artist *artist) {
+  std::string name = artist->GetNetworkManager()->GetMyName();
+  if (name != matches[2]) return;
+
+  double x = std::stod(matches[3]);
+  double y = std::stod(matches[4]);
+  double z = std::stod(matches[5]);
+
+  std::shared_ptr<Botcraft::LocalPlayer> local_player = artist->GetLocalPlayer();
+  local_player->SetPosition(Botcraft::Vector3(x, y, z));
+}

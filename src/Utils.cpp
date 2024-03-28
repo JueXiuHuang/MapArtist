@@ -162,6 +162,8 @@ void CmdHandler(std::string text, Artist *artist) {
     cmdTpHome(matches, artist);
   } else if (regex_search(text, matches, DetailPattern)) {
     cmdDetail(matches, artist);
+  } else if (regex_search(text, matches, FlashPattern)) {
+    cmdFlash(matches, artist);
   }
 }
 

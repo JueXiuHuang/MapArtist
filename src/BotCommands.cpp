@@ -189,6 +189,10 @@ void cmdFlash(std::smatch matches, Artist *artist) {
   double y = std::stod(matches[4]);
   double z = std::stod(matches[5]);
 
-  std::shared_ptr<Botcraft::LocalPlayer> local_player = artist->GetLocalPlayer();
+  std::cout << GetTime() << "Flash to (" << x << ", " << y << ", " << z << ")"
+            << std::endl;
+
+  std::shared_ptr<Botcraft::LocalPlayer> local_player =
+      artist->GetLocalPlayer();
   local_player->SetPosition(Botcraft::Vector3(x, y, z));
 }

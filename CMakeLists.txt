@@ -44,6 +44,9 @@ message(STATUS "BUILD_PLATFORM: " ${BUILD_PLATFORM})
 
 set(MAPARTIST_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
 
+if(LINUX)
+  include("cmake/zlib.cmake")
+endif()
 include("cmake/pathfinding.cmake")
 include("cmake/botcraft.cmake")
 include("cmake/dpp.cmake")

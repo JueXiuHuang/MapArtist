@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.26)
 
 project(
   MapArtist
@@ -22,15 +22,11 @@ message(FATAL_ERROR "We do not support MinGW compiler.")
 endif()
 
 # options
-if(NOT Asan)
-  set(Asan 0)
-endif()
-message(STATUS "Asan: ${Asan}")
+option(ASAN "Whether to use address sanitizer" OFF)
+option(REBUILD "Whether to always rebuild the dependencies" OFF)
 
-if(NOT Rebuild)
-  set(Rebuild 0)
-endif()
-message(STATUS "Rebuild: ${Rebuild}")
+message(STATUS "Asan: ${ASAN}")
+message(STATUS "Rebuild: ${REBUILD}")
 
 message(STATUS "Config Type: ${CMAKE_CONFIGURATION_TYPES}")
 if(MSVC)
@@ -75,7 +71,7 @@ target_compile_options(${TARGET_NAME} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>"
 # botcraft
 add_dependencies(${TARGET_NAME} Botcraft-install)
 target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VERSION}")
-target_compile_options(${TARGET_NAME} PUBLIC $<$<AND:$<CONFIG:Debug>,$<BOOL:${Asan}>>:/fsanitize=address>)
+target_compile_options(${TARGET_NAME} PUBLIC $<$<AND:$<CONFIG:Debug>,$<BOOL:${ASAN}>>:/fsanitize=address>)
 target_link_libraries(${TARGET_NAME} 
   $<$<PLATFORM_ID:Windows>:ws2_32>
   $<$<PLATFORM_ID:Linux>:pthread>
@@ -96,7 +92,7 @@ target_include_directories(${TARGET_NAME} PUBLIC ${TOMLPLUSPLUS_HEADER_PATH})
 # copy necessary dll when using ASAN
 get_filename_component(COMPILER_FOLDER ${CMAKE_CXX_COMPILER} DIRECTORY)
 list(APPEND MAPARTIST_DEPEND_DLL ${COMPILER_FOLDER}/clang_rt.asan_dynamic-x86_64.dll)
-if(${Asan} STREQUAL "1")
+if(${ASAN} STREQUAL "1")
   add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
           ${MAPARTIST_DEPEND_DLL}

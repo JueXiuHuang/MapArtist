@@ -19,9 +19,22 @@ endif()
 
 
 if(LINUX)
-  set(ZLIB_SETTING "-DZLIB_ROOT=${DPP_SRC_PATH}/../install/lib")
+  # Dpp need zlib and openssl in Linux
+  find_package(ZLIB QUIET)
+  find_package(OpenSSL QUIET)
+
+  set(EXTERNAL_LIB_SETTING "")
+
+  if(NOT ZLIB_FOUND)
+    set(EXTERNAL_LIB_SETTING "${EXTERNAL_LIB_SETTING} -DZLIB_LIBRARY=\"${DPP_SRC_PATH}/../zlib/build/install/lib\"")
+    set(EXTERNAL_LIB_SETTING "${EXTERNAL_LIB_SETTING} -DZLIB_INCLUDE_DIR=\"${DPP_SRC_PATH}/../zlib/build/install/include\"")
+  endif()
+  if(NOT OPENSSL_FOUND)
+    set(EXTERNAL_LIB_SETTING "${EXTERNAL_LIB_SETTING} -DOPENSSL_CRYPTO_LIBRARY=\"${DPP_SRC_PATH}/../openssl/build/install/include\"")
+    set(EXTERNAL_LIB_SETTING "${EXTERNAL_LIB_SETTING} -DOPENSSL_INCLUDE_DIR=\"${DPP_SRC_PATH}/../openssl/build/install/include\"")
+  endif()
 else()
-  set(ZLIB_SETTING "")
+  set(EXTERNAL_LIB_SETTING "")
 endif()
 
 ExternalProject_Add(Dpp
@@ -30,14 +43,18 @@ ExternalProject_Add(Dpp
   EXCLUDE_FROM_ALL TRUE
   BUILD_ALWAYS ${REBUILD}
   CMAKE_GENERATOR ${CMAKE_GENERATOR}
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -S ${DPP_SRC_PATH} -B ${DPP_BUILD_PATH} -G ${CMAKE_GENERATOR} -DDPP_NO_VCPKG=ON ${BUILD_PLATFORM} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DDPP_BUILD_TEST=OFF -DBUILD_VOICE_SUPPORT=OFF -DRUN_LDCONFIG=OFF ${ZLIB_SETTING} -DCMAKE_BUILD_TYPE=Release
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -S ${DPP_SRC_PATH} -B ${DPP_BUILD_PATH} -G ${CMAKE_GENERATOR} -DDPP_NO_VCPKG=ON ${BUILD_PLATFORM} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DDPP_BUILD_TEST=OFF -DBUILD_VOICE_SUPPORT=OFF -DRUN_LDCONFIG=OFF ${EXTERNAL_LIB_SETTING} -DCMAKE_BUILD_TYPE=Release
   BUILD_COMMAND ${CMAKE_COMMAND} --build ${DPP_BUILD_PATH} --config $<IF:$<CONFIG:Debug>,Debug,Release>
   INSTALL_COMMAND ${CMAKE_COMMAND} --install ${DPP_BUILD_PATH} --prefix ${DPP_INSTALL_PATH} --config $<IF:$<CONFIG:Debug>,Debug,Release>
 )
 
 if(LINUX)
-  # Dpp need zlib in Linux
-  add_dependencies(Dpp-install Zlib-install) 
+  if(NOT ZLIB_FOUND)
+    add_dependencies(Dpp-install Zlib-install) 
+  endif()
+  if(NOT OPENSSL_FOUND)
+    add_dependencies(Dpp-install Openssl-install) 
+  endif()
 endif()
 
 if(WIN32)

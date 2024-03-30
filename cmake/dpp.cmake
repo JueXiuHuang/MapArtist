@@ -24,13 +24,10 @@ if(LINUX)
   find_package(OpenSSL QUIET)
 
   if(NOT ZLIB_FOUND)
-    set(ZLIB_LIB "${CMAKE_CURRENT_BINARY_DIR}/dependency/zlib/build/install/lib/zlib.a")
-    set(ZLIB_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/dependency/zlib/build/install/include")
+    message(FATAL_ERROR "Please install zlib first")
   endif()
   if(NOT OPENSSL_FOUND)
-    set(OPENSSL_CRYPTO_LIB "${CMAKE_CURRENT_BINARY_DIR}/dependency/openssl/build/install/lib/libcrypto.a")
-    set(OPENSSL_SSL_LIB "${CMAKE_CURRENT_BINARY_DIR}/dependency/openssl/build/install/lib/libssl.a")
-    set(OPENSSL_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/dependency/openssl/build/install/include")
+    message(FATAL_ERROR "Please install openssl first")
   endif()
 endif()
 
@@ -40,19 +37,10 @@ ExternalProject_Add(Dpp
   EXCLUDE_FROM_ALL TRUE
   BUILD_ALWAYS ${REBUILD}
   CMAKE_GENERATOR ${CMAKE_GENERATOR}
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -S ${DPP_SRC_PATH} -B ${DPP_BUILD_PATH} -G ${CMAKE_GENERATOR} -DDPP_NO_VCPKG=ON ${BUILD_PLATFORM} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DDPP_BUILD_TEST=OFF -DBUILD_VOICE_SUPPORT=OFF -DRUN_LDCONFIG=OFF $<$<PLATFORM_ID:Linux>:-DZLIB_LIBRARY="${ZLIB_LIB}"> $<$<PLATFORM_ID:Linux>:-DDZLIB_INCLUDE_DIR="${ZLIB_INCLUDE}"> $<$<PLATFORM_ID:Linux>:-DOPENSSL_CRYPTO_LIBRARY="${OPENSSL_CRYPTO_LIB}"> $<$<PLATFORM_ID:Linux>:-DOPENSSL_SSL_LIBRARY="${OPENSSL_SSL_LIB}"> $<$<PLATFORM_ID:Linux>:-DOPENSSL_INCLUDE_DIR="${OPENSSL_INCLUDE}"> -DCMAKE_BUILD_TYPE=Release
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -S ${DPP_SRC_PATH} -B ${DPP_BUILD_PATH} -G ${CMAKE_GENERATOR} -DDPP_NO_VCPKG=ON ${BUILD_PLATFORM} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DDPP_BUILD_TEST=OFF -DBUILD_VOICE_SUPPORT=OFF -DRUN_LDCONFIG=OFF -DCMAKE_BUILD_TYPE=Release
   BUILD_COMMAND ${CMAKE_COMMAND} --build ${DPP_BUILD_PATH} --config $<IF:$<CONFIG:Debug>,Debug,Release>
   INSTALL_COMMAND ${CMAKE_COMMAND} --install ${DPP_BUILD_PATH} --prefix ${DPP_INSTALL_PATH} --config $<IF:$<CONFIG:Debug>,Debug,Release>
 )
-
-if(LINUX)
-  if(NOT ZLIB_FOUND)
-    add_dependencies(Dpp-install Zlib-install) 
-  endif()
-  if(NOT OPENSSL_FOUND)
-    add_dependencies(Dpp-install Openssl-install) 
-  endif()
-endif()
 
 if(WIN32)
   list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/dpp.dll)

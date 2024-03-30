@@ -14,9 +14,3 @@
 	path = dependency/botcraft
 	url = https://github.com/ldslds449/Botcraft
 	branch = master
-[submodule "dependency/zlib"]
-	path = dependency/zlib
-	url = https://github.com/madler/zlib
-[submodule "dependency/openssl"]
-	path = dependency/openssl
-	url = https://github.com/janbar/openssl-cmake

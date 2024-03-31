@@ -18,11 +18,51 @@
 
 ### 準備工作
 
-為了編譯程式，我們需要以下的工具：
+MapArtist 支援兩種平台：Windows 和 Linux。
+
+#### Windows
 
 - [Git](https://git-scm.com/): 從 Github 下載專案。
 - [MSVC](https://visualstudio.microsoft.com/downloads/) (Microsoft Visual C++): 編譯所需的編譯器。
 - [CMake](https://cmake.org/): 專案的建立系統。
+
+!!! note "CMake 版本需要 >= 3.26"
+
+#### Linux
+
+- [Git](https://git-scm.com/): 從 Github 下載專案。
+
+    ```bash
+    sudo apt-get install git
+    ```
+
+- [GCC](https://gcc.gnu.org/): 編譯所需的編譯器。
+
+    ```bash
+    sudo apt-get install build-essential
+    ```
+
+- [CMake](https://cmake.org/): 專案的建立系統。
+
+    ```bash
+    sudo apt-get install cmake
+    ```
+
+    !!! note "CMake 版本需要 >= 3.26"
+
+- [Zlib](https://www.zlib.net/)
+
+    ```bash
+    sudo apt-get install zlib1g-dev
+    ```
+
+- [OpenSSL](https://www.openssl.org/)
+
+    ```bash
+    sudo apt-get install libssl-dev
+    ```
+
+---
 
 ### 步驟
 

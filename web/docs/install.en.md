@@ -18,13 +18,15 @@ Just download the zip file from the Github Release, and unzip it.
 
 ### Preparation
 
-We support building MapArtist on two platform, Windows and Linux.
+We support building MapArtist on two platforms, Windows and Linux.
 
 #### Windows
 
 - [Git](https://git-scm.com/): download dependencies from Github.
 - [MSVC](https://visualstudio.microsoft.com/downloads/) (Microsoft Visual C++): the compiler used to compile the whole project.
-- [CMake](https://cmake.org/): (Requires version >= 3.26) configure and manage the build system.
+- [CMake](https://cmake.org/): configure and manage the build system.
+
+!!! note "CMake version >= 3.26 required"
 
 #### Linux
 
@@ -40,11 +42,13 @@ We support building MapArtist on two platform, Windows and Linux.
     sudo apt-get install build-essential
     ```
 
-- [CMake](https://cmake.org/): (Requires version >= 3.26) configure and manage the build system.
+- [CMake](https://cmake.org/): configure and manage the build system.
 
     ```bash
     sudo apt-get install cmake
     ```
+
+    !!! note "CMake version >= 3.26 required"
 
 - [Zlib](https://www.zlib.net/)
 
@@ -57,6 +61,8 @@ We support building MapArtist on two platform, Windows and Linux.
     ```bash
     sudo apt-get install libssl-dev
     ```
+
+---
 
 ### Steps
 

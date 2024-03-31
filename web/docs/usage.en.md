@@ -47,6 +47,10 @@ method = "slice_dfs"
 # retry is the number of times we retry an action
 retry = 12
 
+[move]
+# whether use flash instead of walking 
+use_flash = true
+
 
 # The fields below represent each block and the position of the chest they are stored in.
 # Recycle is the chest you can put everything in it.

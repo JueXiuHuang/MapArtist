@@ -45,6 +45,10 @@ method = "slice_dfs"
 # 動作的嘗試次數
 retry = 12
 
+[move]
+# 是否用閃現取代走路
+use_flash = true
+
 
 # 下方為物品箱子的座標列表
 # 回收箱為回收所有材料的地方

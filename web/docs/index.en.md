@@ -19,6 +19,7 @@
 
 :sparkles: Free.  
 :sparkles: Open source.  
+:sparkles: Support Windows & Linux.  
 :sparkles: Moving by walking, flying is not necessary.  
 :sparkles: Can be controlled through Discord.  
 :sparkles: Multiple bots can work together without any communication.  

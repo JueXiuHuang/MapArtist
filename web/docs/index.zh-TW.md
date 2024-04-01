@@ -19,6 +19,7 @@
 
 :sparkles: 免費。  
 :sparkles: 開源。  
+:sparkles: 支援 Windows 和 Linux。  
 :sparkles: 可以透過走路移動，不需要飛行權限。  
 :sparkles: 可以透過 Discord 操控 Bot。  
 :sparkles: 可以多個 Bot 同時工作。  

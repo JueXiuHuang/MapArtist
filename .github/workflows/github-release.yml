@@ -10,16 +10,23 @@ permissions:
 
 jobs:
   release:
-    name: Build & Release
-    runs-on: windows-latest
+    name: Release for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset_name: MapArtist-linux-amd64
+          - os: windows-latest
+            asset_name: MapArtist-windows-amd64
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
       
-      - name: Build Project (MSVC)
+      - name: Build Project
         uses: threeal/cmake-action@v1.3.0
         with:
-          generator: Visual Studio 17 2022
           build-args: --config Release
           run-build: true
       
@@ -27,9 +34,14 @@ jobs:
         uses: vimtor/action-zip@v1.1
         with:
           files: bin
-          dest: executable-MSVC.zip
+          dest: ${{ matrix.asset_name }}.zip
 
       - name: Release
         uses: softprops/action-gh-release@v0.1.15
         with:
           files: "executable-MSVC.zip"
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: ${{ matrix.asset_name }}.zip

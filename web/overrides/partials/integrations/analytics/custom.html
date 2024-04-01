@@ -15,8 +15,8 @@
 <script>
   /* Wait for page to load and application to mount */
   document.addEventListener("DOMContentLoaded", function() {
-    let path = window.location.pathname;
-    let real_path = path.replace("{{ config.site_url }}", "");
-    umami.track(props => ({ ...props, url: real_path }));
+    let url = window.location.href;
+    let real_url = url.replace("{{ config.site_url }}", "/");
+    umami.track(props => ({ ...props, url: real_url }));
   })
 </script>

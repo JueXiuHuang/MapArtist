@@ -4,20 +4,19 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', '{{ config.extra.analytics.GA_id }}');
 </script>
 <!-- umami -->
 <script defer 
-  src="{{ config.extra.analytics.umami_host }}" data-website-id="{{ config.extra.analytics.umami_id }}">
+  src="{{ config.extra.analytics.umami_host }}" 
+  data-website-id="{{ config.extra.analytics.umami_id }}"
+  data-auto-track="false">
 </script>
 <script>
   /* Wait for page to load and application to mount */
   document.addEventListener("DOMContentLoaded", function() {
-    location$.subscribe(function(url) {
-      const idx = url.lastIndexOf('/')
-      const real_url = url.substring(idx);
-      umami.track(props => ({ ...props, url: real_url }));
-    })
+    let path = window.location.pathname;
+    let real_path = path.replace("{{ config.site_url }}", "");
+    umami.track(props => ({ ...props, url: real_path }));
   })
 </script>

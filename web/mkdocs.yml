@@ -4,6 +4,7 @@ repo_url: https://github.com/JueXiuHuang/MapArtist
 theme:
   language: en
   name: material
+  custom_dir: overrides
   logo: assets/logo.png
   favicon: assets/logo.png
   palette:
@@ -29,8 +30,10 @@ markdown_extensions:
 
 extra:
   analytics:
-    provider: google
-    property: G-520S6QN15B
+    provider: custom
+    GA_id: G-520S6QN15B
+    umami_id: 2c76b2df-46bf-4df6-87cd-deb365059663
+    umami_host: https://umami.bigcatblog.com/script.js
 
 nav:
   - Home: index.md

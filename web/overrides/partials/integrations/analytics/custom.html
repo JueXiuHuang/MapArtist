@@ -1,0 +1,23 @@
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.analytics.GA_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ config.extra.analytics.GA_id }}');
+</script>
+<!-- umami -->
+<script defer 
+  src="{{ config.extra.analytics.umami_host }}" data-website-id="{{ config.extra.analytics.umami_id }}">
+</script>
+<script>
+  /* Wait for page to load and application to mount */
+  document.addEventListener("DOMContentLoaded", function() {
+    location$.subscribe(function(url) {
+      const idx = url.lastIndexOf('/')
+      const real_url = url.substring(idx);
+      umami.track(props => ({ ...props, url: real_url }));
+    })
+  })
+</script>

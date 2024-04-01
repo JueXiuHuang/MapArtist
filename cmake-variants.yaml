@@ -17,12 +17,12 @@ asan:
       short: No Asan
       long: No address sanitizer
       settings:
-        Asan: 0
+        ASAN: 0
     asan:
       short: Asan
       long: Add address sanitizer
       settings:
-        Asan: 1
+        ASAN: 1
 
 rebuild:
   default: no-rebuild
@@ -31,9 +31,9 @@ rebuild:
       short: No Rebuild
       long: No Rebuild
       settings:
-        Rebuild: 0
+        REBUILD: 0
     rebuild:
       short: Rebuild
       long: Rebuild
       settings:
-        Rebuild: 1
+        REBUILD: 1

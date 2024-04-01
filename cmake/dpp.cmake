@@ -43,7 +43,11 @@ ExternalProject_Add(Dpp
 )
 
 if(WIN32)
+  file(GLOB ZLIB_DLL ${DPP_SRC_PATH}/win32/bin/*zlib*.dll)
+  file(GLOB CRYPTO_DLL ${DPP_SRC_PATH}/win32/bin/*crypto*.dll)
+  file(GLOB SSL_DLL ${DPP_SRC_PATH}/win32/bin/*ssl*.dll)
   list(APPEND DPP_DEPEND_DLL ${DPP_BINARY_PATH}/dpp.dll)
+  list(APPEND DPP_DEPEND_DLL ${ZLIB_DLL} ${CRYPTO_DLL} ${SSL_DLL})
   add_custom_command(
     TARGET Dpp-install POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

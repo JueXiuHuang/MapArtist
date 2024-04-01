@@ -33,7 +33,7 @@ extra:
     property: G-520S6QN15B
 
 nav:
-  - MapArtist: index.md
+  - Home: index.md
   - Install: install.md
   - Usage: usage.md
   - Command: command.md
@@ -54,7 +54,7 @@ plugins:
           build: true
           link: /zh-TW/
           nav_translations:
-            MapArtist: MapArtist
+            Home: 首頁
             Install: 安裝
             Usage: 使用方法
             Command: 指令

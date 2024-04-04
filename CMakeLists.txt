@@ -74,7 +74,7 @@ target_compile_definitions(${TARGET_NAME} PUBLIC "PROTOCOL_VERSION=${PROTOCOL_VE
 target_compile_options(${TARGET_NAME} PUBLIC $<$<AND:$<CONFIG:Debug>,$<BOOL:${ASAN}>>:/fsanitize=address>)
 target_link_libraries(${TARGET_NAME} 
   $<$<PLATFORM_ID:Windows>:ws2_32>
-  $<$<PLATFORM_ID:Linux>:pthread>
+  $<$<OR:$<PLATFORM_ID:Linux>,$<PLATFORM_ID:Darwin>>:pthread>
   botcraft$<$<CONFIG:Debug>:_d>
   protocolCraft$<$<CONFIG:Debug>:_d>)
 

@@ -35,7 +35,7 @@ include_directories(${BOTCRAFT_HEADER_PATH})
 
 if(WIN32)
   link_directories(${BOTCRAFT_LIB_PATH})
-elseif(LINUX)
+elseif(LINUX OR APPLE)
   link_directories(${BOTCRAFT_BINARY_PATH})
 endif()
 

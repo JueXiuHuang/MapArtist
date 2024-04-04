@@ -18,7 +18,7 @@ if(NOT EXISTS "${DPP_SRC_PATH}/.git")
 endif()
 
 
-if(LINUX)
+if(LINUX OR APPLE)
   # Dpp need zlib and openssl in Linux
   find_package(ZLIB QUIET)
   find_package(OpenSSL QUIET)
@@ -65,7 +65,7 @@ if(WIN32)
   message(STATUS "DPP Version: " ${dpp_subfolder})
   include_directories(${DPP_HEADER_PATH}/${dpp_subfolder})
   link_directories(${DPP_LIB_PATH}/${dpp_subfolder})
-elseif(LINUX)
+elseif(LINUX OR APPLE)
   include_directories(${DPP_HEADER_PATH})
   link_directories(${DPP_LIB_PATH})
 endif()

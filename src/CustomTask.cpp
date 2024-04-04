@@ -1264,3 +1264,24 @@ Botcraft::Status UpdateDcStatusProgress(Botcraft::BehaviourClient &c) {
   b.setDCStatus(info.str());
   return Botcraft::Status::Success;
 }
+
+Botcraft::Status BuildPostProcess(Botcraft::BehaviourClient &c) {
+  Artist &artist = static_cast<Artist &>(c);
+
+  artist.hasWork = false;
+  artist.board.Set(KeyTaskQueued, false);
+
+  return Botcraft::Status::Success;
+}
+
+Botcraft::Status DiscordOutput(Botcraft::BehaviourClient &c,
+                               const std::string &msg) {
+  Artist &artist = static_cast<Artist &>(c);
+
+  if (!artist.conf.priv.discordEnable) return Botcraft::Status::Success;
+
+  DiscordBot &b = DiscordBot::getDiscordBot();
+  b.sendDCMessage(msg);
+
+  return Botcraft::Status::Success;
+}

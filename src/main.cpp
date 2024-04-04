@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
       client.Connect(conf.server.address, conf.server.playerName,
                      conf.server.online);
       client.SetAutoRespawn(true);
-      if (client.hasWork) client.SetBehaviourTree(FullTree());
+      if (client.hasWork) client.SetBehaviourTree(BuildMapArtTree());
       client.RunBehaviourUntilClosed();
       client.Disconnect();
     } while (client.getNeedRestart() && conf.server.reconnect);

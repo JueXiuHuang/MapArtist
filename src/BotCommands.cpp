@@ -58,7 +58,7 @@ void cmdStart(std::smatch matches, Artist *artist) {
   MessageOutput("=== BOT START ===", artist);
   artist->hasWork = true;
   artist->board.Set(KeyTaskQueued, false);
-  artist->SetBehaviourTree(FullTree());
+  artist->SetBehaviourTree(BuildMapArtTree());
 }
 
 void cmdBar(Artist *artist) {
@@ -152,7 +152,7 @@ void cmdTpSuccess(Artist *artist) {
     // artist->SendChatMessage("Back to work...");
     if (artist->hasWork) {
       artist->hasWork = true;
-      artist->SetBehaviourTree(FullTree());
+      artist->SetBehaviourTree(BuildMapArtTree());
     }
   }
 }

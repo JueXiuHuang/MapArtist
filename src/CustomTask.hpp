@@ -68,10 +68,10 @@ Botcraft::Status FindPathAndMove(Botcraft::BehaviourClient &c,
                                  int excl_x_neg, int excl_y_pos, int excl_y_neg,
                                  int excl_z_pos, int excl_z_neg);
 Botcraft::Status FindPathAndMoveDist(Botcraft::BehaviourClient &c,
-                                 Botcraft::Position pos, int dist,
-                                 int excl_x_pos, int excl_x_neg, int excl_y_pos,
-                                 int excl_y_neg, int excl_z_pos,
-                                 int excl_z_neg);
+                                     Botcraft::Position pos, int dist,
+                                     int excl_x_pos, int excl_x_neg,
+                                     int excl_y_pos, int excl_y_neg,
+                                     int excl_z_pos, int excl_z_neg);
 
 /// @brief Check if the whole structure is built, check in the blackboard for
 /// CheckCompletion.(print_details, print_errors and full_check) to know if
@@ -86,6 +86,9 @@ Botcraft::Status CheckCompletion(Botcraft::BehaviourClient &c);
 /// @return Always return success
 Botcraft::Status WarnConsole(Botcraft::BehaviourClient &c,
                              const std::string &msg);
+
+Botcraft::Status DiscordOutput(Botcraft::BehaviourClient &c,
+                               const std::string &msg);
 
 /// @brief Loads a NBT file (unzipped) and store the target structure in the
 /// blackboard of the given client
@@ -103,5 +106,7 @@ Botcraft::Status UpdateDcStatusProgress(Botcraft::BehaviourClient &c);
 
 Botcraft::Status UpdateDcStatus(Botcraft::BehaviourClient &c,
                                 const std::string info);
+
+Botcraft::Status BuildPostProcess(Botcraft::BehaviourClient &c);
 
 #endif  // SRC_CUSTOMTASK_HPP_

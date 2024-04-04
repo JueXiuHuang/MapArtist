@@ -10,8 +10,8 @@
 
 // Order: init, serverload, sortchest, complete, eat & work
 // Tree will keep repeating until set to nullptr
-std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> FullTree() {
-  return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Full Tree")
+std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> BuildMapArtTree() {
+  return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Build Map Art Tree")
     .sequence()
       .tree(InitTree())
       .leaf("wait server load", WaitServerLoad)
@@ -98,8 +98,10 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> CheckC
   return Botcraft::Builder<Botcraft::SimpleBehaviourClient>("Complete check")
     .sequence()
       .leaf("check completion", CheckCompletion)
-      .leaf("notify", Botcraft::Say, "It's done.")
-      .leaf("notify", WarnConsole, "Task fully completed!")
+      .leaf("notify mc", Botcraft::Say, "It's done.")
+      .leaf("notify dc", DiscordOutput, "It's done.")
+      .leaf("notify console", WarnConsole, "Task fully completed!")
+      .leaf("post process", BuildPostProcess)
       .repeater(0).leaf(Botcraft::Yield)
     .end();
 }

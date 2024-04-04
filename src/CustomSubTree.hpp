@@ -8,7 +8,7 @@
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
 #include <botcraft/Game/Vector3.hpp>
 
-std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> FullTree();
+std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> BuildMapArtTree();
 
 std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> InitTree();
 

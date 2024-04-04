@@ -24,76 +24,6 @@ namespace ds {
 // not thread-safe
 template <class T>
 class Octree {
- public:
-  Octree(const Point3D &_minCorner, const Point3D &_maxCorner,
-         const T &_defaultValue)
-      : root(std::make_shared<OcNode>(_minCorner, _maxCorner, true,
-                                      _defaultValue)) {}
-
-  void update(const Point3D &p, const T &data) {
-    // check input
-    if (!in(p)) {
-      std::cerr << "Octree::update Invalid Point (" << p.x << "," << p.y << ","
-                << p.z << ")" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-
-    // find leaf
-    std::stack<std::shared_ptr<OcNode>> path;
-    std::shared_ptr<OcNode> now = root;
-    while (now && !now->isLeaf) {
-      path.push(now);
-      now = now->children[now->getID(p)];
-    }
-    assert(now);
-
-    // check whether we need to update
-    if (*now->data != data) {
-      // divide until there is only one point
-      bool hasDivided = false;
-      while (!now->onlyContain1Point()) {
-        now->divide();
-        uint8_t id = now->getID(p);
-        now = now->children[id];
-        hasDivided = true;
-        node_count += CHILD_NUM;
-      }
-      // update data
-      now->data = std::make_unique<T>(data);
-      // check merge value
-      if (!hasDivided) {
-        while (!path.empty() && path.top()->merge()) {
-          path.pop();
-          node_count -= CHILD_NUM;
-        }
-      }
-    }
-  }
-
-  T get(const Point3D &p) const {
-    // check input
-    if (!in(p)) {
-      std::cerr << "Octree::get Invalid Point (" << p.x << "," << p.y << ","
-                << p.z << ")" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-
-    // find leaf
-    std::shared_ptr<OcNode> now = root;
-    while (now && !now->isLeaf) {
-      now = now->children[now->getID(p)];
-    }
-    assert(now);
-
-    return *now->data;
-  }
-
-  inline bool in(const Point3D &p) const {
-    return root->minCorner <= p && p < root->maxCorner;
-  }
-
-  inline std::size_t getNodeCount() const { return node_count; }
-
  private:
   struct OcNode {
     bool isLeaf;
@@ -108,7 +38,7 @@ class Octree {
           isLeaf(_isLeaf),
           data(std::make_unique<T>(_data)) {}
 
-    uint8_t getID(const Point3D &p) {
+    uint8_t getID(const Point3D &p) const {
       auto center = CENTER(minCorner, maxCorner);
       uint8_t id = 0;
       id |= (p.x >= center.x) << 0;
@@ -117,7 +47,7 @@ class Octree {
       return id;
     }
 
-    std::tuple<Point3D, Point3D> getNewRect(const uint8_t &id) {
+    std::tuple<Point3D, Point3D> getNewRect(const uint8_t &id) const {
       auto center = CENTER(minCorner, maxCorner);
       bool x = (id >> 0) & 1, y = (id >> 1) & 1, z = (id >> 2) & 1;
       // default
@@ -165,15 +95,103 @@ class Octree {
       return true;
     }
 
-    bool onlyContain1Point() {
+    bool onlyContain1Point() const {
       return (maxCorner.x - minCorner.x) == 1 &&
              (maxCorner.y - minCorner.y) == 1 &&
              (maxCorner.z - minCorner.z) == 1;
     }
   };
 
+ public:
+  Octree(const Point3D &_minCorner, const Point3D &_maxCorner,
+         const T &_defaultValue)
+      : root(std::make_shared<OcNode>(_minCorner, _maxCorner, true,
+                                      _defaultValue)),
+        defaultValue(_defaultValue) {}
+
+  void update(const Point3D &p, const T &data) {
+    // check input
+    if (!in(p)) {
+      std::cerr << "Octree::update Invalid Point (" << p.x << "," << p.y << ","
+                << p.z << ")" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    // find leaf
+    std::stack<std::shared_ptr<OcNode>> path;
+    std::shared_ptr<OcNode> now = root;
+    while (now && !now->isLeaf) {
+      path.push(now);
+      now = now->children[now->getID(p)];
+    }
+    assert(now);
+
+    // check whether we need to update
+    if (*now->data != data) {
+      // divide until there is only one point
+      bool hasDivided = false;
+      while (!now->onlyContain1Point()) {
+        now->divide();
+        uint8_t id = now->getID(p);
+        now = now->children[id];
+        hasDivided = true;
+        node_count += CHILD_NUM;
+      }
+      // update data
+      now->data = std::make_unique<T>(data);
+      // check merge value
+      if (!hasDivided) {
+        while (!path.empty() && path.top()->merge()) {
+          path.pop();
+          node_count -= CHILD_NUM;
+        }
+      }
+    }
+  }
+
+  T get(const Point3D &p) const { return *(getNode(p)->data); }
+
+  std::shared_ptr<OcNode> getNode(const Point3D &p) const {
+    // check input
+    if (!in(p)) {
+      std::cerr << "Octree::get Invalid Point (" << p.x << "," << p.y << ","
+                << p.z << ")" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    // find leaf
+    std::shared_ptr<OcNode> now = root;
+    while (now && !now->isLeaf) {
+      now = now->children[now->getID(p)];
+    }
+    assert(now);
+
+    return now;
+  }
+
+  T getHeightestBlock(const Point3D &p, bool ignore_default = false) const {
+    auto target_node = getNode({p.x, root->maxCorner.y, p.z});
+    if (ignore_default) {
+      while (target_node->minCorner.y - 1 >= root->minCorner.y &&
+             *(target_node->data) == defaultValue) {
+        Point3D lookup_pos{p.x, target_node->minCorner.y - 1, p.z};
+        target_node = getNode(lookup_pos);
+      }
+    }
+
+    return *(target_node->data);
+  }
+
+  inline bool in(const Point3D &p) const {
+    return root->minCorner <= p && p < root->maxCorner;
+  }
+
+  inline std::size_t getNodeCount() const { return node_count; }
+
+ private:
   std::shared_ptr<OcNode> root;
   std::size_t node_count = 1;  // root
+  const T defaultValue;
 };
 
 }  // namespace ds

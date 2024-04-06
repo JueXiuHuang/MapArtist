@@ -40,8 +40,8 @@ nav:
   - Install: install.md
   - Usage: usage.md
   - Command: command.md
+  - FAQ: faq.md
   # - ChangeLog: changelog.md
-  # - FAQ: faq.md
 
 plugins:
   - site-urls
@@ -61,5 +61,5 @@ plugins:
             Install: 安裝
             Usage: 使用方法
             Command: 指令
+            FAQ: 常見問題
             # ChangeLog: 更新紀錄
-            # FAQ: 常見問題

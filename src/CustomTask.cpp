@@ -754,7 +754,7 @@ Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient &c,
     std::cout << GetTime() << "Find a path from " << from << " to " << to
               << "\n";
     // find path and go
-    r = finder.findPathAndGo(from, goal, 15000);
+    r = finder.findPathAndGo(from, goal, artist.conf.move.max_interval, 15000);
     if (r) break;
     from = getFromPosition();  // get the latest position
     std::cout << GetTime() << "Failed, retry after 5 seconds..." << std::endl;
@@ -785,7 +785,7 @@ Botcraft::Status FindPathAndMoveImpl(Botcraft::BehaviourClient &c,
     pf::Position from = getFromPosition();
     std::cout << GetTime() << "Find a path from " << from << " to " << to
               << "\n";
-    r = finder.findPathAndGo(from, goal, 15000);
+    r = finder.findPathAndGo(from, goal, artist.conf.move.max_interval, 15000);
   }
 
   return (r ? Botcraft::Status::Success : Botcraft::Status::Failure);

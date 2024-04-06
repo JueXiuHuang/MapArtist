@@ -44,6 +44,7 @@ std::ostream &operator<<(std::ostream &os, const PrivateConf &conf) {
 
 std::ostream &operator<<(std::ostream &os, const MoveConf &conf) {
   os << "Use Flash: " << (conf.use_flash ? "True" : "False") << std::endl;
+  os << "Max Interval: " << conf.max_interval << std::endl;
   return os;
 }
 
@@ -159,6 +160,7 @@ static MoveConf parseMove(toml::table *table) {
   MoveConf conf;
 
   conf.use_flash = (*table)["use_flash"].value_or(false);
+  conf.max_interval = (*table)["max_interval"].value_or(1);
 
   std::cout << conf << std::endl;
 

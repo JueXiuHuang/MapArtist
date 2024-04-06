@@ -37,6 +37,7 @@ struct PrivateConf {
 
 struct MoveConf {
   bool use_flash;
+  std::size_t max_interval;
 };
 
 struct OtherConf {

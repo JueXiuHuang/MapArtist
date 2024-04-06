@@ -19,7 +19,11 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> BuildM
       .tree(EatTree())
       .selector()
         .inverter().tree(CheckCompleteTree())
-        .tree(NullTree())
+        .sequence()
+          .leaf("set dc bot status", UpdateDcStatus, "Dump items")
+          .leaf("dump Items", DumpItems)
+          .tree(NullTree())
+        .end()
       .end()
       .repeater(0).sequence()
         .tree(EatTree())
@@ -34,6 +38,7 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> NullTr
       .leaf("set dc bot status", UpdateDcStatus, "Idle")
       .leaf("set null tree", [](Botcraft::SimpleBehaviourClient &c) {
         c.SetBehaviourTree(nullptr);
+        c.Yield();
         return Botcraft::Status::Success;
       })
     .end();
@@ -102,7 +107,6 @@ std::shared_ptr<Botcraft::BehaviourTree<Botcraft::SimpleBehaviourClient>> CheckC
       .leaf("notify dc", DiscordOutput, "It's done.")
       .leaf("notify console", WarnConsole, "Task fully completed!")
       .leaf("post process", BuildPostProcess)
-      .repeater(0).leaf(Botcraft::Yield)
     .end();
 }
 

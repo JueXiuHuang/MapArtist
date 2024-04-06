@@ -3,6 +3,7 @@ bin/*
 !bin/config_online.toml
 !bin/_run_local.bat
 !bin/_run_login.bat
+!bin/Lena.nbt
 build/
 install/*
 .vscode/*

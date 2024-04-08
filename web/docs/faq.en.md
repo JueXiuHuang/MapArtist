@@ -40,3 +40,13 @@ MapArtist will automatically continue running and connect to Minecraft. All toke
     ![Login](site:images/token.png)
 
 5. Add the token to your private configuration file.
+
+---
+
+## Error: You are already connected to this proxy
+
+If you see this message in the console, it means that your account is already connected to the server somewhere else. Please make sure that you have closed all connections before running the bot.
+
+```text
+[INFO] [NetworkPacketProcessing - player(21620)] ConnectionClient.cpp(86): Disconnect during login with reason: {"extra":[{"color":"red","text":"You are already connected to this proxy!"}],"text":""}
+```

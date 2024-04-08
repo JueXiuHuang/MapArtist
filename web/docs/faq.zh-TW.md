@@ -40,3 +40,13 @@ MapArtist 將會自動接續流程並連接 Minecraft 伺服器，所有令牌�
     ![Login](site:images/token.png)
 
 5. 將你的令牌加入到私人設定檔中。
+
+---
+
+## 錯誤: You are already connected to this proxy
+
+如果你看到如下的錯誤，這代表你的帳號目前在其他地方已連接到伺服器了，請確保在啟動 bot 前你的帳號沒有連上該伺服器。
+
+```text
+[INFO] [NetworkPacketProcessing - player(21620)] ConnectionClient.cpp(86): Disconnect during login with reason: {"extra":[{"color":"red","text":"You are already connected to this proxy!"}],"text":""}
+```

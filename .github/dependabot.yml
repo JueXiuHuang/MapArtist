@@ -6,5 +6,6 @@ updates:
   directory: "/"
   allow:
     - dependency-name: "dependency/dpp"
+    - dependency-name: "dependency/tomlplusplus"
   schedule:
     interval: "weekly"

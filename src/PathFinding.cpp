@@ -28,7 +28,7 @@ namespace Botcraft {
 
 // forward declaration
 Status StopFlying(BehaviourClient &client);
-void AdjustPosSpeed(BehaviourClient &client);
+void AdjustPosSpeed(BehaviourClient &client, const Vector3<double> &target);
 bool Move(BehaviourClient &client, std::shared_ptr<LocalPlayer> &local_player,
           const Vector3<double> &target_position, const float speed_factor,
           const bool sprint);
@@ -125,8 +125,6 @@ pf::BlockType BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::_getBlockType(
         return {pf::BlockType::AIR, pf::BlockType::FORCE_DOWN};
       } else if (block->IsClimbable()) {
         return {pf::BlockType::SAFE, pf::BlockType::CAN_UP_DOWN};
-      } else if (block->IsWallHeight()) {
-        return {pf::BlockType::DANGER, pf::BlockType::NONE};
       } else if (block->IsTransparent() &&
                  block->GetHardness() < 0) {  // minecraft::light
         return {pf::BlockType::AIR, pf::BlockType::FORCE_DOWN};
@@ -246,16 +244,19 @@ bool BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::goImpl(
       return false;
     }
 
+    // botcraft position
+    // adding 0.5 and 1.0 to change pf coordinate to botcraft coordinate
+    auto botcraft_newPos = convert<double, double>(
+        static_cast<pf::Vec3<double>>(newPos).offset(0.5, 1, 0.5));
+
     // If something went wrong, break and
     // replan the whole path to the goal
     auto Step = [&]() {
-      // adding 0.5 and 1.0 to change pf coordinate to
-      // botcraft coordinate
       auto target = convert<double, double>(
           static_cast<pf::Vec3<double>>(newPos).offset(0.5, 1, 0.5));
-      bool result =
-          (use_flash ? Flash(*client, local_player, target)
-                     : Move(*client, local_player, target, speed_factor, true));
+      bool result = (use_flash ? Flash(*client, local_player, botcraft_newPos)
+                               : Move(*client, local_player, botcraft_newPos,
+                                      speed_factor, true));
 
       if (result == false) {
         std::cerr << "Move Error" << std::endl;
@@ -274,8 +275,10 @@ bool BotCraftFinder<TFinder, TEdge, TEstimate, TWeight>::goImpl(
     if (isTPOccur()) {
       return false;
     }
+    if (i == pathVec.size() - 1) {
+      AdjustPosSpeed(*client, botcraft_newPos);
+    }
   }
-  AdjustPosSpeed(*client);
   if (isTPOccur()) {
     return false;
   }

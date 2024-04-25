@@ -29,3 +29,9 @@
 - Support flying mode
 - Support Channel
 - Add GUI to control the bot
+
+## Disclaimer
+
+- The project is for learning purposes only.
+- The project is prohibited from being used for illegal purposes.
+- Users are responsible for the risk of having their accounts banned.

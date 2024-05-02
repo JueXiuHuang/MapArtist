@@ -16,11 +16,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            asset_name: MapArtist-linux-amd64
+            asset_name: MapArtist-${{github.ref_name}}-linux-amd64
           - os: windows-latest
-            asset_name: MapArtist-windows-amd64
+            asset_name: MapArtist-${{github.ref_name}}-windows-amd64
           - os: macos-latest
-            asset_name: MapArtist-macos-amd64
+            asset_name: MapArtist-${{github.ref_name}}-macos-amd64
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
